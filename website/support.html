@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 20px; text-align:center; }
+  .hero h1{ font-size:clamp(30px,4.5vw,44px); margin:0 auto 14px; max-width:560px; }
+  .hero p.lede{ font-size:15.5px; max-width:480px; margin:0 auto; }
+
+  .channels{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:48px 0 60px; }
+  @media (max-width:800px){ .channels{ grid-template-columns:1fr; } }
+  .channel-card{ padding:28px; text-align:center; }
+  .channel-icon{
+    width:48px; height:48px; border-radius:14px; margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+  }
+  .channel-card.whatsapp .channel-icon{ background:linear-gradient(135deg,#25d366,#128c7e); }
+  .channel-card h3{ font-size:16px; margin-bottom:8px; }
+  .channel-card p{ font-size:13px; margin-bottom:18px; }
+
+  .faq-section{ margin:70px 0; }
+  .faq-item{ padding:20px 0; border-bottom:1px solid rgba(255,255,255,0.07); cursor:pointer; }
+  .faq-q{ display:flex; justify-content:space-between; align-items:center; font-size:15px; font-weight:500; color:var(--text-hi); }
+  .faq-q .plus{ font-family:'JetBrains Mono',monospace; color:var(--pink-2); transition:transform .2s; }
+  .faq-item.open .plus{ transform:rotate(45deg); }
+  .faq-a{ font-size:13.5px; color:var(--text-lo); max-height:0; overflow:hidden; transition:max-height .25s ease; }
+  .faq-item.open .faq-a{ max-height:200px; padding-top:12px; }
+
+  .ticket-card{ padding:32px; margin:20px 0 70px; }
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:18px; }
+  .field label{ font-size:13px; color:var(--text-lo); }
+  .field input, .field select, .field textarea{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:12px 14px; color:var(--text-hi); font-family:'Space Grotesk'; font-size:14px;
+  }
+  .field textarea{ resize:vertical; min-height:110px; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--pink-1); }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:600px){ .field-row{ grid-template-columns:1fr; } }
+  .btn-primary{ border:none; cursor:pointer; width:100%; }
+  .form-note{ font-size:12px; color:var(--text-lo); margin-top:14px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="floating-orb" style="top:10%; left:-120px;"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="support.html" class="active">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+  </nav>
+</header>
+
+<section class="wrap hero">
+  <span class="eyebrow">Support</span>
+  <h1>We're here to help.</h1>
+  <p class="lede">Get an instant answer from the chat bubble in the corner, message us on WhatsApp, or open a support ticket below.</p>
+</section>
+
+<section class="wrap">
+  <div class="channels">
+    <div class="card channel-card reveal reveal-1">
+      <div class="channel-icon">💬</div>
+      <h3>Instant Chat</h3>
+      <p>Ask our support bot anything — API keys, billing, trials, reports. Available on every page.</p>
+      <span class="btn-secondary" onclick="document.getElementById('mf-support-bubble').click()" style="cursor:pointer; display:inline-block;">Open Chat</span>
+    </div>
+    <div class="card channel-card whatsapp reveal reveal-2">
+      <div class="channel-icon">🟢</div>
+      <h3>WhatsApp</h3>
+      <p>Prefer messaging? Chat with our team directly on WhatsApp for a fast, personal response.</p>
+      <a href="#" id="whatsappLink" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;">Message Us</a>
+    </div>
+    <div class="card channel-card reveal reveal-3">
+      <div class="channel-icon">✉️</div>
+      <h3>Email / Ticket</h3>
+      <p>For anything detailed — account issues, invoices, integration help — open a ticket below.</p>
+      <a href="#ticketForm" class="btn-secondary" style="display:inline-block;">Open a Ticket</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap-narrow faq-section">
+  <div class="section-head">
+    <span class="eyebrow">Self-Serve Help</span>
+    <h2>Frequently asked questions</h2>
+  </div>
+  <div id="faqList"></div>
+</section>
+
+<section class="wrap-narrow" id="ticketForm">
+  <div class="card ticket-card reveal">
+    <h2 style="font-size:20px; margin-bottom:6px;">Open a Support Ticket</h2>
+    <p style="font-size:13.5px; margin-bottom:24px;">Standard issues get resolved fastest through Instant Chat above. For anything account-specific or non-standard, use this form to reach a human advisor directly.</p>
+    <form onsubmit="handleTicket(event)">
+      <div class="field-row">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" required>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Store Name</label>
+          <input type="text">
+        </div>
+        <div class="field">
+          <label>Issue Type</label>
+          <select>
+            <option>Account / API key</option>
+            <option>Billing / Invoice</option>
+            <option>Technical integration</option>
+            <option>Report / data export</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Describe the issue</label>
+        <textarea required placeholder="What happened, and what were you expecting?"></textarea>
+      </div>
+      <button type="submit" class="btn-primary" id="ticketBtn">Submit Ticket</button>
+      <p class="form-note" id="ticketNote">Demo only — this form isn't connected to a real helpdesk inbox yet.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+        <a href="../dashboard/signup.html">Get API Key</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="integrations.html">Connect Your Store</a>
+    <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const FAQS = [
+  { q: "How do I get my API key?", a: "Visit the Sign Up page, enter your store name and pick a risk profile — your API key is generated instantly, no waiting." },
+  { q: "How does the 7-day free trial work?", a: "Every plan includes a 7-day free trial. You won't be charged until day 8, and you can cancel anytime before then." },
+  { q: "Can I change my risk thresholds later?", a: "Yes, anytime — via the API (PUT /api/tenants/thresholds) or by picking a new preset profile." },
+  { q: "Do you support Turkish Lira / local cards?", a: "Yes, payments are processed via a local Turkish payment provider, so TRY billing and Turkish-issued cards are supported." },
+  { q: "How do I export a usage report?", a: "Go to Dashboard → Settings, then click \"Export Transaction Report (CSV)\" under the Usage section — it downloads your real transaction history instantly." },
+  { q: "Is my transaction data shared with other merchants?", a: "No — see our Privacy Policy for full details on data handling and model training practices." },
+];
+
+const faqList = document.getElementById('faqList');
+faqList.innerHTML = FAQS.map((item, i) => `
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span>${item.q}</span><span class="plus">+</span></div>
+    <div class="faq-a">${item.a}</div>
+  </div>
+`).join('');
+
+document.getElementById('whatsappLink').href =
+  `https://wa.me/905XXXXXXXXX?text=${encodeURIComponent('Hi MeraFraud, I need help.')}`;
+fetch("http://localhost:5000/api/config").then(r => r.json()).then(cfg => {
+  document.getElementById('whatsappLink').href =
+    `https://wa.me/${cfg.whatsapp_number}?text=${encodeURIComponent('Hi MeraFraud, I need help.')}`;
+}).catch(() => {});
+
+function handleTicket(e){
+  e.preventDefault();
+  const note = document.getElementById('ticketNote');
+  const ticketId = 'MF-' + Math.random().toString(36).slice(2,8).toUpperCase();
+  note.textContent = `Ticket ${ticketId} created (demo). A real advisor would follow up by email shortly.`;
+  note.style.color = 'var(--safe)';
+}
+</script>
+<script src="support.js"></script>
+</body>
+</html>

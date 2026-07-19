@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeraFraud — Get Your API Key</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0620; --purple-1:#4c1d95; --purple-2:#7c3aed; --pink-1:#ec4899; --pink-2:#f472b6;
+    --cyan:#22d3ee; --text-hi:#f5f3ff; --text-lo:#b8aee0; --safe:#34d399; --review:#fbbf24; --block:#fb4570;
+    --card-bg:rgba(255,255,255,0.045); --card-border:rgba(255,255,255,0.09); --radius:18px;
+    font-family:'Space Grotesk', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background:
+      radial-gradient(circle at 12% -10%, rgba(124,58,237,0.55), transparent 40%),
+      radial-gradient(circle at 90% 8%, rgba(236,72,153,0.35), transparent 45%),
+      radial-gradient(circle at 50% 110%, rgba(34,211,238,0.18), transparent 50%),
+      var(--bg-deep);
+    color:var(--text-hi); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 24px 80px;}
+  header{ display:flex; align-items:center; justify-content:space-between; padding:28px 0 20px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:48px; }
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-mark{
+    width:34px; height:34px;
+    background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    filter: drop-shadow(0 0 10px rgba(236,72,153,0.5));
+  }
+  .logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:22px; }
+  .logo-text span{color:var(--pink-2);}
+  .back-link{ font-size:13px; color:var(--text-lo); text-decoration:none; transition:color .15s; }
+  .back-link:hover{ color:var(--pink-2); }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; color:var(--cyan);
+    text-transform:uppercase; letter-spacing:2px; margin-bottom:14px; display:block;
+  }
+  h1{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(28px,4vw,40px); line-height:1.12; margin-bottom:14px; }
+  .lede{ color:var(--text-lo); font-size:15px; line-height:1.6; margin-bottom:36px; max-width:520px; }
+
+  .panel{ background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius); padding:32px; }
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:20px; }
+  .field label{ font-size:13px; color:var(--text-lo); }
+  .field input{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:12px 14px; color:var(--text-hi); font-family:'Space Grotesk'; font-size:14px;
+  }
+  .field input:focus{ outline:none; border-color:var(--pink-1); }
+  .field .hint{ font-size:11.5px; color:var(--text-lo); opacity:0.8; }
+
+  .profile-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:26px; }
+  .profile-card{
+    background:rgba(0,0,0,0.2); border:1.5px solid var(--card-border); border-radius:12px;
+    padding:14px 12px; cursor:pointer; text-align:center; transition:all .15s ease;
+  }
+  .profile-card.selected{ border-color:var(--pink-1); background:rgba(236,72,153,0.08); }
+  .profile-card .name{ font-weight:600; font-size:13.5px; margin-bottom:4px; }
+  .profile-card .desc{ font-size:11px; color:var(--text-lo); line-height:1.4; }
+
+  .btn-primary{
+    width:100%; padding:15px; border:none; border-radius:12px; font-family:'Space Grotesk';
+    font-weight:600; font-size:15px; color:#fff; cursor:pointer;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+    box-shadow:0 8px 24px -8px rgba(236,72,153,0.6);
+  }
+  .btn-primary:hover{ transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:0.6; cursor:not-allowed; }
+  .error-msg{ color:var(--block); font-size:13px; margin-top:12px; display:none; }
+  .error-msg.show{ display:block; }
+
+  /* ---------- Success state ---------- */
+  #successPanel{ display:none; }
+  #successPanel.show{ display:block; }
+  #formPanel.hide{ display:none; }
+  .success-badge{
+    display:inline-flex; align-items:center; gap:8px; background:rgba(52,211,153,0.12);
+    border:1px solid rgba(52,211,153,0.35); color:var(--safe); padding:7px 14px; border-radius:999px;
+    font-size:12.5px; font-weight:600; margin-bottom:20px;
+  }
+  .key-box{
+    background:rgba(0,0,0,0.35); border:1px solid var(--card-border); border-radius:12px;
+    padding:16px 18px; font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--cyan);
+    word-break:break-all; margin-bottom:12px; position:relative;
+  }
+  .copy-btn{
+    margin-top:6px; width:100%; padding:10px; border-radius:10px; font-size:13px; cursor:pointer;
+    background:transparent; border:1px solid var(--card-border); color:var(--text-hi);
+  }
+  .copy-btn:hover{ border-color:var(--pink-1); }
+  .warn-box{
+    background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); border-radius:10px;
+    padding:14px 16px; font-size:12.5px; color:var(--review); margin:20px 0;
+  }
+  .code-block{
+    background:rgba(0,0,0,0.35); border:1px solid var(--card-border); border-radius:10px;
+    padding:16px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-lo);
+    overflow-x:auto; white-space:pre; margin-top:20px; line-height:1.6;
+  }
+  .code-block .hl{ color:var(--pink-2); }
+  footer{ text-align:center; color:var(--text-lo); font-size:12.5px; margin-top:50px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-mark"></div>
+      <div class="logo-text">Mera<span>Fraud</span></div>
+    </div>
+    <a class="back-link" href="index.html">← Back to dashboard</a>
+    <a class="back-link" href="../website/index.html" style="margin-left:16px;">Website</a>
+  </header>
+
+  <span class="eyebrow">Get Started</span>
+  <h1>Create your MeraFraud account.</h1>
+  <p class="lede">Get an API key in seconds — no credit card, no waiting. Start scoring transactions immediately.</p>
+
+  <div class="panel" id="formPanel">
+    <div class="field">
+      <label>Store / Business Name</label>
+      <input type="text" id="storeName" placeholder="e.g. Anadolu Boutique E-Commerce" maxlength="80">
+    </div>
+    <div class="field">
+      <label>Contact Email <span style="opacity:0.6">(recommended — needed for account recovery)</span></label>
+      <input type="email" id="storeEmail" placeholder="you@yourstore.com">
+      <span class="hint">Lets you recover or regenerate your API key later if you lose it.</span>
+    </div>
+    <div class="field">
+      <label>Password <span style="opacity:0.6">(optional, but needed to log in later)</span></label>
+      <input type="password" id="storePassword" placeholder="At least 6 characters" minlength="6">
+      <span class="hint">Without a password, your API key is the only way to access this account — keep it safe.</span>
+    </div>
+
+    <div class="field">
+      <label>Risk Profile</label>
+    </div>
+    <div class="profile-grid" id="profileGrid">
+      <div class="profile-card" data-profile="lenient">
+        <div class="name">Lenient</div>
+        <div class="desc">Only blocks obvious fraud. Fewer false alarms.</div>
+      </div>
+      <div class="profile-card selected" data-profile="standard">
+        <div class="name">Standard</div>
+        <div class="desc">Balanced — recommended default.</div>
+      </div>
+      <div class="profile-card" data-profile="strict">
+        <div class="name">Strict</div>
+        <div class="desc">Blocks aggressively. More manual reviews.</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="createAccount()" id="submitBtn">Create Account &amp; Get API Key</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <div class="panel" id="successPanel">
+    <span class="success-badge">✓ Account created</span>
+    <div class="field">
+      <label>Your API Key</label>
+      <div class="key-box" id="keyBox">—</div>
+      <button class="copy-btn" onclick="copyKey()" id="copyBtn">Copy to clipboard</button>
+    </div>
+    <div class="warn-box">
+      ⚠ Save this key now — for this MVP it is not shown again and is stored in a plain local file
+      (<code>data/tenants.json</code>) on the server, not a secrets vault. Don't reuse a sensitive
+      password as this key, and rotate it before going to production.
+    </div>
+    <div class="code-block" id="curlExample"></div>
+    <a href="settings.html" class="btn-secondary" style="display:block; text-align:center; margin-top:16px; text-decoration:none;">Manage Risk Settings →</a>
+  </div>
+
+  <footer>MeraFraud · AI-powered fraud detection for SMEs</footer>
+</div>
+
+<script>
+const API_BASE = "http://localhost:5000/api";
+let selectedProfile = "standard";
+
+document.querySelectorAll('.profile-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedProfile = card.dataset.profile;
+  });
+});
+
+async function createAccount(){
+  const name = document.getElementById('storeName').value.trim();
+  const email = document.getElementById('storeEmail').value.trim();
+  const password = document.getElementById('storePassword').value;
+  const errorEl = document.getElementById('errorMsg');
+  const btn = document.getElementById('submitBtn');
+
+  errorEl.classList.remove('show');
+  if(!name){
+    errorEl.textContent = 'Please enter your store or business name.';
+    errorEl.classList.add('show');
+    return;
+  }
+  if(password && password.length < 6){
+    errorEl.textContent = 'Password must be at least 6 characters (or leave it blank).';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating…';
+
+  try{
+    const res = await fetch(`${API_BASE}/tenants`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, email, password, risk_profile: selectedProfile })
+    });
+    if(!res.ok){
+      const d = await res.json().catch(()=>({}));
+      throw new Error(d.error || 'Something went wrong.');
+    }
+    const tenant = await res.json();
+    localStorage.setItem('merafraud_api_key', tenant.api_key); // remember this account on this device
+    showSuccess(tenant);
+  }catch(e){
+    errorEl.textContent = 'Could not reach the API. Is it running at ' + API_BASE + '? (' + e.message + ')';
+    errorEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Create Account & Get API Key';
+  }
+}
+
+function showSuccess(tenant){
+  document.getElementById('formPanel').classList.add('hide');
+  document.getElementById('successPanel').classList.add('show');
+  document.getElementById('keyBox').textContent = tenant.api_key;
+  document.getElementById('curlExample').innerHTML =
+`<span class="hl"># Try your first request</span>
+curl -X POST ${API_BASE}/predict \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: ${tenant.api_key}" \\
+  -d '{"transaction_amount": 120, "amount_ratio_to_avg": 1.2, ...}'`;
+}
+
+function copyKey(){
+  const key = document.getElementById('keyBox').textContent;
+  navigator.clipboard.writeText(key).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(()=> btn.textContent = original, 1800);
+  });
+}
+</script>
+<script src="../website/support.js"></script>
+</body>
+</html>

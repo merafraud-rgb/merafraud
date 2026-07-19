@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 20px; text-align:center; }
+  .hero h1{ font-size:clamp(32px,4.5vw,48px); margin:0 auto 18px; max-width:600px; }
+  .hero p.lede{ font-size:16px; max-width:520px; margin:0 auto; }
+
+  /* Trial banner — deliberately separate from pricing cards */
+  .trial-banner{
+    display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
+    text-align:center; padding:18px 24px; border-radius:16px; margin:36px 0 0;
+    background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.3);
+    font-size:14px; color:var(--safe);
+  }
+  .trial-banner b{ color:var(--text-hi); }
+
+  .plans{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:44px 0 56px; }
+  @media (max-width:850px){ .plans{ grid-template-columns:1fr; } }
+  .plan{ padding:32px; display:flex; flex-direction:column; }
+  .plan.featured{ border-color:var(--pink-1); position:relative; background:linear-gradient(180deg, rgba(236,72,153,0.06), transparent 40%); }
+  .plan-badge{
+    position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff;
+    font-size:11px; font-weight:600; padding:5px 14px; border-radius:999px;
+    font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:1px;
+  }
+  .plan-name{ font-family:'Fraunces',serif; font-size:22px; font-weight:600; margin-bottom:6px; }
+  .plan-desc{ font-size:13px; color:var(--text-lo); margin-bottom:20px; min-height:36px; }
+  .plan-price{ font-family:'JetBrains Mono',monospace; font-size:34px; font-weight:600; margin-bottom:4px; }
+  .plan-price span{ font-size:14px; color:var(--text-lo); font-weight:400; }
+  .trial-tag{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--safe);
+    background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3);
+    padding:6px 12px; border-radius:999px; margin-bottom:18px; font-family:'JetBrains Mono',monospace;
+    text-decoration:none; cursor:pointer; transition:all .15s ease;
+  }
+  .trial-tag:hover{ background:rgba(52,211,153,0.2); border-color:var(--safe); transform:translateY(-1px); }
+  .plan-cap{ font-size:12.5px; color:var(--text-lo); margin-bottom:24px; }
+  .plan-features{ list-style:none; margin-bottom:28px; flex-grow:1; }
+  .plan-features li{ font-size:13.5px; color:var(--text-lo); padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); padding-left:20px; position:relative; }
+  .plan-features li::before{ content:'✓'; position:absolute; left:0; color:var(--safe); }
+
+  /* Comparison table */
+  .compare-wrap{ overflow-x:auto; margin:20px 0 70px; }
+  table.compare{ width:100%; border-collapse:collapse; min-width:600px; }
+  table.compare th, table.compare td{ padding:14px 16px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13.5px; }
+  table.compare th{ font-family:'Fraunces',serif; font-size:16px; font-weight:600; color:var(--text-hi); }
+  table.compare td:first-child, table.compare th:first-child{ text-align:left; color:var(--text-lo); font-size:13px; }
+  table.compare tbody tr:hover{ background:rgba(255,255,255,0.02); }
+  .yes{ color:var(--safe); font-size:16px; }
+  .no{ color:var(--text-lo); opacity:0.4; font-size:16px; }
+  .compare-note{ font-size:11.5px; color:var(--text-lo); margin-top:4px; }
+
+  .faq{ margin:70px 0; }
+  .faq-item{ padding:22px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+  .faq-item h3{ font-size:15.5px; margin-bottom:8px; }
+  .faq-item p{ font-size:13.5px; }
+
+  .cta-band{
+    text-align:center; padding:56px 40px; border-radius:28px; margin:70px 0 40px;
+    background:linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.2));
+    border:1px solid var(--card-border);
+  }
+  .cta-band h2{ font-size:clamp(24px,3vw,32px); margin-bottom:14px; }
+</style>
+</head>
+<body>
+<div class="floating-orb" style="top:8%; right:-130px;"></div>
+<div class="floating-orb" style="bottom:5%; left:-110px; animation-delay:-10s;"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html" class="active">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="integrations.html">Connect Your Store</a>
+    <a href="support.html">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+  </nav>
+</header>
+
+<section class="wrap hero">
+  <span class="eyebrow">Pricing</span>
+  <h1>Simple pricing, no surprises.</h1>
+  <p class="lede">Every plan includes the same real-time API and dashboard — the difference is monthly volume and how deep you can customize risk tuning.</p>
+</section>
+
+<section class="wrap">
+  <div class="plans">
+    <div class="card plan reveal reveal-1">
+      <div class="plan-name">Starter</div>
+      <div class="plan-desc">For testing and early-stage stores</div>
+      <div class="plan-price">€19<span>/mo</span></div>
+      <a href="checkout.html?plan=starter&mode=trial" class="trial-tag">🎁 Try free for 7 days →</a>
+      <div class="plan-cap">Up to 1,000 scored transactions/mo</div>
+      <ul class="plan-features">
+        <li>Real-time risk scoring API</li>
+        <li>Lenient / Standard / Strict profiles</li>
+        <li>Live dashboard access</li>
+        <li>Community support</li>
+      </ul>
+      <a href="checkout.html?plan=starter&mode=buy" class="btn-secondary" style="text-align:center;">Buy Now</a>
+    </div>
+    <div class="card plan featured reveal reveal-2">
+      <span class="plan-badge">Most Popular</span>
+      <div class="plan-name">Growth</div>
+      <div class="plan-desc">For growing stores that need volume</div>
+      <div class="plan-price">€49<span>/mo</span></div>
+      <a href="checkout.html?plan=growth&mode=trial" class="trial-tag">🎁 Try free for 7 days →</a>
+      <div class="plan-cap">Up to 25,000 scored transactions/mo</div>
+      <ul class="plan-features">
+        <li>Everything in Starter</li>
+        <li>Custom threshold tuning</li>
+        <li>Geographic risk map</li>
+        <li>Batch scoring endpoint</li>
+        <li>Email support</li>
+      </ul>
+      <a href="checkout.html?plan=growth&mode=buy" class="btn-primary" style="text-align:center;">Buy Now</a>
+    </div>
+    <div class="card plan reveal reveal-3">
+      <div class="plan-name">Scale</div>
+      <div class="plan-desc">For multi-store or high-volume merchants</div>
+      <div class="plan-price">€199<span>/mo</span></div>
+      <a href="checkout.html?plan=scale&mode=trial" class="trial-tag">🎁 Try free for 7 days →</a>
+      <div class="plan-cap">Up to 150,000 scored transactions/mo</div>
+      <ul class="plan-features">
+        <li>Everything in Growth</li>
+        <li>Model retraining on your own data</li>
+        <li>Dedicated onboarding</li>
+        <li>SLA-backed uptime</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="checkout.html?plan=scale&mode=buy" class="btn-secondary" style="text-align:center;">Buy Now</a>
+    </div>
+  </div>
+
+  <div class="compare-wrap reveal">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Starter</th>
+          <th>Growth</th>
+          <th>Scale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Real-time risk scoring API</td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>Monthly transactions included</td>
+          <td>1,000</td>
+          <td>25,000</td>
+          <td>150,000</td>
+        </tr>
+        <tr>
+          <td>Preset risk profiles (Lenient/Standard/Strict)</td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>Custom threshold tuning</td>
+          <td><span class="no">✗</span></td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>Geographic risk map</td>
+          <td><span class="no">✗</span></td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>Batch scoring endpoint</td>
+          <td><span class="no">✗</span></td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>Model retraining on your own data</td>
+          <td><span class="no">✗</span></td>
+          <td><span class="no">✗</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>Dedicated onboarding</td>
+          <td><span class="no">✗</span></td>
+          <td><span class="no">✗</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>SLA-backed uptime</td>
+          <td><span class="no">✗</span></td>
+          <td><span class="no">✗</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+        <tr>
+          <td>Support</td>
+          <td>Community</td>
+          <td>Email</td>
+          <td>Priority</td>
+        </tr>
+        <tr>
+          <td>7-day free trial</td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+          <td><span class="yes">✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="compare-note">All prices in EUR, billed monthly. Turkish Lira billing available via local payment provider at checkout.</p>
+  </div>
+</section>
+
+<section class="wrap-narrow faq">
+  <div class="section-head">
+    <span class="eyebrow">FAQ</span>
+    <h2>Common questions</h2>
+  </div>
+  <div class="faq-item">
+    <h3>How does the 7-day free trial work?</h3>
+    <p>Every plan — including Starter — starts with a full 7-day free trial. If you don't cancel before day 8, billing starts automatically at the plan's listed price.</p>
+  </div>
+  <div class="faq-item">
+    <h3>What happens if I go over my monthly transaction limit?</h3>
+    <p>We'll reach out before any disruption to your service — you won't be cut off automatically mid-month.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Can I change my risk thresholds later?</h3>
+    <p>Yes, at any time via the API or your dashboard — there's no need to contact support to adjust sensitivity.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Do you accept Turkish Lira / local Turkish cards?</h3>
+    <p>Yes. Payments are processed via a local Turkish payment provider, so Turkish-issued cards and TRY billing are fully supported.</p>
+  </div>
+  <div class="faq-item">
+    <h3>Is my transaction data used to train models for other customers?</h3>
+    <p>See our <a href="privacy.html" style="color:var(--pink-2);">Privacy Policy</a> for details on data handling and model training practices.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="cta-band reveal">
+    <h2>Start scoring transactions in the next two minutes.</h2>
+    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+        <a href="../dashboard/signup.html">Get API Key</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script src="animations.js"></script>
+<script src="support.js"></script>
+</body>
+</html>

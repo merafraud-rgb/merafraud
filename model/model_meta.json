@@ -1,0 +1,81 @@
+{
+  "feature_columns": [
+    "account_age_days",
+    "customer_ltv",
+    "transaction_amount",
+    "amount_ratio_to_avg",
+    "hour_of_day",
+    "num_tx_last_24h",
+    "num_failed_payments_7d",
+    "login_attempts_before_purchase",
+    "time_since_last_tx_min",
+    "billing_shipping_mismatch",
+    "ip_billing_country_mismatch",
+    "new_device",
+    "new_payment_method",
+    "free_email_domain",
+    "num_items_in_cart",
+    "express_shipping"
+  ],
+  "metrics": {
+    "roc_auc": 0.8719485781993733,
+    "average_precision": 0.7732092223457724,
+    "confusion_matrix": [
+      [
+        11547,
+        6
+      ],
+      [
+        117,
+        330
+      ]
+    ],
+    "classification_report": {
+      "0": {
+        "precision": 0.9899691358024691,
+        "recall": 0.9994806543754868,
+        "f1-score": 0.9947021579015377,
+        "support": 11553.0
+      },
+      "1": {
+        "precision": 0.9821428571428571,
+        "recall": 0.738255033557047,
+        "f1-score": 0.842911877394636,
+        "support": 447.0
+      },
+      "accuracy": 0.98975,
+      "macro avg": {
+        "precision": 0.9860559964726632,
+        "recall": 0.8688678439662669,
+        "f1-score": 0.9188070176480869,
+        "support": 12000.0
+      },
+      "weighted avg": {
+        "precision": 0.9896776069223985,
+        "recall": 0.98975,
+        "f1-score": 0.9890479699526558,
+        "support": 12000.0
+      }
+    }
+  },
+  "feature_importances": {
+    "time_since_last_tx_min": 0.28793653055089174,
+    "customer_ltv": 0.1990267532082468,
+    "amount_ratio_to_avg": 0.1066580139055598,
+    "num_failed_payments_7d": 0.10043477620312471,
+    "num_tx_last_24h": 0.08017336299689581,
+    "account_age_days": 0.07250446581239427,
+    "login_attempts_before_purchase": 0.02611278225658763,
+    "billing_shipping_mismatch": 0.025530052307719445,
+    "transaction_amount": 0.024894174200483545,
+    "new_device": 0.019563235020959465,
+    "hour_of_day": 0.01822676865981297,
+    "ip_billing_country_mismatch": 0.015325412921979443,
+    "num_items_in_cart": 0.010385550326974862,
+    "new_payment_method": 0.005247119000811654,
+    "free_email_domain": 0.00499005047583975,
+    "express_shipping": 0.0029909521517180976
+  },
+  "training_rows": 60000,
+  "fraud_rate": 0.037283333333333335
+}

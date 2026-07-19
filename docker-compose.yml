@@ -1,0 +1,9 @@
+services:
+  merafraud-api:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      # tenants.json konteyner yeniden başlasa bile kalıcı olsun diye
+      - ./data:/app/data
+    restart: unless-stopped

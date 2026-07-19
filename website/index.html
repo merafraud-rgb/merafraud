@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeraFraud — AI Fraud Detection for E-Commerce SMEs</title>
+<meta name="description" content="Real-time, explainable fraud detection built for small and medium e-commerce businesses. Score every transaction in milliseconds.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:70px 0 40px; text-align:left; }
+  .hero h1{ font-size:clamp(36px,5.5vw,60px); max-width:820px; margin-bottom:20px; }
+  .hero p.lede{ font-size:17px; max-width:560px; margin-bottom:32px; }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:56px; }
+  .trust-row{ display:flex; gap:36px; flex-wrap:wrap; color:var(--text-lo); font-size:12.5px; font-family:'JetBrains Mono',monospace; }
+  .trust-row b{ color:var(--text-hi); font-size:20px; display:block; font-family:'JetBrains Mono',monospace; }
+
+  .problem-solution{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .ps-card{ padding:32px; }
+  .ps-card.problem{ border-color:rgba(251,69,112,0.25); }
+  .ps-card.solution{ border-color:rgba(52,211,153,0.25); }
+  .ps-tag{ font-size:11.5px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; display:block; }
+  .ps-card.problem .ps-tag{ color:var(--block); }
+  .ps-card.solution .ps-tag{ color:var(--safe); }
+  .ps-card h3{ font-size:22px; margin-bottom:12px; }
+  .ps-card p{ font-size:14.5px; }
+
+  .feature-card{ padding:26px; }
+  .feature-icon{
+    width:40px; height:40px; border-radius:11px; margin-bottom:16px;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+  }
+  .feature-card h3{ font-size:16.5px; margin-bottom:8px; }
+  .feature-card p{ font-size:13.5px; }
+
+  .steps{ counter-reset:step; }
+  .step{ display:flex; gap:20px; padding:24px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .step:last-child{ border-bottom:none; }
+  .step-num{
+    counter-increment:step; font-family:'Fraunces',serif; font-size:26px; font-weight:600;
+    color:transparent; -webkit-text-stroke:1.5px var(--pink-2); flex-shrink:0; width:44px;
+  }
+  .step-num::before{ content: counter(step); }
+  .step-body h3{ font-size:16.5px; margin-bottom:6px; }
+  .step-body p{ font-size:14px; }
+
+  .cta-band{
+    text-align:center; padding:64px 40px; border-radius:28px; margin:80px 0 40px;
+    background:linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.2));
+    border:1px solid var(--card-border);
+  }
+  .cta-band h2{ font-size:clamp(26px,3.5vw,38px); margin-bottom:14px; }
+  .cta-band p{ max-width:480px; margin:0 auto 28px; font-size:15px; }
+</style>
+</head>
+<body>
+<div class="floating-orb" style="top:10%; left:-100px;"></div>
+<div class="floating-orb" style="top:60%; right:-140px; animation-delay:-9s;"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html" class="active">Home</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="integrations.html">Connect Your Store</a>
+    <a href="support.html">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+  </nav>
+</header>
+
+<section class="wrap hero" id="tour-hero">
+  <span class="eyebrow">SaaS · Real-time protection for SMEs</span>
+  <h1>Stop fraud <em>before it costs you</em> a single sale.</h1>
+  <p class="lede">MeraFraud scores every e-commerce transaction in milliseconds using a machine learning model trained on payment and behavioral signals — so you can approve confidently, review what's uncertain, and block what isn't.</p>
+  <div class="hero-ctas">
+    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
+    <a href="../dashboard/index.html" class="btn-secondary">View Live Dashboard</a>
+  </div>
+  <div class="trust-row" id="tour-trust">
+    <div><b>0.87</b>Model ROC-AUC</div>
+    <div><b>&lt;50ms</b>Avg. response time</div>
+    <div><b>98%</b>Fraud precision</div>
+    <div><b>€0</b>To start</div>
+  </div>
+</section>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span class="marquee-item"><span class="dot"></span>Real-time risk scoring</span>
+    <span class="marquee-item"><span class="dot"></span>Explainable decisions</span>
+    <span class="marquee-item"><span class="dot"></span>Multi-tenant architecture</span>
+    <span class="marquee-item"><span class="dot"></span>Global activity map</span>
+    <span class="marquee-item"><span class="dot"></span>Custom risk profiles</span>
+    <span class="marquee-item"><span class="dot"></span>Simple REST API</span>
+    <span class="marquee-item"><span class="dot"></span>7-day free trial</span>
+    <!-- duplicated for seamless loop -->
+    <span class="marquee-item"><span class="dot"></span>Real-time risk scoring</span>
+    <span class="marquee-item"><span class="dot"></span>Explainable decisions</span>
+    <span class="marquee-item"><span class="dot"></span>Multi-tenant architecture</span>
+    <span class="marquee-item"><span class="dot"></span>Global activity map</span>
+    <span class="marquee-item"><span class="dot"></span>Custom risk profiles</span>
+    <span class="marquee-item"><span class="dot"></span>Simple REST API</span>
+    <span class="marquee-item"><span class="dot"></span>7-day free trial</span>
+  </div>
+</div>
+
+<section class="wrap section">
+  <div class="problem-solution" id="tour-problem">
+    <div class="card ps-card problem reveal reveal-1">
+      <span class="ps-tag">The Problem</span>
+      <h3>Fraudsters move faster than SMEs can react.</h3>
+      <p>E-commerce businesses face increasingly sophisticated fraud. Every fraudulent order costs money and erodes customer trust — and small teams rarely have the resources to keep up. It's whack-a-mole with a blindfold on.</p>
+    </div>
+    <div class="card ps-card solution reveal reveal-2">
+      <span class="ps-tag">The Solution</span>
+      <h3>A bodyguard for your checkout that never sleeps.</h3>
+      <p>MeraFraud combines payment behavior, account history, and device signals into a single real-time risk score — with a plain-language reason attached to every decision, so your team always knows why.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section">
+  <div class="section-head">
+    <span class="eyebrow">Why MeraFraud</span>
+    <h2>Built for teams without a fraud department.</h2>
+    <p>You don't need a data science team or a six-figure enterprise contract to get real protection.</p>
+  </div>
+  <div class="grid-3" id="tour-features">
+    <div class="card feature-card reveal reveal-1">
+      <div class="feature-icon">⚡</div>
+      <h3>Real-time scoring</h3>
+      <p>Every transaction gets a risk score in milliseconds, right at checkout — before the order is confirmed.</p>
+    </div>
+    <div class="card feature-card reveal reveal-2">
+      <div class="feature-icon">🔍</div>
+      <h3>Explainable decisions</h3>
+      <p>No black box. Every score comes with the top reasons behind it, in plain language your team can act on.</p>
+    </div>
+    <div class="card feature-card reveal reveal-3">
+      <div class="feature-icon">🎛️</div>
+      <h3>Your risk, your rules</h3>
+      <p>Choose Lenient, Standard, or Strict — or set your own thresholds. Tune sensitivity to match your business.</p>
+    </div>
+    <div class="card feature-card reveal reveal-4">
+      <div class="feature-icon">🔌</div>
+      <h3>Simple REST API</h3>
+      <p>One endpoint, one API key. Send a transaction, get back approve / review / block. Works with any stack.</p>
+    </div>
+    <div class="card feature-card reveal reveal-5">
+      <div class="feature-icon">🌍</div>
+      <h3>Global visibility</h3>
+      <p>See where risk is coming from with a live geographic view of flagged activity across your markets.</p>
+    </div>
+    <div class="card feature-card reveal reveal-6">
+      <div class="feature-icon">📈</div>
+      <h3>Grows with your data</h3>
+      <p>As you accumulate real transaction outcomes, the underlying model can be retrained on your own patterns.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section">
+  <div class="section-head">
+    <span class="eyebrow">How It Works</span>
+    <h2>Live in minutes, not months.</h2>
+  </div>
+  <div class="card steps" id="tour-steps">
+    <div class="step reveal reveal-1">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h3>Create your account</h3>
+        <p>Enter your store name and pick a risk profile. Get your API key instantly — no sales call required.</p>
+      </div>
+    </div>
+    <div class="step reveal reveal-2">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h3>Send a transaction</h3>
+        <p>Call the <code>/api/predict</code> endpoint from your checkout flow with your API key and transaction details.</p>
+      </div>
+    </div>
+    <div class="step reveal reveal-3">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h3>Get a decision</h3>
+        <p>Receive a risk score, a decision (approve / review / block), and the reasons behind it — in under 50ms.</p>
+      </div>
+    </div>
+    <div class="step reveal reveal-4">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h3>Monitor and tune</h3>
+        <p>Watch activity on your live dashboard and adjust your risk thresholds as you learn your fraud patterns.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="cta-band reveal" id="tour-cta">
+    <h2>Ready to see it on your own transactions?</h2>
+    <p>No credit card, no commitment. Get an API key and start scoring in the next two minutes.</p>
+    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+        <a href="../dashboard/signup.html">Get API Key</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script src="animations.js"></script>
+<script src="tour.js" data-tour-autostart="true"></script>
+<script src="support.js"></script>
+</body>
+</html>

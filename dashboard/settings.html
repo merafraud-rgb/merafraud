@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Settings — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0620; --purple-1:#4c1d95; --purple-2:#7c3aed; --pink-1:#ec4899; --pink-2:#f472b6;
+    --cyan:#22d3ee; --text-hi:#f5f3ff; --text-lo:#b8aee0; --safe:#34d399; --review:#fbbf24; --block:#fb4570;
+    --card-bg:rgba(255,255,255,0.045); --card-border:rgba(255,255,255,0.09); --radius:18px;
+    font-family:'Space Grotesk', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background:
+      radial-gradient(circle at 12% -10%, rgba(124,58,237,0.55), transparent 40%),
+      radial-gradient(circle at 90% 8%, rgba(236,72,153,0.35), transparent 45%),
+      var(--bg-deep);
+    color:var(--text-hi); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:680px; margin:0 auto; padding:0 24px 80px;}
+  header{ display:flex; align-items:center; justify-content:space-between; padding:28px 0 20px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:40px; }
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-mark{
+    width:34px; height:34px;
+    background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  }
+  .logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:22px; }
+  .logo-text span{color:var(--pink-2);}
+  .back-link{ font-size:13px; color:var(--text-lo); text-decoration:none; }
+  .back-link:hover{ color:var(--pink-2); }
+
+  h1{ font-family:'Fraunces', serif; font-weight:600; font-size:28px; margin-bottom:8px; }
+  .lede{ color:var(--text-lo); font-size:14.5px; margin-bottom:32px; }
+
+  .panel{ background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius); padding:28px; margin-bottom:20px; }
+  .panel h2{ font-family:'Fraunces',serif; font-size:17px; font-weight:600; margin-bottom:4px; }
+  .panel .sub{ font-size:12.5px; color:var(--text-lo); margin-bottom:20px; }
+
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:16px; }
+  .field label{ font-size:12.5px; color:var(--text-lo); }
+  .field input{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;
+  }
+  .field input:focus{ outline:none; border-color:var(--pink-1); }
+  .btn-primary{
+    padding:12px 22px; border:none; border-radius:10px; font-family:'Space Grotesk'; font-weight:600;
+    font-size:13.5px; color:#fff; cursor:pointer; background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+  }
+  .btn-secondary{
+    padding:11px 20px; border-radius:10px; font-size:13px; background:transparent;
+    border:1px solid var(--card-border); color:var(--text-hi); cursor:pointer;
+  }
+
+  /* Logged-out state */
+  #loggedOutState{ display:block; }
+  #loggedInState{ display:none; }
+
+  /* Logged-in account panel */
+  .account-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13.5px; }
+  .account-row:last-child{ border-bottom:none; }
+  .account-row .label{ color:var(--text-lo); }
+  .account-row .value{ font-family:'JetBrains Mono',monospace; color:var(--text-hi); }
+
+  .slider-group{ margin-bottom:26px; }
+  .slider-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .slider-head .name{ font-size:13.5px; font-weight:600; }
+  .slider-head .val{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--pink-2); }
+  .slider-head .desc{ font-size:11.5px; color:var(--text-lo); margin-top:2px; }
+  input[type="range"]{
+    width:100%; accent-color:var(--pink-1); height:6px; cursor:pointer;
+  }
+  .risk-preview{
+    display:flex; height:10px; border-radius:6px; overflow:hidden; margin-top:18px; margin-bottom:6px;
+  }
+  .risk-preview .seg{ height:100%; }
+  .risk-preview .approve{ background:var(--safe); }
+  .risk-preview .review{ background:var(--review); }
+  .risk-preview .block{ background:var(--block); }
+  .risk-labels{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-lo); font-family:'JetBrains Mono',monospace; }
+
+  .save-row{ display:flex; gap:10px; align-items:center; margin-top:24px; }
+  .save-note{ font-size:12px; color:var(--safe); display:none; }
+  .save-note.show{ display:inline; }
+
+  .usage-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .usage-card{ text-align:center; padding:14px 8px; background:rgba(0,0,0,0.2); border-radius:10px; }
+  .usage-card .n{ font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:600; }
+  .usage-card .l{ font-size:10.5px; color:var(--text-lo); margin-top:4px; }
+
+  .error-msg{ color:var(--block); font-size:13px; margin-top:10px; display:none; }
+  .error-msg.show{ display:block; }
+
+  .auth-tabs{ display:flex; gap:4px; background:rgba(0,0,0,0.2); padding:4px; border-radius:10px; margin-bottom:4px; }
+  .auth-tab{
+    flex:1; text-align:center; font-size:12.5px; padding:9px 6px; border-radius:8px; cursor:pointer;
+    color:var(--text-lo); transition:all .15s ease;
+  }
+  .auth-tab.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; font-weight:600; }
+
+  .btn-danger{
+    padding:11px 18px; border-radius:10px; font-size:13px; cursor:pointer;
+    background:rgba(251,69,112,0.1); border:1px solid rgba(251,69,112,0.35); color:var(--block);
+  }
+  .btn-danger:hover{ background:rgba(251,69,112,0.18); }
+
+  .demo-note{
+    font-size:12px; color:var(--review); background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3);
+    padding:12px 14px; border-radius:10px; margin-bottom:14px; word-break:break-all;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="../website/index.html" class="logo">
+      <div class="logo-mark"></div>
+      <div class="logo-text">Mera<span>Fraud</span></div>
+    </a>
+    <a class="back-link" href="index.html">← Back to dashboard</a>
+  </header>
+
+  <h1>Account Settings</h1>
+  <p class="lede">Manage your risk thresholds and see your account at a glance.</p>
+
+  <div id="loggedOutState">
+    <div class="panel">
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="key">Paste API Key</div>
+        <div class="auth-tab" data-tab="login">Log In</div>
+        <div class="auth-tab" data-tab="forgot">Forgot Password</div>
+      </div>
+
+      <div id="tab-key">
+        <h2 style="font-size:16px; margin:18px 0 4px;">Sign in with your API key</h2>
+        <div class="sub">Paste the key you got at signup — it stays only in this browser, never sent anywhere except to MeraFraud's own API.</div>
+        <div class="field">
+          <label>API Key</label>
+          <input type="text" id="apiKeyInput" placeholder="sk_live_...">
+        </div>
+        <button class="btn-primary" onclick="loadAccount()">Load My Account</button>
+        <div class="error-msg" id="loadError"></div>
+      </div>
+
+      <div id="tab-login" style="display:none;">
+        <h2 style="font-size:16px; margin:18px 0 4px;">Log in with email</h2>
+        <div class="sub">Lost your API key? Logging in retrieves it for you — no need to remember it separately.</div>
+        <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@yourstore.com"></div>
+        <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="Your password"></div>
+        <button class="btn-primary" onclick="doLogin()">Log In</button>
+        <div class="error-msg" id="loginError"></div>
+      </div>
+
+      <div id="tab-forgot" style="display:none;">
+        <h2 style="font-size:16px; margin:18px 0 4px;">Reset your password</h2>
+        <div class="sub" id="forgotStep1Sub">Enter the email you signed up with.</div>
+
+        <div id="forgotStep1">
+          <div class="field"><label>Email</label><input type="email" id="forgotEmail" placeholder="you@yourstore.com"></div>
+          <button class="btn-primary" onclick="requestReset()">Send Reset Link</button>
+          <div class="error-msg" id="forgotError"></div>
+        </div>
+
+        <div id="forgotStep2" style="display:none;">
+          <div class="demo-note" id="demoTokenNote"></div>
+          <div class="field"><label>Reset Token</label><input type="text" id="resetToken" placeholder="Paste the token above"></div>
+          <div class="field"><label>New Password</label><input type="password" id="resetNewPassword" placeholder="At least 6 characters"></div>
+          <button class="btn-primary" onclick="doReset()">Set New Password</button>
+          <div class="error-msg" id="resetError"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loggedInState">
+    <div class="panel">
+      <h2 id="storeName">—</h2>
+      <div class="sub">Signed in with your API key on this device</div>
+      <div class="account-row"><span class="label">Store name</span><span class="value" id="rowName">—</span></div>
+      <div class="account-row"><span class="label">Email</span><span class="value" id="rowEmail">—</span></div>
+      <div class="account-row"><span class="label">API key</span><span class="value" id="rowKey">—</span></div>
+      <div class="account-row"><span class="label">Member since</span><span class="value" id="rowSince">—</span></div>
+      <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+        <button class="btn-secondary" onclick="logout()">Switch account / Log out</button>
+        <button class="btn-danger" onclick="confirmRegenerateKey()">🔄 Regenerate API Key</button>
+      </div>
+      <div class="error-msg" id="regenError"></div>
+      <div class="demo-note" id="regenNote" style="display:none;"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Usage this session</h2>
+      <div class="sub">Live counters from your account</div>
+      <div class="usage-grid">
+        <div class="usage-card"><div class="n" id="uTotal">0</div><div class="l">Total calls</div></div>
+        <div class="usage-card"><div class="n" id="uApproved">0</div><div class="l">Approved</div></div>
+        <div class="usage-card"><div class="n" id="uReviewed">0</div><div class="l">Reviewed</div></div>
+        <div class="usage-card"><div class="n" id="uBlocked">0</div><div class="l">Blocked</div></div>
+      </div>
+      <button class="btn-secondary" onclick="exportReport()" style="margin-top:18px; width:100%;">📄 Export Transaction Report (CSV)</button>
+    </div>
+
+    <div class="panel">
+      <h2>Risk Thresholds</h2>
+      <div class="sub">Drag to change how sensitive MeraFraud is for your store. Takes effect immediately on your next API call.</div>
+
+      <div class="slider-group">
+        <div class="slider-head">
+          <span class="name">Review threshold</span>
+          <span class="val" id="reviewVal">0.35</span>
+        </div>
+        <div class="slider-head" style="margin-bottom:0;"><span class="desc">Scores above this get flagged for manual review</span></div>
+        <input type="range" id="reviewSlider" min="0" max="0.95" step="0.01" oninput="onSliderChange()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-head">
+          <span class="name">Block threshold</span>
+          <span class="val" id="blockVal">0.75</span>
+        </div>
+        <div class="slider-head" style="margin-bottom:0;"><span class="desc">Scores above this get blocked automatically</span></div>
+        <input type="range" id="blockSlider" min="0.05" max="1" step="0.01" oninput="onSliderChange()">
+      </div>
+
+      <div class="risk-preview">
+        <div class="seg approve" id="segApprove"></div>
+        <div class="seg review" id="segReview"></div>
+        <div class="seg block" id="segBlock"></div>
+      </div>
+      <div class="risk-labels"><span>0%</span><span>Risk score</span><span>100%</span></div>
+
+      <div class="save-row">
+        <button class="btn-primary" onclick="saveThresholds()">Save Changes</button>
+        <span class="save-note" id="saveNote">✓ Saved</span>
+      </div>
+      <div class="error-msg" id="saveError"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:5000/api";
+
+function authHeaders(extra = {}){
+  return { "X-API-Key": localStorage.getItem('merafraud_api_key'), ...extra };
+}
+
+async function loadAccount(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const errorEl = document.getElementById('loadError');
+  errorEl.classList.remove('show');
+  if(!key){ errorEl.textContent = 'Please paste your API key.'; errorEl.classList.add('show'); return; }
+
+  localStorage.setItem('merafraud_api_key', key);
+  try{
+    await refreshAccount();
+  }catch(e){
+    localStorage.removeItem('merafraud_api_key');
+    errorEl.textContent = "Couldn't verify that key. Check it's correct and the API is running.";
+    errorEl.classList.add('show');
+  }
+}
+
+async function refreshAccount(){
+  const res = await fetch(`${API_BASE}/tenants/me`, { headers: authHeaders() });
+  if(!res.ok) throw new Error('invalid key');
+  const t = await res.json();
+  renderAccount(t);
+}
+
+function renderAccount(t){
+  document.getElementById('loggedOutState').style.display = 'none';
+  document.getElementById('loggedInState').style.display = 'block';
+
+  document.getElementById('storeName').textContent = t.name;
+  document.getElementById('rowName').textContent = t.name;
+  document.getElementById('rowEmail').textContent = t.email || '—';
+  document.getElementById('rowKey').textContent = t.api_key;
+  document.getElementById('rowSince').textContent = new Date(t.created_at).toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' });
+
+  document.getElementById('uTotal').textContent = t.usage.total_calls;
+  document.getElementById('uApproved').textContent = t.usage.approved;
+  document.getElementById('uReviewed').textContent = t.usage.reviewed;
+  document.getElementById('uBlocked').textContent = t.usage.blocked;
+
+  document.getElementById('reviewSlider').value = t.thresholds.review;
+  document.getElementById('blockSlider').value = t.thresholds.block;
+  onSliderChange();
+}
+
+function onSliderChange(){
+  let review = parseFloat(document.getElementById('reviewSlider').value);
+  let block = parseFloat(document.getElementById('blockSlider').value);
+  if(review >= block) review = Math.max(0, block - 0.05);
+  document.getElementById('reviewSlider').value = review;
+
+  document.getElementById('reviewVal').textContent = review.toFixed(2);
+  document.getElementById('blockVal').textContent = block.toFixed(2);
+
+  document.getElementById('segApprove').style.width = (review*100) + '%';
+  document.getElementById('segReview').style.width = ((block-review)*100) + '%';
+  document.getElementById('segBlock').style.width = ((1-block)*100) + '%';
+
+  document.getElementById('saveNote').classList.remove('show');
+}
+
+async function saveThresholds(){
+  const review = parseFloat(document.getElementById('reviewSlider').value);
+  const block = parseFloat(document.getElementById('blockSlider').value);
+  const errorEl = document.getElementById('saveError');
+  errorEl.classList.remove('show');
+
+  try{
+    const res = await fetch(`${API_BASE}/tenants/thresholds`, {
+      method: 'PUT',
+      headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({ block, review })
+    });
+    if(!res.ok){
+      const d = await res.json().catch(()=>({}));
+      throw new Error(d.error || 'Save failed');
+    }
+    document.getElementById('saveNote').classList.add('show');
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+function logout(){
+  localStorage.removeItem('merafraud_api_key');
+  document.getElementById('loggedInState').style.display = 'none';
+  document.getElementById('loggedOutState').style.display = 'block';
+  document.getElementById('apiKeyInput').value = '';
+}
+
+// ── Export transaction report as CSV ────────────────────────────────────
+async function exportReport(){
+  try{
+    const res = await fetch(`${API_BASE}/reports/transactions.csv`, { headers: authHeaders() });
+    if(!res.ok) throw new Error('Export failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'merafraud_transactions.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){
+    alert("Couldn't export report: " + e.message);
+  }
+}
+
+// ── Tab switching ──────────────────────────────────────────────────────
+document.querySelectorAll('.auth-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    ['key','login','forgot'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = (t === tab.dataset.tab) ? 'block' : 'none';
+    });
+  });
+});
+
+// ── Log in with email + password (also recovers a lost API key) ────────
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errorEl = document.getElementById('loginError');
+  errorEl.classList.remove('show');
+
+  if(!email || !password){
+    errorEl.textContent = 'Enter both email and password.';
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    if(!res.ok){
+      const d = await res.json().catch(()=>({}));
+      throw new Error(d.error || 'Login failed');
+    }
+    const tenant = await res.json();
+    localStorage.setItem('merafraud_api_key', tenant.api_key);
+    renderAccount(tenant);
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+// ── Forgot password: step 1, request a token ────────────────────────────
+async function requestReset(){
+  const email = document.getElementById('forgotEmail').value.trim();
+  const errorEl = document.getElementById('forgotError');
+  errorEl.classList.remove('show');
+  if(!email){ errorEl.textContent = 'Enter your account email.'; errorEl.classList.add('show'); return; }
+
+  try{
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    });
+    const d = await res.json();
+    if(!res.ok) throw new Error(d.error || 'Something went wrong');
+
+    document.getElementById('forgotStep1').style.display = 'none';
+    document.getElementById('forgotStep2').style.display = 'block';
+
+    if(d.reset_token){
+      document.getElementById('demoTokenNote').innerHTML =
+        `⚠ <b>Demo mode:</b> no real email was sent (SMTP not configured). For this demo, here's your token directly:<br><br><b>${d.reset_token}</b><br><br>Expires in ${d.expires_in_minutes} minutes.`;
+      document.getElementById('resetToken').value = d.reset_token;
+    } else {
+      document.getElementById('demoTokenNote').innerHTML =
+        `✓ ${d.message} Check your inbox (and spam folder) for the code, then paste it below.`;
+    }
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+// ── Forgot password: step 2, set a new password with the token ─────────
+async function doReset(){
+  const token = document.getElementById('resetToken').value.trim();
+  const newPassword = document.getElementById('resetNewPassword').value;
+  const errorEl = document.getElementById('resetError');
+  errorEl.classList.remove('show');
+
+  if(!token || newPassword.length < 6){
+    errorEl.textContent = 'Paste the token and choose a password of at least 6 characters.';
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token, new_password: newPassword })
+    });
+    const tenant = await res.json();
+    if(!res.ok) throw new Error(tenant.error || 'Reset failed');
+
+    localStorage.setItem('merafraud_api_key', tenant.api_key);
+    renderAccount(tenant);
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+// ── Regenerate API key (invalidates the old one immediately) ───────────
+async function confirmRegenerateKey(){
+  const sure = confirm(
+    "This will immediately invalidate your CURRENT API key. Anywhere you've " +
+    "already installed it (Shopify Flow, WooCommerce plugin, your own server) " +
+    "will stop working until you update it with the new key.\n\nContinue?"
+  );
+  if(!sure) return;
+
+  const errorEl = document.getElementById('regenError');
+  errorEl.classList.remove('show');
+  try{
+    const res = await fetch(`${API_BASE}/tenants/regenerate-key`, {
+      method: 'POST', headers: authHeaders()
+    });
+    const tenant = await res.json();
+    if(!res.ok) throw new Error(tenant.error || 'Could not regenerate key');
+
+    localStorage.setItem('merafraud_api_key', tenant.api_key);
+    renderAccount(tenant);
+    const note = document.getElementById('regenNote');
+    note.style.display = 'block';
+    note.innerHTML = `✓ New key generated. <b>Update it everywhere you use MeraFraud</b> — your old key no longer works.`;
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+// Auto-login if a key is already stored (e.g. saved right after signup)
+(async function init(){
+  const stored = localStorage.getItem('merafraud_api_key');
+  if(stored){
+    try{ await refreshAccount(); }
+    catch(e){ localStorage.removeItem('merafraud_api_key'); }
+  }
+})();
+</script>
+<script src="../website/support.js"></script>
+</body>
+</html>

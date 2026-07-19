@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect Your Store — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 20px; text-align:center; }
+  .hero h1{ font-size:clamp(30px,4.5vw,44px); margin:0 auto 14px; max-width:620px; }
+  .hero p.lede{ font-size:15.5px; max-width:520px; margin:0 auto; }
+
+  .platform-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:44px 0 20px; }
+  @media (max-width:850px){ .platform-grid{ grid-template-columns:repeat(2,1fr); } }
+  .platform-card{
+    padding:22px 16px; text-align:center; cursor:pointer; transition:all .15s ease;
+  }
+  .platform-card:hover{ border-color:var(--pink-1); transform:translateY(-2px); }
+  .platform-card.active{ border-color:var(--pink-1); background:rgba(236,72,153,0.06); }
+  .platform-card .icon{ font-size:26px; margin-bottom:10px; }
+  .platform-card .name{ font-size:13.5px; font-weight:600; }
+  .platform-card .tag{ font-size:10.5px; color:var(--safe); margin-top:4px; }
+  .platform-card .tag.dev{ color:var(--review); }
+
+  .guide-panel{ display:none; margin:20px 0 60px; }
+  .guide-panel.active{ display:block; }
+  .guide-head{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+  .guide-head .icon{ font-size:28px; }
+  .guide-head h2{ font-size:22px; }
+  .guide-badge{
+    display:inline-block; font-size:11px; font-family:'JetBrains Mono',monospace;
+    padding:4px 10px; border-radius:999px; margin-bottom:24px;
+  }
+  .guide-badge.no-code{ background:rgba(52,211,153,0.12); color:var(--safe); border:1px solid rgba(52,211,153,0.3); }
+  .guide-badge.dev-needed{ background:rgba(251,191,36,0.12); color:var(--review); border:1px solid rgba(251,191,36,0.3); }
+
+  .step-list{ counter-reset:gstep; }
+  .g-step{ display:flex; gap:18px; padding:22px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .g-step:last-child{ border-bottom:none; }
+  .g-num{
+    counter-increment:gstep; flex-shrink:0; width:32px; height:32px; border-radius:50%;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace;
+    font-weight:600; font-size:13px;
+  }
+  .g-num::before{ content: counter(gstep); }
+  .g-step h3{ font-size:15px; margin-bottom:6px; }
+  .g-step p{ font-size:13.5px; }
+  .g-step code{ background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:5px; font-size:12px; color:var(--cyan); }
+
+  .callout{
+    display:flex; gap:12px; align-items:flex-start; padding:16px 18px; border-radius:12px; margin-top:24px;
+    background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.25); font-size:13px; color:var(--text-lo);
+  }
+  .callout.warn{ background:rgba(251,191,36,0.06); border-color:rgba(251,191,36,0.25); }
+
+  .not-sure{
+    text-align:center; padding:40px; border-radius:20px; margin:60px 0;
+    background:linear-gradient(135deg, rgba(124,58,237,0.2), rgba(236,72,153,0.15));
+    border:1px solid var(--card-border);
+  }
+  .not-sure h3{ font-size:19px; margin-bottom:8px; }
+  .not-sure p{ font-size:13.5px; margin-bottom:20px; }
+</style>
+</head>
+<body>
+<div class="floating-orb" style="top:8%; right:-120px;"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="integrations.html" class="active">Connect Your Store</a>
+    <a href="support.html">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+  </nav>
+</header>
+
+<section class="wrap hero">
+  <span class="eyebrow">Setup Guides</span>
+  <h1>Connect MeraFraud to your store.</h1>
+  <p class="lede">Pick your platform below. Most stores can connect without writing a single line of code.</p>
+</section>
+
+<section class="wrap">
+  <div class="platform-grid" id="platformGrid">
+    <div class="card platform-card active" data-platform="woocommerce">
+      <div class="icon">🛒</div>
+      <div class="name">WooCommerce</div>
+      <div class="tag">No code needed</div>
+    </div>
+    <div class="card platform-card" data-platform="shopier">
+      <div class="icon">🇹🇷</div>
+      <div class="name">Shopier</div>
+      <div class="tag">No code needed</div>
+    </div>
+    <div class="card platform-card" data-platform="shopify">
+      <div class="icon">🛍️</div>
+      <div class="name">Shopify</div>
+      <div class="tag">No code needed</div>
+    </div>
+    <div class="card platform-card" data-platform="other">
+      <div class="icon">⚙️</div>
+      <div class="name">Ticimax, İkas, T-Soft & others</div>
+      <div class="tag dev">Talk to us</div>
+    </div>
+  </div>
+
+  <!-- ============ WooCommerce ============ -->
+  <div class="guide-panel active" id="guide-woocommerce">
+    <div class="guide-head"><span class="icon">🛒</span><h2>WooCommerce</h2></div>
+    <span class="guide-badge no-code">No coding required · ~5 minutes</span>
+    <div class="card">
+      <div class="step-list">
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Download the MeraFraud plugin</h3>
+            <p>Get the <code>merafraud-woocommerce.zip</code> file from your MeraFraud account (Settings → Integrations), or ask your MeraFraud contact for it.</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Upload it to WordPress</h3>
+            <p>In your WordPress admin: <b>Plugins → Add New → Upload Plugin</b>, choose the zip file, click <b>Install Now</b>, then <b>Activate</b>.</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Paste your API key</h3>
+            <p>Go to <b>WooCommerce → Settings → MeraFraud</b> tab, paste the API key from your MeraFraud dashboard, and click <b>Save changes</b>.</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Done — check your orders</h3>
+            <p>New orders now show a colored risk badge in your WooCommerce order list automatically. Nothing else to configure.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout">
+        💡 This works no matter which payment method your store uses — Shopier, iyzico, PayTR, bank transfer, cash on delivery — because it runs at the WooCommerce order step, not inside the payment gateway.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Shopier ============ -->
+  <div class="guide-panel" id="guide-shopier">
+    <div class="guide-head"><span class="icon">🇹🇷</span><h2>Shopier</h2></div>
+    <span class="guide-badge no-code">No coding required · ~5 minutes</span>
+    <div class="card">
+      <div class="callout">
+        ℹ️ Shopier is almost always used as a <b>payment method inside WooCommerce</b>. If that's your setup, follow the <b>WooCommerce guide</b> (first tab above) — it covers Shopier automatically, no separate steps needed.
+      </div>
+      <div class="step-list" style="margin-top:20px;">
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Not using WooCommerce?</h3>
+            <p>If you built a custom checkout that calls Shopier's payment API directly (not through WordPress), you'll need a small code snippet on your own server — see <code>examples/generic_checkout_integration.py</code> in your MeraFraud files, or ask your developer to add it where Shopier's payment confirmation ("Otomatik Sipariş Bildirimi") is received.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout warn">
+        ⚠ Don't have a developer? Use the <b>"Message an Advisor"</b> option in the chat bubble (bottom-right) — we can help figure out your exact setup.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Shopify ============ -->
+  <div class="guide-panel" id="guide-shopify">
+    <div class="guide-head"><span class="icon">🛍️</span><h2>Shopify</h2></div>
+    <span class="guide-badge no-code">No coding required · ~10 minutes, using Shopify Flow</span>
+    <div class="card">
+      <div class="callout warn">
+        ⚠ Requires the <b>Shopify</b> plan or higher (Shopify Flow isn't included on the Starter plan). Check your plan under Settings → Plan.
+      </div>
+      <div class="step-list" style="margin-top:20px;">
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Open Shopify Flow</h3>
+            <p>In Shopify admin: <b>Apps and sales channels → Shopify Flow</b> (install it free from the App Store if you don't see it).</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Create a new workflow</h3>
+            <p>Click <b>Create workflow</b>. For the trigger, choose <b>"Order created."</b></p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Add a "Send HTTP request" action</h3>
+            <p>Set the URL to your MeraFraud API address, add header <code>X-API-Key</code> with your key, and paste the order details as the request body (a ready-to-copy template is in your MeraFraud dashboard).</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Tag the order based on the result</h3>
+            <p>Add a <b>Condition</b> + <b>"Add order tag"</b> action so risky orders get tagged automatically (e.g. <code>merafraud-block</code>). Turn the workflow <b>On</b>.</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Done — filter your orders</h3>
+            <p>In <b>Orders</b>, search <code>tag:merafraud-block</code> anytime to see flagged orders. No further action needed — Shopify runs this automatically from now on.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout">
+        💡 Want it fully automatic with real-time blocking, not just tagging? That needs a small custom server — see <code>examples/shopify_webhook_integration.py</code>, or ask us for help via Support.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Other platforms ============ -->
+  <div class="guide-panel" id="guide-other">
+    <div class="guide-head"><span class="icon">⚙️</span><h2>Ticimax, İkas, T-Soft, PlatinMarket & Others</h2></div>
+    <span class="guide-badge dev-needed">A developer or our team can set this up</span>
+    <div class="card">
+      <p style="font-size:13.5px; margin-bottom:16px;">We don't have a ready-made, no-code guide for every Turkish e-commerce platform yet — but MeraFraud works with <b>any</b> platform that can make a standard web request, which covers essentially all of them.</p>
+      <div class="step-list">
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Check if your platform supports webhooks or a "custom code" area</h3>
+            <p>Most platforms (Ticimax, İkas, T-Soft, PlatinMarket) let you add a webhook for "order created" events, or embed custom code at checkout.</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Point it at MeraFraud</h3>
+            <p>Whoever manages your site (an in-house developer or the platform's support team) uses the same pattern shown in <code>examples/generic_checkout_integration.py</code> — call MeraFraud's <code>/api/predict</code> with your API key at checkout.</p>
+          </div>
+        </div>
+        <div class="g-step">
+          <div class="g-num"></div>
+          <div>
+            <h3>Or let us help directly</h3>
+            <p>Message an advisor (chat bubble, bottom-right) with your platform name — we'll tell you exactly where the integration point is for your specific system.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="not-sure reveal">
+    <h3>Not sure which applies to you?</h3>
+    <p>Tell us your platform and we'll walk you through it directly.</p>
+    <span class="btn-primary" style="cursor:pointer;" onclick="document.getElementById('mf-support-bubble').click()">💬 Ask in Chat</span>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.platform-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.guide-panel').forEach(g => g.classList.remove('active'));
+    card.classList.add('active');
+    document.getElementById('guide-' + card.dataset.platform).classList.add('active');
+  });
+});
+</script>
+<script src="animations.js"></script>
+<script src="support.js"></script>
+</body>
+</html>

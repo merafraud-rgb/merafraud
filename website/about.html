@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 20px; }
+  .hero h1{ font-size:clamp(32px,4.5vw,48px); max-width:680px; margin-bottom:18px; }
+  .hero p.lede{ font-size:16px; max-width:560px; }
+
+  .mission-card{ padding:40px; margin:50px 0; }
+  .mission-card h2{ font-size:24px; margin-bottom:16px; }
+  .mission-card p{ font-size:15px; max-width:640px; }
+
+  .value-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:800px){ .value-grid{ grid-template-columns:1fr; } }
+  .value-card{ padding:26px; }
+  .value-card h3{ font-size:16px; margin-bottom:8px; }
+  .value-card p{ font-size:13.5px; }
+
+  .team-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:700px){ .team-grid{ grid-template-columns:1fr; } }
+  .team-card{ padding:26px; display:flex; gap:16px; align-items:center; flex-direction:column; text-align:center; }
+  .team-avatar{
+    width:56px; height:56px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+    display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; font-size:20px;
+  }
+  .team-card h3{ font-size:15.5px; margin-bottom:2px; }
+  .team-card .role{ font-size:12.5px; color:var(--pink-2); font-family:'JetBrains Mono',monospace; }
+
+  .cta-band{
+    text-align:center; padding:56px 40px; border-radius:28px; margin:70px 0 40px;
+    background:linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.2));
+    border:1px solid var(--card-border);
+  }
+  .cta-band h2{ font-size:clamp(24px,3vw,32px); margin-bottom:14px; }
+</style>
+</head>
+<body>
+<div class="floating-orb" style="top:5%; right:-120px;"></div>
+<div class="floating-orb" style="bottom:0%; left:-140px; animation-delay:-7s;"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html" class="active">About</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="integrations.html">Connect Your Store</a>
+    <a href="support.html">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+  </nav>
+</header>
+
+<section class="wrap hero">
+  <span class="eyebrow">About Us</span>
+  <h1>We built the fraud team that small businesses couldn't hire.</h1>
+  <p class="lede">MeraFraud started from a simple observation: enterprise-grade fraud detection has always existed — but only enterprises could afford it. SMEs were left to fend for themselves against the same sophisticated attacks.</p>
+</section>
+
+<section class="wrap">
+  <div class="card mission-card reveal">
+    <h2>Our mission</h2>
+    <p>Give every small and medium e-commerce business access to the same real-time, machine-learning-driven fraud protection that only large platforms could previously justify building in-house — without the enterprise price tag, the months-long integration, or the black-box decisions.</p>
+  </div>
+</section>
+
+<section class="wrap section" style="padding-top:0;">
+  <div class="section-head">
+    <span class="eyebrow">What We Believe</span>
+    <h2>Our principles</h2>
+  </div>
+  <div class="value-grid">
+    <div class="card value-card reveal reveal-1">
+      <h3>Explainability over black boxes</h3>
+      <p>A risk score without a reason isn't useful — it's just another number to distrust. Every decision MeraFraud makes comes with plain-language reasoning.</p>
+    </div>
+    <div class="card value-card reveal reveal-2">
+      <h3>Access, not exclusivity</h3>
+      <p>Fraud protection shouldn't be a luxury reserved for companies with dedicated risk teams. We designed MeraFraud to be usable by a two-person shop on day one.</p>
+    </div>
+    <div class="card value-card reveal reveal-3">
+      <h3>Your rules, not just ours</h3>
+      <p>No two stores have the same risk tolerance. That's why thresholds are configurable per merchant, not fixed by us.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section" style="padding-top:0;">
+  <div class="section-head">
+    <span class="eyebrow">Team</span>
+    <h2>Who's behind MeraFraud</h2>
+  </div>
+  <div class="team-grid">
+    <div class="card team-card reveal reveal-1">
+      <div class="team-avatar">D</div>
+      <div>
+        <h3>Duran Ceylan</h3>
+        <div class="role">Co-Founder / CEO</div>
+      </div>
+    </div>
+    <div class="card team-card reveal reveal-2">
+      <div class="team-avatar">B</div>
+      <div>
+        <h3>Burak Kır</h3>
+        <div class="role">Co-Founder / CTO</div>
+      </div>
+    </div>
+    <div class="card team-card reveal reveal-3">
+      <div class="team-avatar">E</div>
+      <div>
+        <h3>Ezel Ceylan</h3>
+        <div class="role">Co-Founder / COO</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="cta-band reveal">
+    <h2>Want to see it for yourself?</h2>
+    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+        <a href="../dashboard/signup.html">Get API Key</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script src="animations.js"></script>
+<script src="support.js"></script>
+</body>
+</html>

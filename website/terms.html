@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:56px 0 8px; }
+  .hero h1{ font-size:clamp(28px,4vw,40px); margin-bottom:14px; }
+  .draft-notice{
+    background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); border-radius:14px;
+    padding:18px 22px; margin:24px 0 8px; font-size:13.5px; color:var(--review);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="integrations.html">Connect Your Store</a>
+    <a href="support.html">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+  </nav>
+</header>
+
+<section class="wrap-narrow hero">
+  <span class="eyebrow">Legal</span>
+  <h1>Terms of Service</h1>
+  <div class="draft-notice">
+    ⚠ <b>Draft document.</b> This is a starting template for an MVP, not a legally
+    reviewed contract. Have this reviewed by a qualified lawyer before relying on it —
+    especially the liability and accuracy sections below, given that fraud-detection
+    decisions can affect real money and real customers.
+  </div>
+</section>
+
+<section class="wrap-narrow prose" style="padding-bottom:80px;">
+  <span class="updated-note">Last updated: July 2026</span>
+
+  <h2>1. Agreement to terms</h2>
+  <p>By creating an account or using the MeraFraud API or dashboard ("Service"), you agree to these Terms of Service. If you do not agree, do not use the Service.</p>
+
+  <h2>2. Description of service</h2>
+  <p>MeraFraud provides a machine-learning-based fraud risk scoring API and an accompanying dashboard for e-commerce merchants ("you", "Merchant"). The Service returns a risk score and a recommended decision (approve / review / block) for transactions you submit. <b>The Service is a decision-support tool, not a guarantee.</b> You remain solely responsible for the final decision on any transaction.</p>
+
+  <h2>3. No guarantee of accuracy</h2>
+  <p>Fraud detection is probabilistic. The Service may produce false positives (flagging legitimate transactions) and false negatives (missing actual fraud). In this MVP, the underlying model is trained on synthetic data and has not been validated against your specific transaction patterns. You should independently evaluate the Service's performance before relying on it for high-stakes decisions.</p>
+
+  <h2>4. Your responsibilities</h2>
+  <ul>
+    <li>Keep your API key confidential; you are responsible for all activity under your key</li>
+    <li>Do not submit regulated cardholder data (full card numbers, CVV, etc.) to the API</li>
+    <li>Comply with applicable law in how you use transaction decisions (e.g. non-discrimination, consumer protection)</li>
+    <li>Do not use the Service to build a competing fraud-detection product without a separate agreement</li>
+  </ul>
+
+  <h2>5. Acceptable use</h2>
+  <p>You may not use the Service to process transactions you know to be fraudulent, to launder money, or in any way that violates applicable law. We may suspend accounts that violate this section.</p>
+
+  <h2>6. Pricing and payment</h2>
+  <p>Current plans and pricing are listed on our <a href="pricing.html" style="color:var(--pink-2);">Pricing page</a>. Prices may change with notice. Paid plans are billed as described at signup (billing integration is not yet implemented in this MVP).</p>
+
+  <h2>7. Limitation of liability</h2>
+  <p>To the maximum extent permitted by law, MeraFraud is not liable for indirect, incidental, or consequential damages arising from your use of the Service, including losses resulting from fraud that the Service failed to detect, or legitimate transactions the Service incorrectly flagged. This section requires careful legal drafting appropriate to your jurisdiction before real-world use.</p>
+
+  <h2>8. Termination</h2>
+  <p>You may stop using the Service at any time. We may suspend or terminate accounts that violate these Terms or applicable law, with notice where reasonably possible.</p>
+
+  <h2>9. Changes to these terms</h2>
+  <p>We may update these Terms as the product evolves. Continued use of the Service after changes take effect constitutes acceptance of the updated Terms.</p>
+
+  <h2>10. Contact</h2>
+  <p>Questions about these Terms? Reach us at <a href="mailto:hello@merafraud.com" style="color:var(--pink-2);">hello@merafraud.com</a> or via our <a href="contact.html" style="color:var(--pink-2);">Contact page</a>.</p>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+        <a href="../dashboard/signup.html">Get API Key</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script src="support.js"></script>
+</body>
+</html>

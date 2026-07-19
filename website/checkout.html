@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:56px 0 8px; text-align:center; }
+  .hero h1{ font-size:clamp(28px,4vw,40px); margin-bottom:12px; }
+
+  .not-live-banner{
+    max-width:760px; margin:24px auto 0; background:rgba(251,191,36,0.08);
+    border:1px solid rgba(251,191,36,0.3); border-radius:14px; padding:16px 22px;
+    font-size:13px; color:var(--review); text-align:left;
+  }
+
+  .checkout-grid{ display:grid; grid-template-columns:1fr 1.3fr; gap:24px; margin:44px 0 80px; }
+  @media (max-width:820px){ .checkout-grid{ grid-template-columns:1fr; } }
+
+  .summary-card{ padding:28px; height:fit-content; }
+  .summary-card h3{ font-size:14px; color:var(--text-lo); margin-bottom:18px; text-transform:uppercase; letter-spacing:1px; font-family:'JetBrains Mono',monospace; }
+  .plan-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+  .plan-row .name{ font-family:'Fraunces',serif; font-size:19px; font-weight:600; }
+  .plan-row .price{ font-family:'JetBrains Mono',monospace; font-size:16px; }
+  .summary-line{ display:flex; justify-content:space-between; font-size:13.5px; color:var(--text-lo); padding:10px 0; }
+  .summary-total{ display:flex; justify-content:space-between; font-size:15px; font-weight:600; padding:14px 0 0; margin-top:6px; border-top:1px solid rgba(255,255,255,0.1); }
+  .trial-note{
+    margin-top:18px; background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.3);
+    border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--safe);
+  }
+
+  .pay-card{ padding:32px; }
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:18px; }
+  .field label{ font-size:13px; color:var(--text-lo); }
+  .field input, .field select{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:12px 14px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:14px;
+  }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--pink-1); }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .field-row-3{ display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px; }
+
+  .card-brands{ display:flex; gap:8px; margin-top:6px; }
+  .card-brand{
+    font-size:10.5px; font-family:'JetBrains Mono',monospace; color:var(--text-lo);
+    border:1px solid var(--card-border); border-radius:6px; padding:4px 8px;
+  }
+
+  .secure-note{
+    display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-lo);
+    margin:20px 0; padding:12px 14px; background:rgba(255,255,255,0.03); border-radius:10px;
+  }
+  .lock-icon{ width:14px; height:14px; flex-shrink:0; }
+
+  .btn-primary{ border:none; cursor:pointer; width:100%; font-size:15px; padding:15px; }
+  .powered-by{ text-align:center; font-size:11.5px; color:var(--text-lo); margin-top:16px; }
+
+  #successState{ display:none; text-align:center; padding:50px 20px; }
+  #successState.show{ display:block; }
+  #payForm.hide{ display:none; }
+  .success-icon{
+    width:56px; height:56px; border-radius:50%; margin:0 auto 20px;
+    background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4);
+    display:flex; align-items:center; justify-content:center; font-size:26px; color:var(--safe);
+  }
+</style>
+</head>
+<body>
+<div class="floating-orb" style="top:10%; left:-120px;"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html" class="active">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="integrations.html">Connect Your Store</a>
+    <a href="support.html">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+  </nav>
+</header>
+
+<section class="wrap-narrow hero">
+  <span class="eyebrow">Checkout</span>
+  <h1>Start your 7-day free trial.</h1>
+</section>
+
+<div class="not-live-banner wrap-narrow">
+  ⚠ <b>Demo checkout — not connected to a real payment processor yet.</b> No card data
+  on this page is transmitted, stored, or validated anywhere. To accept real payments,
+  this form must be replaced with a hosted payment field from a licensed provider (see
+  note at the bottom of this page).
+</div>
+
+<section class="wrap">
+  <div class="checkout-grid">
+    <div class="card summary-card reveal">
+      <h3>Order Summary</h3>
+      <div class="plan-row">
+        <span class="name" id="planName">Growth</span>
+        <span class="price" id="planPrice">€49/mo</span>
+      </div>
+      <div class="summary-line"><span>Billing cycle</span><span>Monthly</span></div>
+      <div class="summary-line"><span>Trial period</span><span>7 days, free</span></div>
+      <div class="summary-line"><span>Due today</span><span id="dueToday">€0.00</span></div>
+      <div class="summary-total"><span id="totalLabel">Due after trial</span><span id="planPriceTotal">€49.00</span></div>
+      <div class="trial-note" id="trialNote">✓ You won't be charged until your 7-day trial ends. Cancel anytime before then from your dashboard.</div>
+    </div>
+
+    <div class="card pay-card reveal reveal-2">
+      <form id="payForm" onsubmit="handleCheckout(event)">
+        <div class="field">
+          <label>Cardholder Name</label>
+          <input type="text" placeholder="Name as shown on card" required>
+        </div>
+        <div class="field">
+          <label>Card Number</label>
+          <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" required>
+          <div class="card-brands">
+            <span class="card-brand">VISA</span>
+            <span class="card-brand">Mastercard</span>
+            <span class="card-brand">Troy</span>
+          </div>
+        </div>
+        <div class="field-row-3">
+          <div class="field">
+            <label>Expiry</label>
+            <input type="text" placeholder="MM/YY" maxlength="5" required>
+          </div>
+          <div class="field">
+            <label>CVV</label>
+            <input type="text" placeholder="123" maxlength="4" required>
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <select>
+              <option>Türkiye</option>
+              <option>Germany</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Billing Email</label>
+          <input type="email" placeholder="billing@yourstore.com" required>
+        </div>
+
+        <div class="secure-note">
+          🔒 Your payment info is encrypted in transit. MeraFraud never stores full card numbers.
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">Start Free Trial</button>
+        <div class="powered-by">Payments will be processed via a licensed local provider (iyzico) once live.</div>
+      </form>
+
+      <div id="successState">
+        <div class="success-icon">✓</div>
+        <h3 style="font-size:20px; margin-bottom:10px;">Trial started (demo)</h3>
+        <p style="font-size:14px; max-width:360px; margin:0 auto;">In a live environment, you'd now get a confirmation email and your plan would activate immediately with billing starting in 7 days.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+        <a href="../dashboard/signup.html">Get API Key</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const PLANS = {
+  starter: { name: 'Starter', price: 19 },
+  growth: { name: 'Growth', price: 49 },
+  scale:  { name: 'Scale', price: 199 },
+};
+const API_BASE = "http://localhost:5000/api";
+
+function loadPlanFromQuery(){
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('plan') || 'growth';
+  const mode = params.get('mode') || 'trial'; // 'trial' or 'buy'
+  const plan = PLANS[key] || PLANS.growth;
+
+  document.getElementById('planName').textContent = plan.name;
+  document.getElementById('planPrice').textContent = `€${plan.price}/mo`;
+
+  const dueTodayEl = document.getElementById('dueToday');
+  const totalRow = document.getElementById('totalRow');
+  const totalLabel = document.getElementById('totalLabel');
+  const trialNote = document.getElementById('trialNote');
+  const submitBtn = document.getElementById('submitBtn');
+
+  if(mode === 'buy'){
+    dueTodayEl.textContent = `€${plan.price.toFixed(2)}`;
+    totalLabel.textContent = 'Billed today';
+    document.getElementById('planPriceTotal').textContent = `€${plan.price.toFixed(2)}`;
+    trialNote.style.display = 'none';
+    submitBtn.textContent = 'Pay Now';
+  } else {
+    dueTodayEl.textContent = '€0.00';
+    totalLabel.textContent = 'Due after trial';
+    document.getElementById('planPriceTotal').textContent = `€${plan.price.toFixed(2)}`;
+    trialNote.style.display = 'block';
+    submitBtn.textContent = 'Start Free Trial';
+  }
+}
+loadPlanFromQuery();
+
+function handleCheckout(e){
+  e.preventDefault();
+  const email = document.querySelector('#payForm input[type="email"]').value;
+  const params = new URLSearchParams(window.location.search);
+  const plan = params.get('plan') || 'growth';
+
+  // Real card fields on this page are never sent anywhere — see the
+  // comment at the top of this file. Instead we ask our OWN backend to
+  // start a real iyzico-hosted checkout session (if iyzico is configured
+  // in .env) or fall back to a demo confirmation.
+  fetch(`${API_BASE}/checkout/initialize`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ plan, email })
+  })
+    .then(r => r.json())
+    .then(result => {
+      document.getElementById('payForm').classList.add('hide');
+      document.getElementById('successState').classList.add('show');
+      if(result.demo_mode){
+        document.querySelector('#successState p').textContent =
+          "Demo mode: iyzico isn't connected yet (see .env.example). In a live environment, you'd be redirected to a secure iyzico payment form now.";
+      } else if(result.checkoutFormContent){
+        document.querySelector('#successState p').textContent =
+          "iyzico session created. In a full integration, the secure payment form would render here.";
+      }
+    })
+    .catch(() => {
+      // Backend unreachable — still show the demo confirmation so the UI doesn't dead-end
+      document.getElementById('payForm').classList.add('hide');
+      document.getElementById('successState').classList.add('show');
+    });
+}
+</script>
+<script src="animations.js"></script>
+<script src="support.js"></script>
+</body>
+</html>

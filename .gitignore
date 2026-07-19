@@ -1,0 +1,17 @@
+# Gizli bilgiler — asla GitHub'a yüklenmemeli
+.env
+
+# Çalışma zamanında otomatik oluşan dosyalar (tenants, işlem geçmişi, vb.)
+data/tenants.json
+data/customer_history.json
+data/transaction_log.json
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db

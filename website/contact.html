@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 20px; }
+  .hero h1{ font-size:clamp(32px,4.5vw,48px); max-width:600px; margin-bottom:18px; }
+  .hero p.lede{ font-size:16px; max-width:520px; }
+
+  .contact-grid{ display:grid; grid-template-columns:1fr 1.2fr; gap:24px; margin:50px 0 80px; }
+  @media (max-width:800px){ .contact-grid{ grid-template-columns:1fr; } }
+
+  .info-card{ padding:28px; margin-bottom:16px; }
+  .info-card h3{ font-size:14px; margin-bottom:6px; }
+  .info-card p, .info-card a{ font-size:13.5px; color:var(--text-lo); text-decoration:none; }
+  .info-card a:hover{ color:var(--pink-2); }
+
+  .form-card{ padding:32px; }
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:18px; }
+  .field label{ font-size:13px; color:var(--text-lo); }
+  .field input, .field select, .field textarea{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:12px 14px; color:var(--text-hi); font-family:'Space Grotesk'; font-size:14px;
+  }
+  .field textarea{ resize:vertical; min-height:110px; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--pink-1); }
+  .btn-primary{ border:none; cursor:pointer; width:100%; }
+  .form-note{ font-size:12px; color:var(--text-lo); margin-top:14px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="floating-orb" style="top:15%; left:-120px;"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html" class="active">Contact</a>
+    <a href="integrations.html">Connect Your Store</a>
+    <a href="support.html">Support</a>
+    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+  </nav>
+</header>
+
+<section class="wrap hero">
+  <span class="eyebrow">Contact</span>
+  <h1>Let's talk about your fraud problem.</h1>
+  <p class="lede">Questions about pricing, integration, or a Scale plan? Reach out — we typically respond within one business day.</p>
+</section>
+
+<section class="wrap">
+  <div class="contact-grid">
+    <div>
+      <div class="card info-card reveal">
+        <h3>Email</h3>
+        <a href="mailto:hello@merafraud.com">hello@merafraud.com</a>
+      </div>
+      <div class="card info-card">
+        <h3>Sales &amp; Partnerships</h3>
+        <a href="mailto:sales@merafraud.com">sales@merafraud.com</a>
+      </div>
+      <div class="card info-card">
+        <h3>Response Time</h3>
+        <p>Within 1 business day, Monday–Friday.</p>
+      </div>
+    </div>
+
+    <div class="card form-card reveal reveal-2">
+      <form id="contactForm" onsubmit="handleSubmit(event)">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" required>
+        </div>
+        <div class="field">
+          <label>Work Email</label>
+          <input type="email" required>
+        </div>
+        <div class="field">
+          <label>Store / Company Name</label>
+          <input type="text">
+        </div>
+        <div class="field">
+          <label>What do you need?</label>
+          <select>
+            <option>General question</option>
+            <option>Pricing / Scale plan</option>
+            <option>Technical integration help</option>
+            <option>Partnership</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Message</label>
+          <textarea required placeholder="Tell us a bit about your store and what you're looking for…"></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Send Message</button>
+        <p class="form-note" id="formNote">This form doesn't send anywhere yet in this MVP — wire it to an email service (e.g. Formspree, Resend) before going live.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="pricing.html">Pricing</a>
+        <a href="integrations.html">Connect Your Store</a>
+        <a href="../dashboard/index.html">Dashboard</a>
+        <a href="../dashboard/signup.html">Get API Key</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="support.html">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span>Local demo environment · Prototype MVP</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+function handleSubmit(e){
+  e.preventDefault();
+  const note = document.getElementById('formNote');
+  note.textContent = "Thanks! (Demo only — this form isn't connected to an inbox yet.)";
+  note.style.color = 'var(--safe)';
+}
+</script>
+<script src="animations.js"></script>
+<script src="support.js"></script>
+</body>
+</html>
