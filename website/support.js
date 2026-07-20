@@ -163,7 +163,7 @@
 
   const waLink = document.getElementById('mf-sp-whatsapp');
   waLink.href = `https://wa.me/${WHATSAPP_NUMBER_FALLBACK}?text=${encodeURIComponent('Hi MeraFraud, I need help with my account.')}`;
-  fetch("http://localhost:5000/api/config").then(r => r.json()).then(cfg => {
+  fetch("https://merafraud-api.onrender.com/api/config").then(r => r.json()).then(cfg => {
     waLink.href = `https://wa.me/${cfg.whatsapp_number}?text=${encodeURIComponent('Hi MeraFraud, I need help with my account.')}`;
   }).catch(() => {}); // keep the fallback number if the API isn't reachable
 
