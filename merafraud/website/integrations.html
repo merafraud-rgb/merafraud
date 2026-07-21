@@ -124,7 +124,7 @@
           <div class="g-num"></div>
           <div>
             <h3>Download the MeraFraud plugin</h3>
-            <p>Get the <code>merafraud-woocommerce.zip</code> file from your MeraFraud account (Settings → Integrations), or ask your MeraFraud contact for it.</p>
+            <p>Download <a href="downloads/merafraud-woocommerce.zip" download style="color:var(--cyan);">merafraud-woocommerce.zip</a> directly — no login needed.</p>
           </div>
         </div>
         <div class="g-step">
@@ -168,7 +168,7 @@
           <div class="g-num"></div>
           <div>
             <h3>Not using WooCommerce?</h3>
-            <p>If you built a custom checkout that calls Shopier's payment API directly (not through WordPress), you'll need a small code snippet on your own server — see <code>examples/generic_checkout_integration.py</code> in your MeraFraud files, or ask your developer to add it where Shopier's payment confirmation ("Otomatik Sipariş Bildirimi") is received.</p>
+            <p>If you built a custom checkout that calls Shopier's payment API directly (not through WordPress), you'll need a small code snippet on your own server — download <a href="downloads/generic_checkout_integration.py" download style="color:var(--cyan);">generic_checkout_integration.py</a> and give it to your developer to add where Shopier's payment confirmation ("Otomatik Sipariş Bildirimi") is received.</p>
           </div>
         </div>
       </div>
@@ -205,7 +205,26 @@
           <div class="g-num"></div>
           <div>
             <h3>Add a "Send HTTP request" action</h3>
-            <p>Set the URL to your MeraFraud API address, add header <code>X-API-Key</code> with your key, and paste the order details as the request body (a ready-to-copy template is in your MeraFraud dashboard).</p>
+            <p>Set the URL to your MeraFraud API address, add header <code>X-API-Key</code> with your key, and paste this as the request body (replace the values in <code>{{ }}</code> with the matching Shopify Flow variables):</p>
+            <pre style="background:rgba(0,0,0,0.3); border:1px solid var(--card-border); border-radius:10px; padding:14px 16px; font-size:11.5px; color:var(--text-lo); overflow-x:auto; margin-top:10px;">{
+  "transaction_amount": {{order.total_price}},
+  "amount_ratio_to_avg": 1.2,
+  "account_age_days": 180,
+  "customer_ltv": {{order.customer.total_spent}},
+  "time_since_last_tx_min": 120,
+  "num_tx_last_24h": {{order.customer.orders_count}},
+  "hour_of_day": 12,
+  "num_items_in_cart": {{order.line_items.size}},
+  "num_failed_payments_7d": 0,
+  "login_attempts_before_purchase": 1,
+  "billing_shipping_mismatch": 0,
+  "ip_billing_country_mismatch": 0,
+  "new_device": 0,
+  "new_payment_method": 0,
+  "free_email_domain": 0,
+  "express_shipping": 0,
+  "customer_id": "{{order.customer.email}}"
+}</pre>
           </div>
         </div>
         <div class="g-step">
@@ -224,7 +243,7 @@
         </div>
       </div>
       <div class="callout">
-        💡 Want it fully automatic with real-time blocking, not just tagging? That needs a small custom server — see <code>examples/shopify_webhook_integration.py</code>, or ask us for help via Support.
+        💡 Want it fully automatic with real-time blocking, not just tagging? That needs a small custom server — download <a href="downloads/shopify_webhook_integration.py" download style="color:var(--cyan);">shopify_webhook_integration.py</a>, or ask us for help via Support.
       </div>
     </div>
   </div>
@@ -247,7 +266,7 @@
           <div class="g-num"></div>
           <div>
             <h3>Point it at MeraFraud</h3>
-            <p>Whoever manages your site (an in-house developer or the platform's support team) uses the same pattern shown in <code>examples/generic_checkout_integration.py</code> — call MeraFraud's <code>/api/predict</code> with your API key at checkout.</p>
+            <p>Whoever manages your site (an in-house developer or the platform's support team) uses the same pattern shown in <a href="downloads/generic_checkout_integration.py" download style="color:var(--cyan);">generic_checkout_integration.py</a> — call MeraFraud's <code>/api/predict</code> with your API key at checkout.</p>
           </div>
         </div>
         <div class="g-step">
