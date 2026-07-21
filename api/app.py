@@ -156,7 +156,7 @@ def get_public_config():
     single .env file as everything else, so there's one place to edit
     instead of hunting through multiple HTML/JS files."""
     return jsonify({
-        "whatsapp_number": os.environ.get("WHATSAPP_NUMBER", "905XXXXXXXXX"),
+        "whatsapp_number": os.environ.get("WHATSAPP_NUMBER", "905374575844"),
     })
 
 

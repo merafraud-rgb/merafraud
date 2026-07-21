@@ -194,7 +194,7 @@ faqList.innerHTML = FAQS.map((item, i) => `
 `).join('');
 
 document.getElementById('whatsappLink').href =
-  `https://wa.me/905XXXXXXXXX?text=${encodeURIComponent('Hi MeraFraud, I need help.')}`;
+  `https://wa.me/905374575844?text=${encodeURIComponent('Hi MeraFraud, I need help.')}`;
 fetch("https://merafraud-api.onrender.com/api/config").then(r => r.json()).then(cfg => {
   document.getElementById('whatsappLink').href =
     `https://wa.me/${cfg.whatsapp_number}?text=${encodeURIComponent('Hi MeraFraud, I need help.')}`;

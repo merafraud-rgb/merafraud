@@ -16,7 +16,7 @@
  * a shared email, Zendesk, Freshdesk, or Crisp/Intercom-style tool).
  */
 (function(){
-  const WHATSAPP_NUMBER_FALLBACK = "905XXXXXXXXX"; // used only if /api/config is unreachable
+  const WHATSAPP_NUMBER_FALLBACK = "905374575844"; // used only if /api/config is unreachable
 
   const FAQ = [
     { keys: ['api key','apikey','anahtar','key lost','sk_live'],
