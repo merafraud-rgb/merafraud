@@ -39,6 +39,11 @@ import customer_history
 import transaction_log
 import email_service
 import payments
+import ip_intelligence
+import disposable_email
+import custom_rules
+import phone_validation
+import shared_intelligence
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = BASE_DIR / "model" / "merafraud_model.pkl"
@@ -184,18 +189,57 @@ def predict():
     score = float(model.predict_proba(X)[0, 1])
     reasons = top_reasons(row)
 
-    # Optional: blend in the customer's order/cancellation history, if the
-    # merchant identifies the customer (email, customer ID, etc.)
-    customer_risk = None
     customer_id = payload.get("customer_id")
+    customer_ip = payload.get("customer_ip")
+    billing_country = payload.get("billing_country")
+    customer_phone = payload.get("customer_phone")
+
+    # 1) Customer order/cancellation history (existing)
+    customer_risk = None
     if customer_id:
         customer_risk = customer_history.get_customer_history(g.tenant["id"], str(customer_id))
-        score, extra_reasons = customer_history.apply_customer_risk_adjustment(score, customer_risk)
-        reasons = extra_reasons + reasons  # customer-history reason leads, it's the most actionable
+        score, extra = customer_history.apply_customer_risk_adjustment(score, customer_risk)
+        reasons = extra + reasons
+
+    # 2) Real IP geolocation + proxy/VPN/datacenter detection
+    if customer_ip:
+        ip_info = ip_intelligence.lookup_ip(customer_ip)
+        score, extra = ip_intelligence.apply_ip_risk_adjustment(score, ip_info, billing_country)
+        reasons = extra + reasons
+
+    # 3) Disposable/throwaway email detection (stronger signal than "free email")
+    if customer_id and "@" in str(customer_id):
+        if disposable_email.is_disposable(str(customer_id)):
+            score = min(0.99, score + 0.25)
+            reasons = ["Customer used a disposable/throwaway email address"] + reasons
+
+    # 4) Phone number format validation
+    if customer_phone:
+        phone_check = phone_validation.check_phone(customer_phone)
+        score, extra = phone_validation.apply_phone_risk_adjustment(score, phone_check)
+        reasons = extra + reasons
+
+    # 5) Shared merchant network — flagged by OTHER stores too
+    network_check = shared_intelligence.check_identifier(
+        ip=customer_ip, email=str(customer_id) if customer_id else None
+    )
+    score, extra = shared_intelligence.apply_network_risk_adjustment(score, network_check)
+    reasons = extra + reasons
 
     level = risk_level(score, thresholds)
+
+    # 6) Custom per-merchant rules — can only escalate, never override down
+    level, rule_reasons = custom_rules.evaluate_rules(g.tenant["id"], row, level)
+    reasons = rule_reasons + reasons
+
     tenant_store.record_usage(g.tenant["id"], level)
     transaction_log.log_transaction(g.tenant["id"], row, score, level, customer_id)
+
+    # Auto-notify the merchant by email on a block, if they have email configured
+    if level == "block" and g.tenant.get("email"):
+        email_service.send_fraud_alert_email(
+            g.tenant["email"], g.tenant["name"], score, reasons[:3], row.get("transaction_amount")
+        )
 
     response = {
         "risk_score": round(score, 4),
@@ -457,6 +501,68 @@ def report_order_outcome():
 def get_customer_history_endpoint(customer_id):
     history = customer_history.get_customer_history(g.tenant["id"], str(customer_id))
     return jsonify(history)
+
+
+# ---------------------------------------------------------------------------
+# Custom rule engine — merchant-defined IF-THEN rules on top of the ML model
+# ---------------------------------------------------------------------------
+
+@app.route("/api/rules", methods=["GET"])
+@require_api_key
+def list_custom_rules():
+    return jsonify(custom_rules.list_rules(g.tenant["id"]))
+
+
+@app.route("/api/rules", methods=["POST"])
+@require_api_key
+def create_custom_rule():
+    payload = request.get_json(force=True, silent=True) or {}
+    field = payload.get("field")
+    operator = payload.get("operator")
+    value = payload.get("value")
+    action = payload.get("action")
+
+    error = custom_rules.validate_rule(field, operator, value, action)
+    if error:
+        return jsonify({"error": error}), 400
+
+    rule = custom_rules.add_rule(g.tenant["id"], field, operator, value, action)
+    return jsonify(rule), 201
+
+
+@app.route("/api/rules/<rule_id>", methods=["DELETE"])
+@require_api_key
+def remove_custom_rule(rule_id):
+    deleted = custom_rules.delete_rule(g.tenant["id"], rule_id)
+    if not deleted:
+        return jsonify({"error": "Rule not found"}), 404
+    return jsonify({"status": "ok"})
+
+
+# ---------------------------------------------------------------------------
+# Shared merchant fraud network — report confirmed fraud, benefit from
+# reports made by other tenants. See shared_intelligence.py for details.
+# ---------------------------------------------------------------------------
+
+@app.route("/api/blacklist/report", methods=["POST"])
+@require_api_key
+def report_to_shared_network():
+    payload = request.get_json(force=True, silent=True) or {}
+    ip = payload.get("ip")
+    email = payload.get("email")
+    device_id = payload.get("device_id")
+
+    if not any([ip, email, device_id]):
+        return jsonify({"error": "Provide at least one of: ip, email, device_id"}), 400
+
+    result = shared_intelligence.report_fraud(g.tenant["id"], ip=ip, email=email, device_id=device_id)
+    return jsonify(result)
+
+
+@app.route("/api/network/stats", methods=["GET"])
+def network_stats():
+    """Public — shows the shared network's size without exposing any data."""
+    return jsonify(shared_intelligence.network_stats())
 
 
 @app.route("/api/reports/transactions.csv", methods=["GET"])

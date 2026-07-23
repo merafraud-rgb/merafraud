@@ -223,6 +223,25 @@ yapamam çünkü kendi GitHub/Render hesabınızı gerektiriyor. `DEPLOY.md`'yi
 takip edin, **bir kere** yapılır, sonrasında güncelleme `git push` ile olur
 — bir daha zip indirip yeniden kurmanıza gerek kalmaz.
 
+| GET | `/api/network/stats` | Paylaşımlı fraud ağının büyüklüğü (herkese açık, anonim) | Hayır |
+| GET | `/api/rules` | Bu hesabın özel kurallarını listele | Evet |
+| POST | `/api/rules` | Yeni özel kural ekle (`field`, `operator`, `value`, `action`) | Evet |
+| DELETE | `/api/rules/<rule_id>` | Kuralı sil | Evet |
+| POST | `/api/blacklist/report` | Bir IP/e-posta/cihazı doğrulanmış dolandırıcılık olarak bildir | Evet |
+
+## Rakip Analizine Göre Eklenen Gelişmiş Özellikler (FraudLabsPro karşılaştırması)
+
+`/api/predict`'e artık şu opsiyonel alanlar eklenebilir, her biri skoru gerçek zamanlı zenginleştirir:
+
+- `customer_ip` — gerçek IP coğrafi konum + proxy/VPN + veri merkezi tespiti (`api/ip_intelligence.py`, ip-api.com ücretsiz katmanı)
+- `customer_id` bir e-posta ise — ~150 bilinen tek kullanımlık e-posta servisine karşı kontrol (`api/disposable_email.py`)
+- `customer_phone` — temel format doğrulama (`api/phone_validation.py`)
+- Otomatik: **paylaşımlı müşteri ağı** kontrolü (`api/shared_intelligence.py`) — bir kimlik en az 2 farklı hesap tarafından bildirilmişse otomatik risk artışı
+- Otomatik: **özel kurallar** (`api/custom_rules.py`) — her hesap kendi if-then kurallarını tanımlayabilir
+- Otomatik: **block durumunda e-posta bildirimi** (SMTP yapılandırılmışsa)
+
+**Henüz eklenmeyenler** (dürüst kalalım): kredi kartı BIN sorgulama, gerçek cihaz parmak izi, VOIP/tek kullanımlık telefon tespiti (ücretli API gerektiriyor), 12+ platform eklentisi (şu an sadece WooCommerce + Shopify). Bunlar bir sonraki aşamalar.
+
 ## SaaS'a Dönüştürmek İçin Sıradaki Adımlar
 
 ✅ Tamamlanan: parola/giriş/anahtar kurtarma, e-posta gönderim altyapısı

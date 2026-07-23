@@ -71,7 +71,23 @@ def send_password_reset_email(to_email: str, reset_token: str, store_name: str) 
     return send_email(to_email, subject, html, text)
 
 
-def send_welcome_email(to_email: str, store_name: str) -> bool:
+def send_fraud_alert_email(to_email: str, store_name: str, risk_score: float, reasons: list[str], order_amount: float | None) -> bool:
+    """Notifies a merchant immediately when a transaction is auto-blocked —
+    so they're not relying on manually checking the dashboard."""
+    subject = f"⚠ MeraFraud blocked a high-risk order ({round(risk_score*100)}% risk)"
+    reasons_html = "".join(f"<li>{r}</li>" for r in reasons)
+    amount_line = f"<p>Transaction amount: <b>€{order_amount}</b></p>" if order_amount else ""
+    html = f"""
+    <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
+      <h2 style="color:#1c1044;">High-risk order blocked</h2>
+      <p>Hi {store_name}, MeraFraud just blocked a transaction with a risk score of <b>{round(risk_score*100)}%</b>.</p>
+      {amount_line}
+      <p><b>Reasons:</b></p>
+      <ul>{reasons_html}</ul>
+      <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud · You can adjust when you get alerted from your dashboard Settings.</p>
+    </div>
+    """
+    return send_email(to_email, subject, html)
     subject = "Welcome to MeraFraud"
     html = f"""
     <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
