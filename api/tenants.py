@@ -2,10 +2,12 @@
 MeraFraud - Multi-Tenant Yönetimi
 ------------------------------------
 Her KOBİ müşterisi (tenant) kendi API anahtarına, kendi risk eşiklerine ve
-kendi kullanım istatistiklerine sahiptir. Bu MVP'de tenant verisi basit bir
-JSON dosyasında tutulur (tenants.json) — gerçek üretimde bu bir veritabanı
-(PostgreSQL) olmalıdır, ancak arayüz (interface) aynı kalacağı için ileride
-sadece bu dosyanın içini değiştirmek yeterli olur.
+kendi kullanım istatistiklerine sahiptir. Tenant verisi artık PostgreSQL'de
+tutulur (DATABASE_URL ortam değişkeninden bağlanılır) — böylece Render'ın
+free tier'ında her redeploy/uyku-sonrası-uyanmada dosyanın sıfırlanması
+sorunu ortadan kalkar. Dışa açılan fonksiyonların (interface) hepsi
+eskisiyle (tenants.json sürümüyle) birebir aynı, yani api/app.py içinde
+hiçbir değişiklik gerekmedi.
 
 Bir tenant şu bilgileri taşır:
   - id, name, api_key (sk_live_...)
@@ -14,33 +16,74 @@ Bir tenant şu bilgileri taşır:
   - usage: {total_calls, blocked, reviewed, approved}  -> gerçek kullanım sayaçları
 """
 
+import os
 import json
 import secrets
 import threading
-from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
-TENANTS_PATH = Path(__file__).resolve().parent.parent / "data" / "tenants.json"
+import psycopg2
+import psycopg2.extras
+
 _lock = threading.Lock()
 RESET_TOKEN_TTL_MINUTES = 60
+
+_DB_INITIALIZED = False
+_init_lock = threading.Lock()
 
 
 def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def _load():
-    if not TENANTS_PATH.exists():
-        return {"tenants": {}}
-    with open(TENANTS_PATH) as f:
-        return json.load(f)
+def _get_conn():
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL is not set. Add it in your .env (local) or in "
+            "Render's Environment tab (production) — see .env.example."
+        )
+    conn = psycopg2.connect(database_url)
+    _ensure_schema(conn)
+    return conn
 
 
-def _save(data):
-    TENANTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(TENANTS_PATH, "w") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+def _ensure_schema(conn):
+    global _DB_INITIALIZED
+    if _DB_INITIALIZED:
+        return
+    with _init_lock:
+        if _DB_INITIALIZED:
+            return
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS tenants (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT,
+                    password_hash TEXT,
+                    reset_token TEXT,
+                    reset_token_expires TEXT,
+                    api_key TEXT UNIQUE NOT NULL,
+                    thresholds JSONB NOT NULL,
+                    created_at TEXT NOT NULL,
+                    usage JSONB NOT NULL
+                )
+            """)
+        conn.commit()
+        _DB_INITIALIZED = True
+
+
+def _row_to_tenant(row) -> dict:
+    """Rows come back with jsonb columns already parsed into dict/list by
+    psycopg2, but we defensively json.loads() in case a driver ever hands
+    us a raw string instead."""
+    tenant = dict(row)
+    for key in ("thresholds", "usage"):
+        if isinstance(tenant.get(key), str):
+            tenant[key] = json.loads(tenant[key])
+    return tenant
 
 
 def _generate_key() -> str:
@@ -50,83 +93,131 @@ def _generate_key() -> str:
 def seed_demo_tenant():
     """Dashboard'un kutudan çıktığı gibi çalışması için sabit bir demo
     tenant + demo API anahtarı oluşturur (yoksa)."""
-    data = _load()
-    if "demo" not in data["tenants"]:
-        data["tenants"]["demo"] = {
-            "id": "demo",
-            "name": "MeraFraud Demo Store",
-            "api_key": "sk_demo_merafraud_dashboard",
-            "thresholds": {"block": 0.75, "review": 0.35},
-            "created_at": _now(),
-            "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
-        }
-        _save(data)
-    return data["tenants"]["demo"]
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE id = %s", ("demo",))
+            row = cur.fetchone()
+            if row:
+                return _row_to_tenant(row)
+
+            demo = {
+                "id": "demo",
+                "name": "MeraFraud Demo Store",
+                "api_key": "sk_demo_merafraud_dashboard",
+                "thresholds": {"block": 0.75, "review": 0.35},
+                "created_at": _now(),
+                "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
+            }
+            cur.execute("""
+                INSERT INTO tenants (id, name, email, password_hash, reset_token,
+                    reset_token_expires, api_key, thresholds, created_at, usage)
+                VALUES (%s, %s, NULL, NULL, NULL, NULL, %s, %s, %s, %s)
+            """, (demo["id"], demo["name"], demo["api_key"],
+                  json.dumps(demo["thresholds"]), demo["created_at"], json.dumps(demo["usage"])))
+        conn.commit()
+        return demo
+    finally:
+        conn.close()
 
 
 def create_tenant(name: str, thresholds: dict | None = None, email: str | None = None, password: str | None = None) -> dict:
-    with _lock:
-        data = _load()
-        tenant_id = secrets.token_hex(6)
-        tenant = {
-            "id": tenant_id,
-            "name": name,
-            "email": email,
-            "password_hash": generate_password_hash(password) if password else None,
-            "reset_token": None,
-            "reset_token_expires": None,
-            "api_key": _generate_key(),
-            "thresholds": thresholds or {"block": 0.75, "review": 0.35},
-            "created_at": _now(),
-            "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
-        }
-        data["tenants"][tenant_id] = tenant
-        _save(data)
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor() as cur:
+            tenant_id = secrets.token_hex(6)
+            tenant = {
+                "id": tenant_id,
+                "name": name,
+                "email": email,
+                "password_hash": generate_password_hash(password) if password else None,
+                "reset_token": None,
+                "reset_token_expires": None,
+                "api_key": _generate_key(),
+                "thresholds": thresholds or {"block": 0.75, "review": 0.35},
+                "created_at": _now(),
+                "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
+            }
+            cur.execute("""
+                INSERT INTO tenants (id, name, email, password_hash, reset_token,
+                    reset_token_expires, api_key, thresholds, created_at, usage)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (tenant["id"], tenant["name"], tenant["email"], tenant["password_hash"],
+                  tenant["reset_token"], tenant["reset_token_expires"], tenant["api_key"],
+                  json.dumps(tenant["thresholds"]), tenant["created_at"], json.dumps(tenant["usage"])))
+        conn.commit()
         return tenant
+    finally:
+        conn.close()
 
 
 def get_tenant_by_key(api_key: str) -> dict | None:
-    data = _load()
-    for tenant in data["tenants"].values():
-        if tenant["api_key"] == api_key:
-            return tenant
-    return None
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE api_key = %s", (api_key,))
+            row = cur.fetchone()
+        return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
 
 
 def list_tenants() -> list:
-    data = _load()
-    return [public_view(t, reveal_api_key=False) for t in data["tenants"].values()]
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants ORDER BY created_at")
+            rows = cur.fetchall()
+        return [public_view(_row_to_tenant(r), reveal_api_key=False) for r in rows]
+    finally:
+        conn.close()
 
 
 def record_usage(tenant_id: str, level: str):
-    with _lock:
-        data = _load()
-        if tenant_id not in data["tenants"]:
-            return
-        usage = data["tenants"][tenant_id]["usage"]
-        usage["total_calls"] += 1
-        key = {"block": "blocked", "review": "reviewed", "approve": "approved"}.get(level)
-        if key:
-            usage[key] += 1
-        _save(data)
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT usage FROM tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+            if not row:
+                return
+            usage = row["usage"] if isinstance(row["usage"], dict) else json.loads(row["usage"])
+            usage["total_calls"] += 1
+            key = {"block": "blocked", "review": "reviewed", "approve": "approved"}.get(level)
+            if key:
+                usage[key] += 1
+            cur.execute("UPDATE tenants SET usage = %s WHERE id = %s", (json.dumps(usage), tenant_id))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def update_thresholds(tenant_id: str, thresholds: dict) -> dict | None:
-    with _lock:
-        data = _load()
-        if tenant_id not in data["tenants"]:
-            return None
-        data["tenants"][tenant_id]["thresholds"] = thresholds
-        _save(data)
-        return data["tenants"][tenant_id]
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT id FROM tenants WHERE id = %s", (tenant_id,))
+            if not cur.fetchone():
+                return None
+            cur.execute("UPDATE tenants SET thresholds = %s WHERE id = %s",
+                        (json.dumps(thresholds), tenant_id))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            updated = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(updated)
+    finally:
+        conn.close()
 
 
 def get_tenant_by_email(email: str) -> dict | None:
-    data = _load()
-    for tenant in data["tenants"].values():
-        if tenant.get("email") and tenant["email"].lower() == email.lower():
-            return tenant
-    return None
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE lower(email) = lower(%s)", (email,))
+            row = cur.fetchone()
+        return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
 
 
 def login(email: str, password: str) -> dict | None:
@@ -141,13 +232,17 @@ def login(email: str, password: str) -> dict | None:
 
 
 def set_password(tenant_id: str, password: str) -> dict | None:
-    with _lock:
-        data = _load()
-        if tenant_id not in data["tenants"]:
-            return None
-        data["tenants"][tenant_id]["password_hash"] = generate_password_hash(password)
-        _save(data)
-        return data["tenants"][tenant_id]
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("UPDATE tenants SET password_hash = %s WHERE id = %s",
+                        (generate_password_hash(password), tenant_id))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
 
 
 def request_password_reset(email: str) -> str | None:
@@ -155,38 +250,44 @@ def request_password_reset(email: str) -> str | None:
     Returns the raw token (caller decides how to deliver it — in this MVP
     there's no real email sending configured, so the API returns it
     directly, clearly marked as a demo-only shortcut)."""
-    with _lock:
-        data = _load()
-        tenant_id = None
-        for tid, t in data["tenants"].items():
-            if t.get("email") and t["email"].lower() == email.lower():
-                tenant_id = tid
-                break
-        if not tenant_id:
-            return None
-
-        token = secrets.token_urlsafe(24)
-        expires = (datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_TTL_MINUTES)).isoformat()
-        data["tenants"][tenant_id]["reset_token"] = token
-        data["tenants"][tenant_id]["reset_token_expires"] = expires
-        _save(data)
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT id FROM tenants WHERE lower(email) = lower(%s)", (email,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            token = secrets.token_urlsafe(24)
+            expires = (datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_TTL_MINUTES)).isoformat()
+            cur.execute("UPDATE tenants SET reset_token = %s, reset_token_expires = %s WHERE id = %s",
+                        (token, expires, row["id"]))
+        conn.commit()
         return token
+    finally:
+        conn.close()
 
 
 def reset_password_with_token(token: str, new_password: str) -> dict | None:
-    with _lock:
-        data = _load()
-        for tid, t in data["tenants"].items():
-            if t.get("reset_token") == token:
-                expires = t.get("reset_token_expires")
-                if not expires or datetime.fromisoformat(expires) < datetime.now(timezone.utc):
-                    return None  # token expired
-                t["password_hash"] = generate_password_hash(new_password)
-                t["reset_token"] = None
-                t["reset_token_expires"] = None
-                _save(data)
-                return t
-        return None
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE reset_token = %s", (token,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            expires = row.get("reset_token_expires")
+            if not expires or datetime.fromisoformat(expires) < datetime.now(timezone.utc):
+                return None  # token expired
+            cur.execute("""
+                UPDATE tenants SET password_hash = %s, reset_token = NULL, reset_token_expires = NULL
+                WHERE id = %s
+            """, (generate_password_hash(new_password), row["id"]))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (row["id"],))
+            updated = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(updated)
+    finally:
+        conn.close()
 
 
 def regenerate_api_key(tenant_id: str) -> dict | None:
@@ -194,13 +295,17 @@ def regenerate_api_key(tenant_id: str) -> dict | None:
     used when a key may have been leaked, or the merchant just wants to
     rotate it. Requires the merchant to already be authenticated with the
     OLD key (or logged in via email+password) to call this."""
-    with _lock:
-        data = _load()
-        if tenant_id not in data["tenants"]:
-            return None
-        data["tenants"][tenant_id]["api_key"] = _generate_key()
-        _save(data)
-        return data["tenants"][tenant_id]
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("UPDATE tenants SET api_key = %s WHERE id = %s",
+                        (_generate_key(), tenant_id))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
 
 
 def public_view(tenant: dict, reveal_api_key: bool = True) -> dict:
