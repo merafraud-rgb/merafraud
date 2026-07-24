@@ -1,5 +1,3 @@
-
-App · PY
 """
 MeraFraud API
 ----------------
@@ -7,35 +5,35 @@ A lightweight Flask service that wraps the trained fraud-detection model
 and exposes it as a SaaS-style REST API that any e-commerce backend
 (Shopify, WooCommerce, custom checkout, etc.) could call at the moment
 of checkout.
- 
+
 Endpoints
   GET  /api/health            -> service status + model info
   POST /api/predict           -> score a single transaction
   POST /api/predict/batch     -> score a list of transactions (CSV upload flow)
   GET  /api/stats             -> aggregate demo stats for the dashboard
   GET  /api/feature-importance -> global model explainability
- 
+
 Run:
   pip install -r requirements.txt
   python api/app.py
   -> serves on http://localhost:5000
 """
- 
+
 import json
 import time
 import random
 import os
 from pathlib import Path
 from functools import wraps
- 
+
 from dotenv import load_dotenv
 load_dotenv()  # reads .env if present — see .env.example for what goes here
- 
+
 import joblib
 import numpy as np
 import pandas as pd
 from flask import Flask, request, jsonify, g, Response
- 
+
 import tenants as tenant_store
 import customer_history
 import transaction_log
@@ -46,14 +44,14 @@ import disposable_email
 import custom_rules
 import phone_validation
 import shared_intelligence
- 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = BASE_DIR / "model" / "merafraud_model.pkl"
 META_PATH = BASE_DIR / "model" / "model_meta.json"
- 
+
 app = Flask(__name__)
- 
- 
+
+
 @app.after_request
 def add_cors_headers(response):
     # Allow the static dashboard (opened from file:// or a different port)
@@ -62,23 +60,23 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-API-Key"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
- 
- 
+
+
 @app.route("/api/<path:_any>", methods=["OPTIONS"])
 def cors_preflight(_any):
     return "", 204
- 
+
 model = joblib.load(MODEL_PATH)
 with open(META_PATH) as f:
     META = json.load(f)
- 
+
 FEATURE_COLUMNS = META["feature_columns"]
- 
+
 # Demo tenant + demo API key are auto-created on first run, so the
 # dashboard keeps working out of the box.
 DEMO_TENANT = tenant_store.seed_demo_tenant()
- 
- 
+
+
 def require_api_key(f):
     """Every /api/predict* call requires a valid X-API-Key header.
     The resolved tenant is stashed on Flask's `g` object (g.tenant) so
@@ -97,11 +95,11 @@ def require_api_key(f):
         g.tenant = tenant
         return f(*args, **kwargs)
     return wrapper
- 
- 
+
+
 ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "changeme_admin_key")
- 
- 
+
+
 def require_admin_key(f):
     """Locks down tenant-management endpoints (currently just GET
     /api/tenants, the full customer list) so random visitors can't see
@@ -114,16 +112,16 @@ def require_admin_key(f):
             return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
         return f(*args, **kwargs)
     return wrapper
- 
- 
+
+
 def risk_level(score: float, thresholds: dict) -> str:
     if score >= thresholds["block"]:
         return "block"
     if score >= thresholds["review"]:
         return "review"
     return "approve"
- 
- 
+
+
 def top_reasons(row: dict, n: int = 3):
     """Very lightweight, fast explanation: rank the transaction's own
     feature values by the model's *global* feature importance, then
@@ -161,8 +159,8 @@ def top_reasons(row: dict, n: int = 3):
     if not reasons:
         reasons = ["No strong anomaly detected; score reflects overall pattern"]
     return reasons
- 
- 
+
+
 def validate_transaction(payload: dict):
     missing = [c for c in FEATURE_COLUMNS if c not in payload]
     if missing:
@@ -172,8 +170,8 @@ def validate_transaction(payload: dict):
     except (TypeError, ValueError) as e:
         return None, f"Invalid numeric value: {e}"
     return row, None
- 
- 
+
+
 @app.route("/api/config", methods=["GET"])
 def get_public_config():
     """Public, non-secret config the frontend needs — reads from the same
@@ -182,8 +180,8 @@ def get_public_config():
     return jsonify({
         "whatsapp_number": os.environ.get("WHATSAPP_NUMBER", "905374575844"),
     })
- 
- 
+
+
 @app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({
@@ -193,8 +191,8 @@ def health():
         "roc_auc": META["metrics"]["roc_auc"],
         "training_rows": META["training_rows"],
     })
- 
- 
+
+
 @app.route("/api/predict", methods=["POST"])
 @require_api_key
 def predict():
@@ -202,64 +200,64 @@ def predict():
     row, err = validate_transaction(payload)
     if err:
         return jsonify({"error": err}), 400
- 
+
     thresholds = g.tenant["thresholds"]
     X = pd.DataFrame([row])[FEATURE_COLUMNS]
     score = float(model.predict_proba(X)[0, 1])
     reasons = top_reasons(row)
- 
+
     customer_id = payload.get("customer_id")
     customer_ip = payload.get("customer_ip")
     billing_country = payload.get("billing_country")
     customer_phone = payload.get("customer_phone")
- 
+
     # 1) Customer order/cancellation history (existing)
     customer_risk = None
     if customer_id:
         customer_risk = customer_history.get_customer_history(g.tenant["id"], str(customer_id))
         score, extra = customer_history.apply_customer_risk_adjustment(score, customer_risk)
         reasons = extra + reasons
- 
+
     # 2) Real IP geolocation + proxy/VPN/datacenter detection
     if customer_ip:
         ip_info = ip_intelligence.lookup_ip(customer_ip)
         score, extra = ip_intelligence.apply_ip_risk_adjustment(score, ip_info, billing_country)
         reasons = extra + reasons
- 
+
     # 3) Disposable/throwaway email detection (stronger signal than "free email")
     if customer_id and "@" in str(customer_id):
         if disposable_email.is_disposable(str(customer_id)):
             score = min(0.99, score + 0.25)
             reasons = ["Customer used a disposable/throwaway email address"] + reasons
- 
+
     # 4) Phone number format validation
     if customer_phone:
         phone_check = phone_validation.check_phone(customer_phone)
         score, extra = phone_validation.apply_phone_risk_adjustment(score, phone_check)
         reasons = extra + reasons
- 
+
     # 5) Shared merchant network — flagged by OTHER stores too
     network_check = shared_intelligence.check_identifier(
         ip=customer_ip, email=str(customer_id) if customer_id else None
     )
     score, extra = shared_intelligence.apply_network_risk_adjustment(score, network_check)
     reasons = extra + reasons
- 
+
     level = risk_level(score, thresholds)
- 
+
     # 6) Custom per-merchant rules — can only escalate, never override down
     level, rule_reasons = custom_rules.evaluate_rules(g.tenant["id"], row, level)
     reasons = rule_reasons + reasons
- 
+
     tenant_store.record_usage(g.tenant["id"], level)
     transaction_log.log_transaction(g.tenant["id"], row, score, level, customer_id)
- 
+
     # Auto-notify the merchant by email on a block, if they have email configured
     if level == "block" and g.tenant.get("email"):
         email_service.send_fraud_alert_email(
             g.tenant["email"], g.tenant["name"], score, reasons[:3], row.get("transaction_amount")
         )
- 
+
     response = {
         "risk_score": round(score, 4),
         "risk_level": level,          # approve | review | block
@@ -276,8 +274,8 @@ def predict():
             "is_serial_canceller": customer_risk["is_serial_canceller"],
         }
     return jsonify(response)
- 
- 
+
+
 @app.route("/api/predict/batch", methods=["POST"])
 @require_api_key
 def predict_batch():
@@ -285,7 +283,7 @@ def predict_batch():
     transactions = payload.get("transactions", [])
     if not isinstance(transactions, list) or not transactions:
         return jsonify({"error": "'transactions' must be a non-empty list"}), 400
- 
+
     thresholds = g.tenant["thresholds"]
     rows, errors = [], []
     for i, tx in enumerate(transactions):
@@ -295,10 +293,10 @@ def predict_batch():
             rows.append({c: 0 for c in FEATURE_COLUMNS})
         else:
             rows.append(row)
- 
+
     X = pd.DataFrame(rows)[FEATURE_COLUMNS]
     scores = model.predict_proba(X)[:, 1]
- 
+
     results = []
     for i, (row, score) in enumerate(zip(rows, scores)):
         level = risk_level(float(score), thresholds)
@@ -309,15 +307,15 @@ def predict_batch():
             "risk_level": level,
             "reasons": top_reasons(row),
         })
- 
+
     return jsonify({"results": results, "errors": errors, "count": len(results)})
- 
- 
+
+
 @app.route("/api/feature-importance", methods=["GET"])
 def feature_importance():
     return jsonify(META["feature_importances"])
- 
- 
+
+
 @app.route("/api/stats", methods=["GET"])
 @require_api_key
 def stats():
@@ -326,15 +324,15 @@ def stats():
     demo so it doesn't look empty — real traffic adds on top of that."""
     usage = g.tenant["usage"]
     has_real_traffic = usage["total_calls"] > 0
- 
+
     baseline_total = 0 if has_real_traffic else random.Random(g.tenant["id"]).randint(18000, 24000)
     baseline_blocked = 0 if has_real_traffic else int(baseline_total * 0.028)
     avg_amount_saved = 245
- 
+
     total_tx = baseline_total + usage["total_calls"]
     blocked = baseline_blocked + usage["blocked"]
     reviewed = int(baseline_total * 0.06) + usage["reviewed"]
- 
+
     return jsonify({
         "tenant": g.tenant["name"],
         "total_transactions_30d": total_tx,
@@ -345,21 +343,21 @@ def stats():
         "avg_response_time_ms": random.randint(18, 45),
         "live_calls_this_session": usage["total_calls"],
     })
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # Tenant management — for adding a new SME to the platform.
 # NOTE: In a real product these endpoints should sit behind admin auth
 # (left open here for demo/CLI use).
 # ---------------------------------------------------------------------------
- 
+
 RISK_PROFILES = {
     "standard": {"block": 0.75, "review": 0.35},
     "strict":   {"block": 0.55, "review": 0.20},   # blocks/reviews more aggressively — fewer fraud slip-throughs, more false positives
     "lenient":  {"block": 0.90, "review": 0.55},   # only stops the most obvious fraud — fewer false positives, more risk tolerated
 }
- 
- 
+
+
 @app.route("/api/checkout/initialize", methods=["POST"])
 def checkout_initialize():
     payload = request.get_json(force=True, silent=True) or {}
@@ -367,17 +365,17 @@ def checkout_initialize():
     email = payload.get("email", "")
     prices = {"starter": 19, "growth": 49, "scale": 199}
     price = prices.get(plan, 49)
- 
+
     if not email:
         return jsonify({"error": "'email' is required"}), 400
- 
+
     result = payments.create_checkout_form(
         plan_name=plan, price=price, currency="EUR", buyer_email=email,
         callback_url=payload.get("callback_url", "https://merafraud.com/checkout/callback"),
     )
     return jsonify(result)
- 
- 
+
+
 @app.route("/api/tenants", methods=["GET", "POST"])
 def tenants_collection():
     """POST is the public self-service signup flow (used by signup.html —
@@ -389,31 +387,31 @@ def tenants_collection():
         if not admin_key or admin_key != ADMIN_API_KEY:
             return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
         return jsonify(tenant_store.list_tenants())
- 
+
     payload = request.get_json(force=True, silent=True) or {}
     name = payload.get("name", "").strip()
     if not name:
         return jsonify({"error": "'name' field is required"}), 400
     email = (payload.get("email") or "").strip() or None
     password = payload.get("password") or None
- 
+
     thresholds = payload.get("thresholds")
     if not thresholds:
         profile = payload.get("risk_profile", "standard")
         thresholds = RISK_PROFILES.get(profile, RISK_PROFILES["standard"])
- 
+
     tenant = tenant_store.create_tenant(name, thresholds, email, password)
     if email:
         email_service.send_welcome_email(email, name)  # no-op if SMTP isn't configured
     return jsonify(tenant_store.public_view(tenant)), 201
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # Account recovery — login with email+password (this doubles as API key
 # recovery, since login returns the real key), forgot/reset password, and
 # API key regeneration for merchants who lost or leaked their key.
 # ---------------------------------------------------------------------------
- 
+
 @app.route("/api/auth/login", methods=["POST"])
 def auth_login():
     payload = request.get_json(force=True, silent=True) or {}
@@ -421,13 +419,13 @@ def auth_login():
     password = payload.get("password", "")
     if not email or not password:
         return jsonify({"error": "'email' and 'password' are required"}), 400
- 
+
     tenant = tenant_store.login(email, password)
     if not tenant:
         return jsonify({"error": "Invalid email or password"}), 401
     return jsonify(tenant_store.public_view(tenant))
- 
- 
+
+
 @app.route("/api/auth/set-password", methods=["POST"])
 @require_api_key
 def auth_set_password():
@@ -439,31 +437,31 @@ def auth_set_password():
         return jsonify({"error": "Password must be at least 6 characters"}), 400
     updated = tenant_store.set_password(g.tenant["id"], password)
     return jsonify({"status": "ok"})
- 
- 
+
+
 @app.route("/api/auth/forgot-password", methods=["POST"])
 def auth_forgot_password():
     payload = request.get_json(force=True, silent=True) or {}
     email = payload.get("email", "").strip()
     if not email:
         return jsonify({"error": "'email' is required"}), 400
- 
+
     token = tenant_store.request_password_reset(email)
     if not token:
         # Don't reveal whether the email exists, in a real product — but
         # for this MVP demo we're direct so it's easier to test.
         return jsonify({"error": "No account found with that email"}), 404
- 
+
     tenant = tenant_store.get_tenant_by_email(email)
     sent = email_service.send_password_reset_email(email, token, tenant["name"] if tenant else "there")
- 
+
     if sent:
         # Real email went out — don't also leak the token in the API response.
         return jsonify({
             "status": "ok",
             "message": f"A reset code was emailed to {email}.",
         })
- 
+
     # SMTP isn't configured (see .env.example) — fall back to demo mode so
     # the flow is still testable without a real mail server.
     return jsonify({
@@ -472,8 +470,8 @@ def auth_forgot_password():
         "note": "DEMO MODE: SMTP not configured (see .env.example), so this token is shown here instead of emailed.",
         "expires_in_minutes": tenant_store.RESET_TOKEN_TTL_MINUTES,
     })
- 
- 
+
+
 @app.route("/api/auth/reset-password", methods=["POST"])
 def auth_reset_password():
     payload = request.get_json(force=True, silent=True) or {}
@@ -481,13 +479,13 @@ def auth_reset_password():
     new_password = payload.get("new_password", "")
     if len(new_password) < 6:
         return jsonify({"error": "Password must be at least 6 characters"}), 400
- 
+
     tenant = tenant_store.reset_password_with_token(token, new_password)
     if not tenant:
         return jsonify({"error": "Invalid or expired reset token"}), 400
     return jsonify(tenant_store.public_view(tenant))
- 
- 
+
+
 @app.route("/api/tenants/regenerate-key", methods=["POST"])
 @require_api_key
 def regenerate_api_key():
@@ -495,14 +493,14 @@ def regenerate_api_key():
     — the caller must switch to the new one everywhere it's used."""
     updated = tenant_store.regenerate_api_key(g.tenant["id"])
     return jsonify(tenant_store.public_view(updated))
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # Order outcome tracking — lets the merchant tell MeraFraud what actually
 # happened to an order, so future predictions for that same customer can
 # account for a pattern of serial ordering/cancelling.
 # ---------------------------------------------------------------------------
- 
+
 @app.route("/api/orders/outcome", methods=["POST"])
 @require_api_key
 def report_order_outcome():
@@ -510,33 +508,33 @@ def report_order_outcome():
     customer_id = payload.get("customer_id")
     outcome = payload.get("outcome")
     order_id = payload.get("order_id")
- 
+
     if not customer_id or not outcome:
         return jsonify({"error": "'customer_id' and 'outcome' fields are required"}), 400
     if outcome not in ("placed", "cancelled", "fulfilled"):
         return jsonify({"error": "'outcome' must be one of: placed, cancelled, fulfilled"}), 400
- 
+
     updated = customer_history.record_order_outcome(g.tenant["id"], str(customer_id), outcome, order_id)
     return jsonify(updated)
- 
- 
+
+
 @app.route("/api/customers/<customer_id>/history", methods=["GET"])
 @require_api_key
 def get_customer_history_endpoint(customer_id):
     history = customer_history.get_customer_history(g.tenant["id"], str(customer_id))
     return jsonify(history)
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # Custom rule engine — merchant-defined IF-THEN rules on top of the ML model
 # ---------------------------------------------------------------------------
- 
+
 @app.route("/api/rules", methods=["GET"])
 @require_api_key
 def list_custom_rules():
     return jsonify(custom_rules.list_rules(g.tenant["id"]))
- 
- 
+
+
 @app.route("/api/rules", methods=["POST"])
 @require_api_key
 def create_custom_rule():
@@ -545,15 +543,15 @@ def create_custom_rule():
     operator = payload.get("operator")
     value = payload.get("value")
     action = payload.get("action")
- 
+
     error = custom_rules.validate_rule(field, operator, value, action)
     if error:
         return jsonify({"error": error}), 400
- 
+
     rule = custom_rules.add_rule(g.tenant["id"], field, operator, value, action)
     return jsonify(rule), 201
- 
- 
+
+
 @app.route("/api/rules/<rule_id>", methods=["DELETE"])
 @require_api_key
 def remove_custom_rule(rule_id):
@@ -561,13 +559,13 @@ def remove_custom_rule(rule_id):
     if not deleted:
         return jsonify({"error": "Rule not found"}), 404
     return jsonify({"status": "ok"})
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # Shared merchant fraud network — report confirmed fraud, benefit from
 # reports made by other tenants. See shared_intelligence.py for details.
 # ---------------------------------------------------------------------------
- 
+
 @app.route("/api/blacklist/report", methods=["POST"])
 @require_api_key
 def report_to_shared_network():
@@ -575,20 +573,20 @@ def report_to_shared_network():
     ip = payload.get("ip")
     email = payload.get("email")
     device_id = payload.get("device_id")
- 
+
     if not any([ip, email, device_id]):
         return jsonify({"error": "Provide at least one of: ip, email, device_id"}), 400
- 
+
     result = shared_intelligence.report_fraud(g.tenant["id"], ip=ip, email=email, device_id=device_id)
     return jsonify(result)
- 
- 
+
+
 @app.route("/api/network/stats", methods=["GET"])
 def network_stats():
     """Public — shows the shared network's size without exposing any data."""
     return jsonify(shared_intelligence.network_stats())
- 
- 
+
+
 @app.route("/api/reports/transactions.csv", methods=["GET"])
 @require_api_key
 def export_transactions_csv():
@@ -598,8 +596,8 @@ def export_transactions_csv():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename=merafraud_transactions_{g.tenant['id']}.csv"},
     )
- 
- 
+
+
 @app.route("/api/tenants/me", methods=["GET"])
 @require_api_key
 def get_my_account():
@@ -607,8 +605,8 @@ def get_my_account():
     page so a merchant can see their store name, current thresholds, and
     usage without needing a separate login/session system."""
     return jsonify(tenant_store.public_view(g.tenant, reveal_api_key=True))
- 
- 
+
+
 @app.route("/api/tenants/thresholds", methods=["PUT"])
 @require_api_key
 def update_my_thresholds():
@@ -621,15 +619,15 @@ def update_my_thresholds():
         return jsonify({"error": "must satisfy 0 <= review < block <= 1"}), 400
     updated = tenant_store.update_thresholds(g.tenant["id"], {"block": block, "review": review})
     return jsonify(updated)
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # Geo activity — powers the dashboard's world map. In production this would
 # be derived from each transaction's real IP-geolocation / billing country,
 # stored per tenant. For this demo we generate a plausible, stable-per-hour
 # spread of recent flagged transactions across common e-commerce markets.
 # ---------------------------------------------------------------------------
- 
+
 CITIES = [
     {"city": "Istanbul", "country": "Türkiye", "lat": 41.01, "lng": 28.98},
     {"city": "Berlin", "country": "Germany", "lat": 52.52, "lng": 13.40},
@@ -648,8 +646,8 @@ CITIES = [
     {"city": "Athens", "country": "Greece", "lat": 37.98, "lng": 23.73},
     {"city": "Vienna", "country": "Austria", "lat": 48.21, "lng": 16.37},
 ]
- 
- 
+
+
 @app.route("/api/geo-activity", methods=["GET"])
 @require_api_key
 def geo_activity():
@@ -672,9 +670,7 @@ def geo_activity():
         })
     points.sort(key=lambda p: p["minutes_ago"])
     return jsonify({"points": points})
- 
- 
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
- 
-
