@@ -77,44 +77,7 @@ FEATURE_COLUMNS = META["feature_columns"]
 DEMO_TENANT = tenant_store.seed_demo_tenant()
 
 
-def require_api_key(f):
-    """Every /api/predict* call requires a valid X-API-Key header.
-    The resolved tenant is stashed on Flask's `g` object (g.tenant) so
-    the endpoint can use that merchant's own thresholds/usage counters."""
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        api_key = request.headers.get("X-API-Key")
-        if not api_key:
-            return jsonify({
-                "error": "Missing X-API-Key header. Every request must carry an API key.",
-                "hint": "Demo key: sk_demo_merafraud_dashboard",
-            }), 401
-        tenant = tenant_store.get_tenant_by_key(api_key)
-        if not tenant:
-            return jsonify({"error": "Invalid API key"}), 403
-g.tenant = tenant
-           return f(*args, **kwargs)
-       return wrapper
-
-
-   ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "changeme_admin_key")
-
-
-   def require_admin_key(f):
-       """Locks down tenant-management endpoints (currently just GET
-       /api/tenants, the full customer list) so random visitors can't see
-       every merchant on the platform. Set ADMIN_API_KEY in your .env /
-       Render environment to a real secret before going live."""
-       @wraps(f)
-       def wrapper(*args, **kwargs):
-           admin_key = request.headers.get("X-Admin-Key")
-           if not admin_key or admin_key != ADMIN_API_KEY:
-               return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
-           return f(*args, **kwargs)
-       return wrapper
-
-
-   def risk_level(score: float, thresholds: dict) -> str:
+:
     if score >= thresholds["block"]:
         return "block"
     if score >= thresholds["review"]:
