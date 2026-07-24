@@ -486,6 +486,7 @@ def regenerate_api_key():
 
 
 @app.route("/api/tenants", methods=["GET"])
+@require_admin_key
 def list_tenants():
     return jsonify(tenant_store.list_tenants())
 
