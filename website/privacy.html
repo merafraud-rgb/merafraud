@@ -14,6 +14,10 @@
     background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); border-radius:14px;
     padding:18px 22px; margin:24px 0 8px; font-size:13.5px; color:var(--review);
   }
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -24,21 +28,25 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap-narrow hero">
-  <span class="eyebrow">Legal</span>
-  <h1>Privacy Policy</h1>
-  <div class="draft-notice">
+  <span class="eyebrow" data-i18n="eyebrow">Legal</span>
+  <h1 data-i18n="h1">Privacy Policy</h1>
+  <div class="draft-notice" data-i18n="draft_notice">
     ⚠ <b>Draft document.</b> This is a starting template for an MVP, not a legally
     reviewed policy. Before processing real customer or transaction data, have this
     reviewed by a qualified lawyer for compliance with GDPR (EU), KVKK (Türkiye), and
@@ -47,49 +55,49 @@
 </section>
 
 <section class="wrap-narrow prose" style="padding-bottom:80px;">
-  <span class="updated-note">Last updated: July 2026</span>
+  <span class="updated-note" data-i18n="updated">Last updated: July 2026</span>
 
-  <h2>1. Who we are</h2>
-  <p>MeraFraud ("we", "us", "our") provides a fraud-detection API and dashboard for e-commerce businesses ("Merchants", "you"). This policy explains what data we collect, why, and how it's handled — both about our Merchants and about the transactions Merchants send us to score.</p>
+  <h2 data-i18n="h2_1">1. Who we are</h2>
+  <p data-i18n="p_1">MeraFraud ("we", "us", "our") provides a fraud-detection API and dashboard for e-commerce businesses ("Merchants", "you"). This policy explains what data we collect, why, and how it's handled — both about our Merchants and about the transactions Merchants send us to score.</p>
 
-  <h2>2. What we collect</h2>
-  <h3>2.1 Account data</h3>
+  <h2 data-i18n="h2_2">2. What we collect</h2>
+  <h3 data-i18n="h3_21">2.1 Account data</h3>
   <ul>
-    <li>Store/business name</li>
-    <li>Contact email address (optional at signup in this MVP)</li>
-    <li>API key and usage metadata (call counts, timestamps, risk decisions)</li>
+    <li data-i18n="li_211">Store/business name</li>
+    <li data-i18n="li_212">Contact email address (optional at signup in this MVP)</li>
+    <li data-i18n="li_213">API key and usage metadata (call counts, timestamps, risk decisions)</li>
   </ul>
-  <h3>2.2 Transaction data submitted for scoring</h3>
-  <p>When you call our API, you send transaction-level signals to be scored — for example transaction amount, account age, device/payment novelty flags, and similar behavioral indicators. We do not require or intentionally collect full card numbers, CVV codes, or other regulated cardholder data (PCI scope) — Merchants must not submit such data to our API.</p>
+  <h3 data-i18n="h3_22">2.2 Transaction data submitted for scoring</h3>
+  <p data-i18n="p_22">When you call our API, you send transaction-level signals to be scored — for example transaction amount, account age, device/payment novelty flags, and similar behavioral indicators. We do not require or intentionally collect full card numbers, CVV codes, or other regulated cardholder data (PCI scope) — Merchants must not submit such data to our API.</p>
 
-  <h2>3. How we use data</h2>
+  <h2 data-i18n="h2_3">3. How we use data</h2>
   <ul>
-    <li>To generate real-time fraud risk scores and explanations for your transactions</li>
-    <li>To compute your account's usage statistics and dashboard metrics</li>
-    <li>To improve and retrain our detection models</li>
-    <li>To respond to support requests</li>
+    <li data-i18n="li_31">To generate real-time fraud risk scores and explanations for your transactions</li>
+    <li data-i18n="li_32">To compute your account's usage statistics and dashboard metrics</li>
+    <li data-i18n="li_33">To improve and retrain our detection models</li>
+    <li data-i18n="li_34">To respond to support requests</li>
   </ul>
 
-  <h2>4. Model training and data use across customers</h2>
-  <p>In this MVP, the underlying model is trained on synthetic data, not on live merchant transactions. If and when we introduce training on real merchant data, we will: (a) anonymize or aggregate signals wherever feasible, (b) not share one Merchant's raw transaction records with another Merchant, and (c) provide an opt-out for Merchants who do not want their data used in shared model training. This section should be revisited and finalized with legal counsel before that capability ships.</p>
+  <h2 data-i18n="h2_4">4. Model training and data use across customers</h2>
+  <p data-i18n="p_4">In this MVP, the underlying model is trained on synthetic data, not on live merchant transactions. If and when we introduce training on real merchant data, we will: (a) anonymize or aggregate signals wherever feasible, (b) not share one Merchant's raw transaction records with another Merchant, and (c) provide an opt-out for Merchants who do not want their data used in shared model training. This section should be revisited and finalized with legal counsel before that capability ships.</p>
 
-  <h2>5. Data retention</h2>
-  <p>Account and usage data is retained for as long as your account is active, plus a reasonable period afterward for legal, tax, and dispute-resolution purposes. You may request deletion of your account data by contacting us (see Contact page).</p>
+  <h2 data-i18n="h2_5">5. Data retention</h2>
+  <p data-i18n="p_5">Account and usage data is retained for as long as your account is active, plus a reasonable period afterward for legal, tax, and dispute-resolution purposes. You may request deletion of your account data by contacting us (see Contact page).</p>
 
-  <h2>6. Data storage and security</h2>
-  <p>In this MVP, tenant and API key data is stored in a local file on the serving infrastructure, not a dedicated secrets vault or encrypted database. Before handling real customer data, this must be upgraded to encrypted storage (e.g. a managed database with encryption at rest) with proper access controls.</p>
+  <h2 data-i18n="h2_6">6. Data storage and security</h2>
+  <p data-i18n="p_6">Tenant and API key data is stored in a managed PostgreSQL database accessed over an encrypted connection, rather than a local file. Before handling real customer data at scale, we still recommend an independent security review of access controls and encryption settings.</p>
 
-  <h2>7. Your rights</h2>
-  <p>Depending on your jurisdiction (e.g. under GDPR or KVKK), you may have rights to access, correct, export, or delete your data, and to object to certain processing. Contact us to exercise these rights.</p>
+  <h2 data-i18n="h2_7">7. Your rights</h2>
+  <p data-i18n="p_7">Depending on your jurisdiction (e.g. under GDPR or KVKK), you may have rights to access, correct, export, or delete your data, and to object to certain processing. Contact us to exercise these rights.</p>
 
-  <h2>8. Cookies and tracking</h2>
-  <p>This dashboard and marketing site do not currently use third-party advertising cookies or trackers. The map component loads map tiles from third-party providers (Esri), which may log standard request metadata (e.g. IP address) per their own policies.</p>
+  <h2 data-i18n="h2_8">8. Cookies and tracking</h2>
+  <p data-i18n="p_8">This dashboard and marketing site do not currently use third-party advertising cookies or trackers. The map component loads map tiles from third-party providers (Esri), which may log standard request metadata (e.g. IP address) per their own policies.</p>
 
-  <h2>9. Changes to this policy</h2>
-  <p>We may update this policy as the product evolves. Material changes will be reflected with an updated "Last updated" date above.</p>
+  <h2 data-i18n="h2_9">9. Changes to this policy</h2>
+  <p data-i18n="p_9">We may update this policy as the product evolves. Material changes will be reflected with an updated "Last updated" date above.</p>
 
-  <h2>10. Contact</h2>
-  <p>Questions about this policy? Reach us at <a href="mailto:hello@merafraud.com" style="color:var(--pink-2);">hello@merafraud.com</a> or via our <a href="contact.html" style="color:var(--pink-2);">Contact page</a>.</p>
+  <h2 data-i18n="h2_10">10. Contact</h2>
+  <p data-i18n="p_10">Questions about this policy? Reach us at <a href="mailto:hello@merafraud.com" style="color:var(--pink-2);">hello@merafraud.com</a> or via our <a href="contact.html" style="color:var(--pink-2);">Contact page</a>.</p>
 </section>
 
 <footer>
@@ -97,33 +105,129 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
 
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      eyebrow:"Legal", h1:"Privacy Policy",
+      draft_notice:"⚠ <b>Draft document.</b> This is a starting template for an MVP, not a legally reviewed policy. Before processing real customer or transaction data, have this reviewed by a qualified lawyer for compliance with GDPR (EU), KVKK (Türkiye), and any other jurisdiction where you operate.",
+      updated:"Last updated: July 2026",
+      h2_1:"1. Who we are",
+      p_1:"MeraFraud (\"we\", \"us\", \"our\") provides a fraud-detection API and dashboard for e-commerce businesses (\"Merchants\", \"you\"). This policy explains what data we collect, why, and how it's handled — both about our Merchants and about the transactions Merchants send us to score.",
+      h2_2:"2. What we collect", h3_21:"2.1 Account data",
+      li_211:"Store/business name", li_212:"Contact email address (optional at signup in this MVP)",
+      li_213:"API key and usage metadata (call counts, timestamps, risk decisions)",
+      h3_22:"2.2 Transaction data submitted for scoring",
+      p_22:"When you call our API, you send transaction-level signals to be scored — for example transaction amount, account age, device/payment novelty flags, and similar behavioral indicators. We do not require or intentionally collect full card numbers, CVV codes, or other regulated cardholder data (PCI scope) — Merchants must not submit such data to our API.",
+      h2_3:"3. How we use data",
+      li_31:"To generate real-time fraud risk scores and explanations for your transactions",
+      li_32:"To compute your account's usage statistics and dashboard metrics",
+      li_33:"To improve and retrain our detection models", li_34:"To respond to support requests",
+      h2_4:"4. Model training and data use across customers",
+      p_4:"In this MVP, the underlying model is trained on synthetic data, not on live merchant transactions. If and when we introduce training on real merchant data, we will: (a) anonymize or aggregate signals wherever feasible, (b) not share one Merchant's raw transaction records with another Merchant, and (c) provide an opt-out for Merchants who do not want their data used in shared model training. This section should be revisited and finalized with legal counsel before that capability ships.",
+      h2_5:"5. Data retention",
+      p_5:"Account and usage data is retained for as long as your account is active, plus a reasonable period afterward for legal, tax, and dispute-resolution purposes. You may request deletion of your account data by contacting us (see Contact page).",
+      h2_6:"6. Data storage and security",
+      p_6:"Tenant and API key data is stored in a managed PostgreSQL database accessed over an encrypted connection, rather than a local file. Before handling real customer data at scale, we still recommend an independent security review of access controls and encryption settings.",
+      h2_7:"7. Your rights",
+      p_7:"Depending on your jurisdiction (e.g. under GDPR or KVKK), you may have rights to access, correct, export, or delete your data, and to object to certain processing. Contact us to exercise these rights.",
+      h2_8:"8. Cookies and tracking",
+      p_8:"This dashboard and marketing site do not currently use third-party advertising cookies or trackers. The map component loads map tiles from third-party providers (Esri), which may log standard request metadata (e.g. IP address) per their own policies.",
+      h2_9:"9. Changes to this policy",
+      p_9:"We may update this policy as the product evolves. Material changes will be reflected with an updated \"Last updated\" date above.",
+      h2_10:"10. Contact",
+      p_10:"Questions about this policy? Reach us at <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--pink-2);\">hello@merafraud.com</a> or via our <a href=\"contact.html\" style=\"color:var(--pink-2);\">Contact page</a>.",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      eyebrow:"Yasal", h1:"Gizlilik Politikası",
+      draft_notice:"⚠ <b>Taslak belge.</b> Bu, MVP için bir başlangıç şablonudur, hukuki incelemeden geçmiş bir politika değildir. Gerçek müşteri veya işlem verisi işlemeden önce, GDPR (AB), KVKK (Türkiye) ve faaliyet gösterdiğiniz diğer yargı bölgeleriyle uyum için nitelikli bir avukata inceletin.",
+      updated:"Son güncelleme: Temmuz 2026",
+      h2_1:"1. Biz kimiz",
+      p_1:"MeraFraud (\"biz\", \"bize\", \"bizim\"), e-ticaret işletmeleri (\"Satıcılar\", \"siz\") için bir dolandırıcılık tespit API'si ve paneli sunar. Bu politika, hangi verileri, neden ve nasıl işlediğimizi açıklar — hem Satıcılarımız hem de Satıcıların puanlamamız için gönderdiği işlemler hakkında.",
+      h2_2:"2. Neler topluyoruz", h3_21:"2.1 Hesap verileri",
+      li_211:"Mağaza/işletme adı", li_212:"İletişim e-posta adresi (bu MVP'de kayıt sırasında isteğe bağlı)",
+      li_213:"API anahtarı ve kullanım meta verileri (çağrı sayıları, zaman damgaları, risk kararları)",
+      h3_22:"2.2 Puanlama için gönderilen işlem verileri",
+      p_22:"API'mizi çağırdığınızda, puanlanmak üzere işlem düzeyinde sinyaller gönderirsiniz — örneğin işlem tutarı, hesap yaşı, cihaz/ödeme yenilik bayrakları ve benzeri davranışsal göstergeler. Tam kart numaraları, CVV kodları veya diğer düzenlemeye tabi kart sahibi verilerini (PCI kapsamı) talep etmiyor veya kasıtlı olarak toplamıyoruz — Satıcılar bu tür verileri API'mize göndermemelidir.",
+      h2_3:"3. Verileri nasıl kullanıyoruz",
+      li_31:"İşlemleriniz için gerçek zamanlı dolandırıcılık risk skorları ve açıklamaları üretmek için",
+      li_32:"Hesabınızın kullanım istatistiklerini ve panel metriklerini hesaplamak için",
+      li_33:"Tespit modellerimizi geliştirmek ve yeniden eğitmek için", li_34:"Destek taleplerine yanıt vermek için",
+      h2_4:"4. Model eğitimi ve müşteriler arası veri kullanımı",
+      p_4:"Bu MVP'de, temel model canlı satıcı işlemleri üzerinde değil, sentetik veri üzerinde eğitilmiştir. Gerçek satıcı verisi üzerinde eğitime geçtiğimizde: (a) mümkün olan her yerde sinyalleri anonimleştirecek veya toplulaştıracağız, (b) bir Satıcının ham işlem kayıtlarını başka bir Satıcıyla paylaşmayacağız ve (c) verilerinin paylaşılan model eğitiminde kullanılmasını istemeyen Satıcılar için bir vazgeçme seçeneği sunacağız. Bu bölüm, söz konusu özellik devreye alınmadan önce hukuk müşaviri ile gözden geçirilip kesinleştirilmelidir.",
+      h2_5:"5. Veri saklama",
+      p_5:"Hesap ve kullanım verileri, hesabınız aktif olduğu sürece ve ardından hukuki, vergi ve uyuşmazlık çözümü amaçlarıyla makul bir süre daha saklanır. Bizimle iletişime geçerek hesap verilerinizin silinmesini talep edebilirsiniz (İletişim sayfasına bakın).",
+      h2_6:"6. Veri depolama ve güvenlik",
+      p_6:"Satıcı ve API anahtarı verileri, yerel bir dosya yerine, şifreli bir bağlantı üzerinden erişilen yönetilen bir PostgreSQL veritabanında saklanır. Yine de gerçek müşteri verisiyle büyük ölçekte çalışmadan önce erişim kontrollerinin ve şifreleme ayarlarının bağımsız bir güvenlik incelemesinden geçmesini öneririz.",
+      h2_7:"7. Haklarınız",
+      p_7:"Bulunduğunuz yargı bölgesine bağlı olarak (ör. GDPR veya KVKK kapsamında), verilerinize erişme, düzeltme, dışa aktarma veya silme ve belirli işlemlere itiraz etme haklarınız olabilir. Bu haklarınızı kullanmak için bizimle iletişime geçin.",
+      h2_8:"8. Çerezler ve izleme",
+      p_8:"Bu panel ve tanıtım sitesi şu anda üçüncü taraf reklam çerezleri veya izleyicileri kullanmamaktadır. Harita bileşeni, üçüncü taraf sağlayıcılardan (Esri) harita karoları yükler; bu sağlayıcılar kendi politikalarına göre standart istek meta verilerini (ör. IP adresi) kaydedebilir.",
+      h2_9:"9. Bu politikadaki değişiklikler",
+      p_9:"Ürün geliştikçe bu politikayı güncelleyebiliriz. Önemli değişiklikler, yukarıdaki \"Son güncelleme\" tarihine yansıtılacaktır.",
+      h2_10:"10. İletişim",
+      p_10:"Bu politika hakkında sorularınız mı var? Bize <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--pink-2);\">hello@merafraud.com</a> adresinden veya <a href=\"contact.html\" style=\"color:var(--pink-2);\">İletişim sayfamız</a> üzerinden ulaşabilirsiniz.",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
