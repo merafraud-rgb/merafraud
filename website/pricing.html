@@ -12,7 +12,6 @@
   .hero h1{ font-size:clamp(32px,4.5vw,48px); margin:0 auto 18px; max-width:600px; }
   .hero p.lede{ font-size:16px; max-width:520px; margin:0 auto; }
 
-  /* Trial banner — deliberately separate from pricing cards */
   .trial-banner{
     display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
     text-align:center; padding:18px 24px; border-radius:16px; margin:36px 0 0;
@@ -47,7 +46,6 @@
   .plan-features li{ font-size:13.5px; color:var(--text-lo); padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); padding-left:20px; position:relative; }
   .plan-features li::before{ content:'✓'; position:absolute; left:0; color:var(--safe); }
 
-  /* Comparison table */
   .compare-wrap{ overflow-x:auto; margin:20px 0 70px; }
   table.compare{ width:100%; border-collapse:collapse; min-width:600px; }
   table.compare th, table.compare td{ padding:14px 16px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13.5px; }
@@ -69,6 +67,11 @@
     border:1px solid var(--card-border);
   }
   .cta-band h2{ font-size:clamp(24px,3vw,32px); margin-bottom:14px; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -81,69 +84,73 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html" class="active">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" class="active" data-i18n="nav_pricing">Pricing</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap hero">
-  <span class="eyebrow">Pricing</span>
-  <h1>Simple pricing, no surprises.</h1>
-  <p class="lede">Every plan includes the same real-time API and dashboard — the difference is monthly volume and how deep you can customize risk tuning.</p>
+  <span class="eyebrow" data-i18n="hero_eyebrow">Pricing</span>
+  <h1 data-i18n="hero_h1">Simple pricing, no surprises.</h1>
+  <p class="lede" data-i18n="hero_lede">Every plan includes the same real-time API and dashboard — the difference is monthly volume and how deep you can customize risk tuning.</p>
 </section>
 
 <section class="wrap">
   <div class="plans">
     <div class="card plan reveal reveal-1">
       <div class="plan-name">Starter</div>
-      <div class="plan-desc">For testing and early-stage stores</div>
-      <div class="plan-price">€19<span>/mo</span></div>
-      <a href="checkout.html?plan=starter&mode=trial" class="trial-tag">🎁 Try free for 7 days →</a>
-      <div class="plan-cap">Up to 1,000 scored transactions/mo</div>
+      <div class="plan-desc" data-i18n="starter_desc">For testing and early-stage stores</div>
+      <div class="plan-price">€19<span data-i18n="per_mo">/mo</span></div>
+      <a href="checkout.html?plan=starter&mode=trial" class="trial-tag" data-i18n="trial_tag">🎁 Try free for 7 days →</a>
+      <div class="plan-cap" data-i18n="starter_cap">Up to 1,000 scored transactions/mo</div>
       <ul class="plan-features">
-        <li>Real-time risk scoring API</li>
-        <li>Lenient / Standard / Strict profiles</li>
-        <li>Live dashboard access</li>
-        <li>Community support</li>
+        <li data-i18n="feat_api">Real-time risk scoring API</li>
+        <li data-i18n="feat_profiles">Lenient / Standard / Strict profiles</li>
+        <li data-i18n="feat_dashboard">Live dashboard access</li>
+        <li data-i18n="feat_community">Community support</li>
       </ul>
-      <a href="checkout.html?plan=starter&mode=buy" class="btn-secondary" style="text-align:center;">Buy Now</a>
+      <a href="checkout.html?plan=starter&mode=buy" class="btn-secondary" style="text-align:center;" data-i18n="buy_now">Buy Now</a>
     </div>
     <div class="card plan featured reveal reveal-2">
-      <span class="plan-badge">Most Popular</span>
+      <span class="plan-badge" data-i18n="most_popular">Most Popular</span>
       <div class="plan-name">Growth</div>
-      <div class="plan-desc">For growing stores that need volume</div>
-      <div class="plan-price">€49<span>/mo</span></div>
-      <a href="checkout.html?plan=growth&mode=trial" class="trial-tag">🎁 Try free for 7 days →</a>
-      <div class="plan-cap">Up to 25,000 scored transactions/mo</div>
+      <div class="plan-desc" data-i18n="growth_desc">For growing stores that need volume</div>
+      <div class="plan-price">€49<span data-i18n="per_mo">/mo</span></div>
+      <a href="checkout.html?plan=growth&mode=trial" class="trial-tag" data-i18n="trial_tag">🎁 Try free for 7 days →</a>
+      <div class="plan-cap" data-i18n="growth_cap">Up to 25,000 scored transactions/mo</div>
       <ul class="plan-features">
-        <li>Everything in Starter</li>
-        <li>Custom threshold tuning</li>
-        <li>Geographic risk map</li>
-        <li>Batch scoring endpoint</li>
-        <li>Email support</li>
+        <li data-i18n="feat_everything_starter">Everything in Starter</li>
+        <li data-i18n="feat_threshold">Custom threshold tuning</li>
+        <li data-i18n="feat_map">Geographic risk map</li>
+        <li data-i18n="feat_batch">Batch scoring endpoint</li>
+        <li data-i18n="feat_email">Email support</li>
       </ul>
-      <a href="checkout.html?plan=growth&mode=buy" class="btn-primary" style="text-align:center;">Buy Now</a>
+      <a href="checkout.html?plan=growth&mode=buy" class="btn-primary" style="text-align:center;" data-i18n="buy_now">Buy Now</a>
     </div>
     <div class="card plan reveal reveal-3">
       <div class="plan-name">Scale</div>
-      <div class="plan-desc">For multi-store or high-volume merchants</div>
-      <div class="plan-price">€199<span>/mo</span></div>
-      <a href="checkout.html?plan=scale&mode=trial" class="trial-tag">🎁 Try free for 7 days →</a>
-      <div class="plan-cap">Up to 150,000 scored transactions/mo</div>
+      <div class="plan-desc" data-i18n="scale_desc">For multi-store or high-volume merchants</div>
+      <div class="plan-price">€199<span data-i18n="per_mo">/mo</span></div>
+      <a href="checkout.html?plan=scale&mode=trial" class="trial-tag" data-i18n="trial_tag">🎁 Try free for 7 days →</a>
+      <div class="plan-cap" data-i18n="scale_cap">Up to 150,000 scored transactions/mo</div>
       <ul class="plan-features">
-        <li>Everything in Growth</li>
-        <li>Model retraining on your own data</li>
-        <li>Dedicated onboarding</li>
-        <li>SLA-backed uptime</li>
-        <li>Priority support</li>
+        <li data-i18n="feat_everything_growth">Everything in Growth</li>
+        <li data-i18n="feat_retrain">Model retraining on your own data</li>
+        <li data-i18n="feat_onboarding">Dedicated onboarding</li>
+        <li data-i18n="feat_sla">SLA-backed uptime</li>
+        <li data-i18n="feat_priority">Priority support</li>
       </ul>
-      <a href="checkout.html?plan=scale&mode=buy" class="btn-secondary" style="text-align:center;">Buy Now</a>
+      <a href="checkout.html?plan=scale&mode=buy" class="btn-secondary" style="text-align:center;" data-i18n="buy_now">Buy Now</a>
     </div>
   </div>
 
@@ -151,7 +158,7 @@
     <table class="compare">
       <thead>
         <tr>
-          <th>Feature</th>
+          <th data-i18n="th_feature">Feature</th>
           <th>Starter</th>
           <th>Growth</th>
           <th>Scale</th>
@@ -159,108 +166,108 @@
       </thead>
       <tbody>
         <tr>
-          <td>Real-time risk scoring API</td>
+          <td data-i18n="feat_api">Real-time risk scoring API</td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>Monthly transactions included</td>
-          <td>1,000</td>
-          <td>25,000</td>
-          <td>150,000</td>
+          <td data-i18n="row_monthly_tx">Monthly transactions included</td>
+          <td>1.000</td>
+          <td>25.000</td>
+          <td>150.000</td>
         </tr>
         <tr>
-          <td>Preset risk profiles (Lenient/Standard/Strict)</td>
+          <td data-i18n="row_profiles">Preset risk profiles (Lenient/Standard/Strict)</td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>Custom threshold tuning</td>
+          <td data-i18n="feat_threshold">Custom threshold tuning</td>
           <td><span class="no">✗</span></td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>Geographic risk map</td>
+          <td data-i18n="feat_map">Geographic risk map</td>
           <td><span class="no">✗</span></td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>Batch scoring endpoint</td>
+          <td data-i18n="feat_batch">Batch scoring endpoint</td>
           <td><span class="no">✗</span></td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>Model retraining on your own data</td>
+          <td data-i18n="feat_retrain">Model retraining on your own data</td>
           <td><span class="no">✗</span></td>
           <td><span class="no">✗</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>Dedicated onboarding</td>
+          <td data-i18n="feat_onboarding">Dedicated onboarding</td>
           <td><span class="no">✗</span></td>
           <td><span class="no">✗</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>SLA-backed uptime</td>
+          <td data-i18n="feat_sla">SLA-backed uptime</td>
           <td><span class="no">✗</span></td>
           <td><span class="no">✗</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
         <tr>
-          <td>Support</td>
-          <td>Community</td>
-          <td>Email</td>
-          <td>Priority</td>
+          <td data-i18n="row_support">Support</td>
+          <td data-i18n="feat_community">Community</td>
+          <td data-i18n="feat_email">Email</td>
+          <td data-i18n="feat_priority">Priority</td>
         </tr>
         <tr>
-          <td>7-day free trial</td>
+          <td data-i18n="row_trial">7-day free trial</td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
           <td><span class="yes">✓</span></td>
         </tr>
       </tbody>
     </table>
-    <p class="compare-note">All prices in EUR, billed monthly. Turkish Lira billing available via local payment provider at checkout.</p>
+    <p class="compare-note" data-i18n="compare_note">All prices in EUR, billed monthly. Turkish Lira billing available via local payment provider at checkout.</p>
   </div>
 </section>
 
 <section class="wrap-narrow faq">
   <div class="section-head">
-    <span class="eyebrow">FAQ</span>
-    <h2>Common questions</h2>
+    <span class="eyebrow" data-i18n="faq_eyebrow">FAQ</span>
+    <h2 data-i18n="faq_h2">Common questions</h2>
   </div>
   <div class="faq-item">
-    <h3>How does the 7-day free trial work?</h3>
-    <p>Every plan — including Starter — starts with a full 7-day free trial. If you don't cancel before day 8, billing starts automatically at the plan's listed price.</p>
+    <h3 data-i18n="faq1_q">How does the 7-day free trial work?</h3>
+    <p data-i18n="faq1_a">Every plan — including Starter — starts with a full 7-day free trial. If you don't cancel before day 8, billing starts automatically at the plan's listed price.</p>
   </div>
   <div class="faq-item">
-    <h3>What happens if I go over my monthly transaction limit?</h3>
-    <p>We'll reach out before any disruption to your service — you won't be cut off automatically mid-month.</p>
+    <h3 data-i18n="faq2_q">What happens if I go over my monthly transaction limit?</h3>
+    <p data-i18n="faq2_a">We'll reach out before any disruption to your service — you won't be cut off automatically mid-month.</p>
   </div>
   <div class="faq-item">
-    <h3>Can I change my risk thresholds later?</h3>
-    <p>Yes, at any time via the API or your dashboard — there's no need to contact support to adjust sensitivity.</p>
+    <h3 data-i18n="faq3_q">Can I change my risk thresholds later?</h3>
+    <p data-i18n="faq3_a">Yes, at any time via the API or your dashboard — there's no need to contact support to adjust sensitivity.</p>
   </div>
   <div class="faq-item">
-    <h3>Do you accept Turkish Lira / local Turkish cards?</h3>
-    <p>Yes. Payments are processed via a local Turkish payment provider, so Turkish-issued cards and TRY billing are fully supported.</p>
+    <h3 data-i18n="faq4_q">Do you accept Turkish Lira / local Turkish cards?</h3>
+    <p data-i18n="faq4_a">Yes. Payments are processed via a local Turkish payment provider, so Turkish-issued cards and TRY billing are fully supported.</p>
   </div>
   <div class="faq-item">
-    <h3>Is my transaction data used to train models for other customers?</h3>
-    <p>See our <a href="privacy.html" style="color:var(--pink-2);">Privacy Policy</a> for details on data handling and model training practices.</p>
+    <h3 data-i18n="faq5_q">Is my transaction data used to train models for other customers?</h3>
+    <p data-i18n="faq5_a">See our <a href="privacy.html" style="color:var(--pink-2);" data-i18n="privacy_link">Privacy Policy</a> for details on data handling and model training practices.</p>
   </div>
 </section>
 
 <section class="wrap">
   <div class="cta-band reveal">
-    <h2>Start scoring transactions in the next two minutes.</h2>
-    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
+    <h2 data-i18n="cta_h2">Start scoring transactions in the next two minutes.</h2>
+    <a href="../dashboard/signup.html" class="btn-primary" data-i18n="cta_btn">Get Your API Key — Free</a>
   </div>
 </section>
 
@@ -269,34 +276,134 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
 
 <script src="animations.js"></script>
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"Pricing", hero_h1:"Simple pricing, no surprises.",
+      hero_lede:"Every plan includes the same real-time API and dashboard — the difference is monthly volume and how deep you can customize risk tuning.",
+      starter_desc:"For testing and early-stage stores", growth_desc:"For growing stores that need volume",
+      scale_desc:"For multi-store or high-volume merchants", per_mo:"/mo",
+      trial_tag:"🎁 Try free for 7 days →",
+      starter_cap:"Up to 1,000 scored transactions/mo", growth_cap:"Up to 25,000 scored transactions/mo",
+      scale_cap:"Up to 150,000 scored transactions/mo",
+      feat_api:"Real-time risk scoring API", feat_profiles:"Lenient / Standard / Strict profiles",
+      feat_dashboard:"Live dashboard access", feat_community:"Community support",
+      feat_everything_starter:"Everything in Starter", feat_threshold:"Custom threshold tuning",
+      feat_map:"Geographic risk map", feat_batch:"Batch scoring endpoint", feat_email:"Email support",
+      feat_everything_growth:"Everything in Growth", feat_retrain:"Model retraining on your own data",
+      feat_onboarding:"Dedicated onboarding", feat_sla:"SLA-backed uptime", feat_priority:"Priority support",
+      buy_now:"Buy Now", most_popular:"Most Popular",
+      th_feature:"Feature", row_monthly_tx:"Monthly transactions included",
+      row_profiles:"Preset risk profiles (Lenient/Standard/Strict)", row_support:"Support",
+      row_trial:"7-day free trial",
+      compare_note:"All prices in EUR, billed monthly. Turkish Lira billing available via local payment provider at checkout.",
+      faq_eyebrow:"FAQ", faq_h2:"Common questions",
+      faq1_q:"How does the 7-day free trial work?",
+      faq1_a:"Every plan — including Starter — starts with a full 7-day free trial. If you don't cancel before day 8, billing starts automatically at the plan's listed price.",
+      faq2_q:"What happens if I go over my monthly transaction limit?",
+      faq2_a:"We'll reach out before any disruption to your service — you won't be cut off automatically mid-month.",
+      faq3_q:"Can I change my risk thresholds later?",
+      faq3_a:"Yes, at any time via the API or your dashboard — there's no need to contact support to adjust sensitivity.",
+      faq4_q:"Do you accept Turkish Lira / local Turkish cards?",
+      faq4_a:"Yes. Payments are processed via a local Turkish payment provider, so Turkish-issued cards and TRY billing are fully supported.",
+      faq5_q:"Is my transaction data used to train models for other customers?",
+      faq5_a:"See our <a href=\"privacy.html\" style=\"color:var(--pink-2);\">Privacy Policy</a> for details on data handling and model training practices.",
+      cta_h2:"Start scoring transactions in the next two minutes.", cta_btn:"Get Your API Key — Free",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"Fiyatlandırma", hero_h1:"Basit fiyatlandırma, sürpriz yok.",
+      hero_lede:"Her plan aynı gerçek zamanlı API ve paneli içerir — fark aylık işlem hacmi ve risk ayarlarını ne kadar derinlemesine özelleştirebileceğinizdir.",
+      starter_desc:"Test ve erken aşama mağazalar için", growth_desc:"Hacme ihtiyaç duyan büyüyen mağazalar için",
+      scale_desc:"Çoklu mağaza veya yüksek hacimli satıcılar için", per_mo:"/ay",
+      trial_tag:"🎁 7 gün ücretsiz deneyin →",
+      starter_cap:"Ayda 1.000 işleme kadar puanlama", growth_cap:"Ayda 25.000 işleme kadar puanlama",
+      scale_cap:"Ayda 150.000 işleme kadar puanlama",
+      feat_api:"Gerçek zamanlı risk puanlama API'si", feat_profiles:"Esnek / Standart / Sıkı profiller",
+      feat_dashboard:"Canlı panel erişimi", feat_community:"Topluluk desteği",
+      feat_everything_starter:"Starter'daki her şey", feat_threshold:"Özel eşik ayarı",
+      feat_map:"Coğrafi risk haritası", feat_batch:"Toplu puanlama uç noktası", feat_email:"E-posta desteği",
+      feat_everything_growth:"Growth'taki her şey", feat_retrain:"Kendi verinizle model yeniden eğitimi",
+      feat_onboarding:"Özel katılım desteği", feat_sla:"SLA garantili çalışma süresi", feat_priority:"Öncelikli destek",
+      buy_now:"Şimdi Satın Al", most_popular:"En Popüler",
+      th_feature:"Özellik", row_monthly_tx:"Dahil aylık işlem sayısı",
+      row_profiles:"Hazır risk profilleri (Esnek/Standart/Sıkı)", row_support:"Destek",
+      row_trial:"7 gün ücretsiz deneme",
+      compare_note:"Tüm fiyatlar EUR cinsindendir, aylık faturalandırılır. Ödeme sırasında yerel ödeme sağlayıcısı üzerinden Türk Lirası ile faturalandırma mümkündür.",
+      faq_eyebrow:"SSS", faq_h2:"Sık sorulan sorular",
+      faq1_q:"7 günlük ücretsiz deneme nasıl çalışır?",
+      faq1_a:"Starter dahil her plan, tam 7 günlük ücretsiz deneme ile başlar. 8. güne kadar iptal etmezseniz, faturalandırma planın listelenen fiyatından otomatik olarak başlar.",
+      faq2_q:"Aylık işlem limitimi aşarsam ne olur?",
+      faq2_a:"Hizmetinizde herhangi bir kesinti olmadan önce sizinle iletişime geçeriz — ay ortasında otomatik olarak kesilmezsiniz.",
+      faq3_q:"Risk eşiklerimi daha sonra değiştirebilir miyim?",
+      faq3_a:"Evet, istediğiniz zaman API veya panel üzerinden — hassasiyeti ayarlamak için destek ile iletişime geçmenize gerek yok.",
+      faq4_q:"Türk Lirası / yerli Türk kartlarını kabul ediyor musunuz?",
+      faq4_a:"Evet. Ödemeler yerel bir Türk ödeme sağlayıcısı üzerinden işlenir, bu nedenle Türkiye'de düzenlenmiş kartlar ve TL faturalandırma tam olarak desteklenir.",
+      faq5_q:"İşlem verilerim başka müşteriler için model eğitiminde kullanılıyor mu?",
+      faq5_a:"Veri işleme ve model eğitimi uygulamaları hakkında ayrıntılar için <a href=\"privacy.html\" style=\"color:var(--pink-2);\">Gizlilik Politikamıza</a> bakın.",
+      cta_h2:"Önümüzdeki iki dakika içinde işlem puanlamaya başlayın.", cta_btn:"API Anahtarınızı Alın — Ücretsiz",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
