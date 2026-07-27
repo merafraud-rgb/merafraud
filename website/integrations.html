@@ -70,6 +70,11 @@
   }
   .not-sure h3{ font-size:19px; margin-bottom:8px; }
   .not-sure p{ font-size:13.5px; margin-bottom:20px; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -81,20 +86,24 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="integrations.html" class="active">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="integrations.html" class="active" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap hero">
-  <span class="eyebrow">Setup Guides</span>
-  <h1>Connect MeraFraud to your store.</h1>
-  <p class="lede">Pick your platform below. Most stores can connect without writing a single line of code.</p>
+  <span class="eyebrow" data-i18n="hero_eyebrow">Setup Guides</span>
+  <h1 data-i18n="hero_h1">Connect MeraFraud to your store.</h1>
+  <p class="lede" data-i18n="hero_lede">Pick your platform below. Most stores can connect without writing a single line of code.</p>
 </section>
 
 <section class="wrap">
@@ -102,61 +111,61 @@
     <div class="card platform-card active" data-platform="woocommerce">
       <div class="icon">🛒</div>
       <div class="name">WooCommerce</div>
-      <div class="tag">No code needed</div>
+      <div class="tag" data-i18n="tag_nocode">No code needed</div>
     </div>
     <div class="card platform-card" data-platform="shopier">
       <div class="icon">🇹🇷</div>
       <div class="name">Shopier</div>
-      <div class="tag">No code needed</div>
+      <div class="tag" data-i18n="tag_nocode">No code needed</div>
     </div>
     <div class="card platform-card" data-platform="shopify">
       <div class="icon">🛍️</div>
       <div class="name">Shopify</div>
-      <div class="tag">No code needed</div>
+      <div class="tag" data-i18n="tag_nocode">No code needed</div>
     </div>
     <div class="card platform-card" data-platform="other">
       <div class="icon">⚙️</div>
-      <div class="name">Other Platforms</div>
-      <div class="tag dev">Talk to us</div>
+      <div class="name" data-i18n="other_platforms">Other Platforms</div>
+      <div class="tag dev" data-i18n="tag_talktous">Talk to us</div>
     </div>
   </div>
 
   <!-- ============ WooCommerce ============ -->
   <div class="guide-panel active" id="guide-woocommerce">
     <div class="guide-head"><span class="icon">🛒</span><h2>WooCommerce</h2></div>
-    <span class="guide-badge no-code">No coding required · ~5 minutes</span>
+    <span class="guide-badge no-code" data-i18n="badge_5min">No coding required · ~5 minutes</span>
     <div class="card">
       <div class="step-list">
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Download the MeraFraud plugin</h3>
-            <p>Download <a href="downloads/merafraud-woocommerce.zip" download style="color:var(--cyan);">merafraud-woocommerce.zip</a> directly — no login needed.</p>
+            <h3 data-i18n="wc1_h">Download the MeraFraud plugin</h3>
+            <p data-i18n="wc1_p">Download <a href="downloads/merafraud-woocommerce.zip" download style="color:var(--cyan);">merafraud-woocommerce.zip</a> directly — no login needed.</p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Upload it to WordPress</h3>
-            <p>In your WordPress admin: <b>Plugins → Add New → Upload Plugin</b>, choose the zip file, click <b>Install Now</b>, then <b>Activate</b>.</p>
+            <h3 data-i18n="wc2_h">Upload it to WordPress</h3>
+            <p data-i18n="wc2_p">In your WordPress admin: <b>Plugins → Add New → Upload Plugin</b>, choose the zip file, click <b>Install Now</b>, then <b>Activate</b>.</p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Paste your API key</h3>
-            <p>Go to <b>WooCommerce → Settings → MeraFraud</b> tab, paste the API key from your MeraFraud dashboard, and click <b>Save changes</b>.</p>
+            <h3 data-i18n="wc3_h">Paste your API key</h3>
+            <p data-i18n="wc3_p">Go to <b>WooCommerce → Settings → MeraFraud</b> tab, paste the API key from your MeraFraud dashboard, and click <b>Save changes</b>.</p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Done — check your orders</h3>
-            <p>New orders now show a colored risk badge in your WooCommerce order list automatically. Nothing else to configure.</p>
+            <h3 data-i18n="wc4_h">Done — check your orders</h3>
+            <p data-i18n="wc4_p">New orders now show a colored risk badge in your WooCommerce order list automatically. Nothing else to configure.</p>
           </div>
         </div>
       </div>
-      <div class="callout">
+      <div class="callout" data-i18n="wc_callout">
         💡 This works no matter which payment method your store uses — Shopier, iyzico, PayTR, bank transfer, cash on delivery — because it runs at the WooCommerce order step, not inside the payment gateway.
       </div>
     </div>
@@ -165,21 +174,21 @@
   <!-- ============ Shopier ============ -->
   <div class="guide-panel" id="guide-shopier">
     <div class="guide-head"><span class="icon">🇹🇷</span><h2>Shopier</h2></div>
-    <span class="guide-badge no-code">No coding required · ~5 minutes</span>
+    <span class="guide-badge no-code" data-i18n="badge_5min">No coding required · ~5 minutes</span>
     <div class="card">
-      <div class="callout">
+      <div class="callout" data-i18n="shopier_callout">
         ℹ️ Shopier is almost always used as a <b>payment method inside WooCommerce</b>. If that's your setup, follow the <b>WooCommerce guide</b> (first tab above) — it covers Shopier automatically, no separate steps needed.
       </div>
       <div class="step-list" style="margin-top:20px;">
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Not using WooCommerce?</h3>
-            <p>If you built a custom checkout that calls Shopier's payment API directly (not through WordPress), you'll need a small code snippet on your own server — download <a href="downloads/generic_checkout_integration.py" download style="color:var(--cyan);">generic_checkout_integration.py</a> and give it to your developer to add where Shopier's payment confirmation ("Otomatik Sipariş Bildirimi") is received.</p>
+            <h3 data-i18n="shopier1_h">Not using WooCommerce?</h3>
+            <p data-i18n="shopier1_p">If you built a custom checkout that calls Shopier's payment API directly (not through WordPress), you'll need a small code snippet on your own server — download <a href="downloads/generic_checkout_integration.py" download style="color:var(--cyan);">generic_checkout_integration.py</a> and give it to your developer to add where Shopier's payment confirmation ("Otomatik Sipariş Bildirimi") is received.</p>
           </div>
         </div>
       </div>
-      <div class="callout warn">
+      <div class="callout warn" data-i18n="shopier_warn">
         ⚠ Don't have a developer? Use the <b>"Message an Advisor"</b> option in the chat bubble (bottom-right) — we can help figure out your exact setup.
       </div>
     </div>
@@ -188,31 +197,31 @@
   <!-- ============ Shopify ============ -->
   <div class="guide-panel" id="guide-shopify">
     <div class="guide-head"><span class="icon">🛍️</span><h2>Shopify</h2></div>
-    <span class="guide-badge no-code">No coding required · ~10 minutes, using Shopify Flow</span>
+    <span class="guide-badge no-code" data-i18n="badge_10min">No coding required · ~10 minutes, using Shopify Flow</span>
     <div class="card">
-      <div class="callout warn">
+      <div class="callout warn" data-i18n="shopify_warn">
         ⚠ Requires the <b>Shopify</b> plan or higher (Shopify Flow isn't included on the Starter plan). Check your plan under Settings → Plan.
       </div>
       <div class="step-list" style="margin-top:20px;">
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Open Shopify Flow</h3>
-            <p>In Shopify admin: <b>Apps and sales channels → Shopify Flow</b> (install it free from the App Store if you don't see it).</p>
+            <h3 data-i18n="sf1_h">Open Shopify Flow</h3>
+            <p data-i18n="sf1_p">In Shopify admin: <b>Apps and sales channels → Shopify Flow</b> (install it free from the App Store if you don't see it).</p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Create a new workflow</h3>
-            <p>Click <b>Create workflow</b>. For the trigger, choose <b>"Order created."</b></p>
+            <h3 data-i18n="sf2_h">Create a new workflow</h3>
+            <p data-i18n="sf2_p">Click <b>Create workflow</b>. For the trigger, choose <b>"Order created."</b></p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Add a "Send HTTP request" action</h3>
-            <p>Set the URL to your MeraFraud API address, add header <code>X-API-Key</code> with your key, and paste this as the request body (replace the values in <code>{{ }}</code> with the matching Shopify Flow variables):</p>
+            <h3 data-i18n="sf3_h">Add a "Send HTTP request" action</h3>
+            <p data-i18n="sf3_p">Set the URL to your MeraFraud API address, add header <code>X-API-Key</code> with your key, and paste this as the request body (replace the values in <code>{{ }}</code> with the matching Shopify Flow variables):</p>
             <pre style="background:rgba(0,0,0,0.3); border:1px solid var(--card-border); border-radius:10px; padding:14px 16px; font-size:11.5px; color:var(--text-lo); overflow-x:auto; margin-top:10px;">{
   "transaction_amount": {{order.total_price}},
   "amount_ratio_to_avg": 1.2,
@@ -237,19 +246,19 @@
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Tag the order based on the result</h3>
-            <p>Add a <b>Condition</b> + <b>"Add order tag"</b> action so risky orders get tagged automatically (e.g. <code>merafraud-block</code>). Turn the workflow <b>On</b>.</p>
+            <h3 data-i18n="sf4_h">Tag the order based on the result</h3>
+            <p data-i18n="sf4_p">Add a <b>Condition</b> + <b>"Add order tag"</b> action so risky orders get tagged automatically (e.g. <code>merafraud-block</code>). Turn the workflow <b>On</b>.</p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Done — filter your orders</h3>
-            <p>In <b>Orders</b>, search <code>tag:merafraud-block</code> anytime to see flagged orders. No further action needed — Shopify runs this automatically from now on.</p>
+            <h3 data-i18n="sf5_h">Done — filter your orders</h3>
+            <p data-i18n="sf5_p">In <b>Orders</b>, search <code>tag:merafraud-block</code> anytime to see flagged orders. No further action needed — Shopify runs this automatically from now on.</p>
           </div>
         </div>
       </div>
-      <div class="callout">
+      <div class="callout" data-i18n="sf_callout">
         💡 Want it fully automatic with real-time blocking, not just tagging? That needs a small custom server — download <a href="downloads/shopify_webhook_integration.py" download style="color:var(--cyan);">shopify_webhook_integration.py</a>, or ask us for help via Support.
       </div>
     </div>
@@ -257,10 +266,10 @@
 
   <!-- ============ Other platforms ============ -->
   <div class="guide-panel" id="guide-other">
-    <div class="guide-head"><span class="icon">⚙️</span><h2>Other E-Commerce Platforms</h2></div>
-    <span class="guide-badge dev-needed">A developer or our team can set this up</span>
+    <div class="guide-head"><span class="icon">⚙️</span><h2 data-i18n="other_h2">Other E-Commerce Platforms</h2></div>
+    <span class="guide-badge dev-needed" data-i18n="other_badge">A developer or our team can set this up</span>
     <div class="card">
-      <p style="font-size:13.5px; margin-bottom:14px;">We don't have a ready-made, no-code guide for every platform yet — but MeraFraud works with <b>any</b> platform that can make a standard web request. Click a platform below to download a starter integration file for it:</p>
+      <p style="font-size:13.5px; margin-bottom:14px;" data-i18n="other_p">We don't have a ready-made, no-code guide for every platform yet — but MeraFraud works with <b>any</b> platform that can make a standard web request. Click a platform below to download a starter integration file for it:</p>
       <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
         <a href="downloads/platform-templates/magento2_observer.php" download class="platform-chip">Magento <span style="color:var(--safe);">●</span></a>
         <a href="downloads/platform-templates/prestashop_module.php" download class="platform-chip">PrestaShop <span style="color:var(--safe);">●</span></a>
@@ -279,33 +288,33 @@
         <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">CS-Cart <span style="color:var(--block);">●</span></a>
       </div>
       <div style="font-size:11.5px; color:var(--text-lo); margin-bottom:20px; display:flex; gap:16px;">
-        <span><span style="color:var(--safe);">●</span> Tested pattern, high confidence</span>
-        <span><span style="color:var(--review);">●</span> Documented but version-dependent</span>
-        <span><span style="color:var(--block);">●</span> Generic template — needs field mapping for your platform</span>
+        <span><span style="color:var(--safe);">●</span> <span data-i18n="legend_tested">Tested pattern, high confidence</span></span>
+        <span><span style="color:var(--review);">●</span> <span data-i18n="legend_documented">Documented but version-dependent</span></span>
+        <span><span style="color:var(--block);">●</span> <span data-i18n="legend_generic">Generic template — needs field mapping for your platform</span></span>
       </div>
-      <div class="callout warn" style="margin-bottom:20px;">
+      <div class="callout warn" style="margin-bottom:20px;" data-i18n="other_warn">
         ⚠ None of these were tested against a live store on that platform (we don't have accounts on all of them). Give the file to a developer — it's a real, working starting point, not a plug-and-play plugin for every case. See <a href="downloads/platform-templates/README.md" download style="color:var(--cyan);">README.md</a> for the full confidence breakdown.
       </div>
       <div class="step-list">
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Check if your platform supports webhooks or a "custom code" area</h3>
-            <p>Most platforms above let you add a webhook for "order created" events, or embed custom code at checkout.</p>
+            <h3 data-i18n="other1_h">Check if your platform supports webhooks or a "custom code" area</h3>
+            <p data-i18n="other1_p">Most platforms above let you add a webhook for "order created" events, or embed custom code at checkout.</p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Point it at MeraFraud</h3>
-            <p>Whoever manages your site (an in-house developer or the platform's support team) uses the same pattern shown in <a href="downloads/generic_checkout_integration.py" download style="color:var(--cyan);">generic_checkout_integration.py</a> — call MeraFraud's <code>/api/predict</code> with your API key at checkout.</p>
+            <h3 data-i18n="other2_h">Point it at MeraFraud</h3>
+            <p data-i18n="other2_p">Whoever manages your site (an in-house developer or the platform's support team) uses the same pattern shown in <a href="downloads/generic_checkout_integration.py" download style="color:var(--cyan);">generic_checkout_integration.py</a> — call MeraFraud's <code>/api/predict</code> with your API key at checkout.</p>
           </div>
         </div>
         <div class="g-step">
           <div class="g-num"></div>
           <div>
-            <h3>Or let us help directly</h3>
-            <p>Message an advisor (chat bubble, bottom-right) with your platform name — we'll tell you exactly where the integration point is for your specific system.</p>
+            <h3 data-i18n="other3_h">Or let us help directly</h3>
+            <p data-i18n="other3_p">Message an advisor (chat bubble, bottom-right) with your platform name — we'll tell you exactly where the integration point is for your specific system.</p>
           </div>
         </div>
       </div>
@@ -313,9 +322,9 @@
   </div>
 
   <div class="not-sure reveal">
-    <h3>Not sure which applies to you?</h3>
-    <p>Tell us your platform and we'll walk you through it directly.</p>
-    <span class="btn-primary" style="cursor:pointer;" onclick="document.getElementById('mf-support-bubble').click()">💬 Ask in Chat</span>
+    <h3 data-i18n="notsure_h">Not sure which applies to you?</h3>
+    <p data-i18n="notsure_p">Tell us your platform and we'll walk you through it directly.</p>
+    <span class="btn-primary" style="cursor:pointer;" onclick="document.getElementById('mf-support-bubble').click()" data-i18n="notsure_btn">💬 Ask in Chat</span>
   </div>
 </section>
 
@@ -324,27 +333,27 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
@@ -361,5 +370,127 @@ document.querySelectorAll('.platform-card').forEach(card => {
 </script>
 <script src="animations.js"></script>
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"Setup Guides", hero_h1:"Connect MeraFraud to your store.",
+      hero_lede:"Pick your platform below. Most stores can connect without writing a single line of code.",
+      tag_nocode:"No code needed", other_platforms:"Other Platforms", tag_talktous:"Talk to us",
+      badge_5min:"No coding required · ~5 minutes", badge_10min:"No coding required · ~10 minutes, using Shopify Flow",
+      wc1_h:"Download the MeraFraud plugin",
+      wc1_p:"Download <a href=\"downloads/merafraud-woocommerce.zip\" download style=\"color:var(--cyan);\">merafraud-woocommerce.zip</a> directly — no login needed.",
+      wc2_h:"Upload it to WordPress",
+      wc2_p:"In your WordPress admin: <b>Plugins → Add New → Upload Plugin</b>, choose the zip file, click <b>Install Now</b>, then <b>Activate</b>.",
+      wc3_h:"Paste your API key",
+      wc3_p:"Go to <b>WooCommerce → Settings → MeraFraud</b> tab, paste the API key from your MeraFraud dashboard, and click <b>Save changes</b>.",
+      wc4_h:"Done — check your orders",
+      wc4_p:"New orders now show a colored risk badge in your WooCommerce order list automatically. Nothing else to configure.",
+      wc_callout:"💡 This works no matter which payment method your store uses — Shopier, iyzico, PayTR, bank transfer, cash on delivery — because it runs at the WooCommerce order step, not inside the payment gateway.",
+      shopier_callout:"ℹ️ Shopier is almost always used as a <b>payment method inside WooCommerce</b>. If that's your setup, follow the <b>WooCommerce guide</b> (first tab above) — it covers Shopier automatically, no separate steps needed.",
+      shopier1_h:"Not using WooCommerce?",
+      shopier1_p:"If you built a custom checkout that calls Shopier's payment API directly (not through WordPress), you'll need a small code snippet on your own server — download <a href=\"downloads/generic_checkout_integration.py\" download style=\"color:var(--cyan);\">generic_checkout_integration.py</a> and give it to your developer to add where Shopier's payment confirmation (\"Otomatik Sipariş Bildirimi\") is received.",
+      shopier_warn:"⚠ Don't have a developer? Use the <b>\"Message an Advisor\"</b> option in the chat bubble (bottom-right) — we can help figure out your exact setup.",
+      shopify_warn:"⚠ Requires the <b>Shopify</b> plan or higher (Shopify Flow isn't included on the Starter plan). Check your plan under Settings → Plan.",
+      sf1_h:"Open Shopify Flow",
+      sf1_p:"In Shopify admin: <b>Apps and sales channels → Shopify Flow</b> (install it free from the App Store if you don't see it).",
+      sf2_h:"Create a new workflow", sf2_p:"Click <b>Create workflow</b>. For the trigger, choose <b>\"Order created.\"</b>",
+      sf3_h:"Add a \"Send HTTP request\" action",
+      sf3_p:"Set the URL to your MeraFraud API address, add header <code>X-API-Key</code> with your key, and paste this as the request body (replace the values in <code>{{ }}</code> with the matching Shopify Flow variables):",
+      sf4_h:"Tag the order based on the result",
+      sf4_p:"Add a <b>Condition</b> + <b>\"Add order tag\"</b> action so risky orders get tagged automatically (e.g. <code>merafraud-block</code>). Turn the workflow <b>On</b>.",
+      sf5_h:"Done — filter your orders",
+      sf5_p:"In <b>Orders</b>, search <code>tag:merafraud-block</code> anytime to see flagged orders. No further action needed — Shopify runs this automatically from now on.",
+      sf_callout:"💡 Want it fully automatic with real-time blocking, not just tagging? That needs a small custom server — download <a href=\"downloads/shopify_webhook_integration.py\" download style=\"color:var(--cyan);\">shopify_webhook_integration.py</a>, or ask us for help via Support.",
+      other_h2:"Other E-Commerce Platforms", other_badge:"A developer or our team can set this up",
+      other_p:"We don't have a ready-made, no-code guide for every platform yet — but MeraFraud works with <b>any</b> platform that can make a standard web request. Click a platform below to download a starter integration file for it:",
+      legend_tested:"Tested pattern, high confidence", legend_documented:"Documented but version-dependent",
+      legend_generic:"Generic template — needs field mapping for your platform",
+      other_warn:"⚠ None of these were tested against a live store on that platform (we don't have accounts on all of them). Give the file to a developer — it's a real, working starting point, not a plug-and-play plugin for every case. See <a href=\"downloads/platform-templates/README.md\" download style=\"color:var(--cyan);\">README.md</a> for the full confidence breakdown.",
+      other1_h:"Check if your platform supports webhooks or a \"custom code\" area",
+      other1_p:"Most platforms above let you add a webhook for \"order created\" events, or embed custom code at checkout.",
+      other2_h:"Point it at MeraFraud",
+      other2_p:"Whoever manages your site (an in-house developer or the platform's support team) uses the same pattern shown in <a href=\"downloads/generic_checkout_integration.py\" download style=\"color:var(--cyan);\">generic_checkout_integration.py</a> — call MeraFraud's <code>/api/predict</code> with your API key at checkout.",
+      other3_h:"Or let us help directly",
+      other3_p:"Message an advisor (chat bubble, bottom-right) with your platform name — we'll tell you exactly where the integration point is for your specific system.",
+      notsure_h:"Not sure which applies to you?", notsure_p:"Tell us your platform and we'll walk you through it directly.",
+      notsure_btn:"💬 Ask in Chat",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"Kurulum Rehberleri", hero_h1:"MeraFraud'u mağazanıza bağlayın.",
+      hero_lede:"Aşağıdan platformunuzu seçin. Çoğu mağaza tek satır kod yazmadan bağlanabilir.",
+      tag_nocode:"Kod gerekmez", other_platforms:"Diğer Platformlar", tag_talktous:"Bizimle konuşun",
+      badge_5min:"Kodlama gerekmez · ~5 dakika", badge_10min:"Kodlama gerekmez · ~10 dakika, Shopify Flow kullanarak",
+      wc1_h:"MeraFraud eklentisini indirin",
+      wc1_p:"<a href=\"downloads/merafraud-woocommerce.zip\" download style=\"color:var(--cyan);\">merafraud-woocommerce.zip</a> dosyasını doğrudan indirin — giriş yapmanıza gerek yok.",
+      wc2_h:"WordPress'e yükleyin",
+      wc2_p:"WordPress yönetim panelinizde: <b>Eklentiler → Yeni Ekle → Eklenti Yükle</b>, zip dosyasını seçin, <b>Şimdi Yükle</b>'ye tıklayın, ardından <b>Etkinleştir</b>'e tıklayın.",
+      wc3_h:"API anahtarınızı yapıştırın",
+      wc3_p:"<b>WooCommerce → Ayarlar → MeraFraud</b> sekmesine gidin, MeraFraud panelinizden aldığınız API anahtarını yapıştırın ve <b>Değişiklikleri Kaydet</b>'e tıklayın.",
+      wc4_h:"Tamamlandı — siparişlerinizi kontrol edin",
+      wc4_p:"Yeni siparişler artık WooCommerce sipariş listenizde otomatik olarak renkli bir risk rozeti gösterir. Başka bir ayar yapmanıza gerek yok.",
+      wc_callout:"💡 Bu, mağazanızın hangi ödeme yöntemini kullandığından bağımsız çalışır — Shopier, iyzico, PayTR, banka havalesi, kapıda ödeme — çünkü ödeme geçidinin içinde değil, WooCommerce sipariş adımında çalışır.",
+      shopier_callout:"ℹ️ Shopier neredeyse her zaman WooCommerce içinde <b>bir ödeme yöntemi</b> olarak kullanılır. Kurulumunuz böyleyse, <b>WooCommerce rehberini</b> izleyin (yukarıdaki ilk sekme) — Shopier'i otomatik olarak kapsar, ayrı bir adıma gerek yoktur.",
+      shopier1_h:"WooCommerce kullanmıyor musunuz?",
+      shopier1_p:"Shopier'in ödeme API'sini doğrudan çağıran özel bir ödeme sayfası kurduysanız (WordPress üzerinden değil), kendi sunucunuzda küçük bir kod parçasına ihtiyacınız olacak — <a href=\"downloads/generic_checkout_integration.py\" download style=\"color:var(--cyan);\">generic_checkout_integration.py</a> dosyasını indirin ve Shopier'in ödeme onayının (\"Otomatik Sipariş Bildirimi\") alındığı yere eklemesi için geliştiricinize verin.",
+      shopier_warn:"⚠ Geliştiriciniz yok mu? Sohbet balonundaki (sağ alt) <b>\"Bir Danışmana Mesaj Gönder\"</b> seçeneğini kullanın — kurulumunuzu birlikte çözebiliriz.",
+      shopify_warn:"⚠ <b>Shopify</b> planı veya üzeri gerektirir (Shopify Flow, Starter planına dahil değildir). Planınızı Ayarlar → Plan altından kontrol edin.",
+      sf1_h:"Shopify Flow'u açın",
+      sf1_p:"Shopify yönetim panelinde: <b>Uygulamalar ve satış kanalları → Shopify Flow</b> (görmüyorsanız App Store'dan ücretsiz yükleyin).",
+      sf2_h:"Yeni bir iş akışı oluşturun", sf2_p:"<b>İş Akışı Oluştur</b>'a tıklayın. Tetikleyici olarak <b>\"Sipariş oluşturuldu\"</b>nu seçin.",
+      sf3_h:"\"HTTP isteği gönder\" eylemi ekleyin",
+      sf3_p:"URL'yi MeraFraud API adresinize ayarlayın, <code>X-API-Key</code> başlığını anahtarınızla ekleyin ve bunu istek gövdesi olarak yapıştırın (<code>{{ }}</code> içindeki değerleri ilgili Shopify Flow değişkenleriyle değiştirin):",
+      sf4_h:"Sonuca göre siparişi etiketleyin",
+      sf4_p:"Riskli siparişlerin otomatik olarak etiketlenmesi için bir <b>Koşul</b> + <b>\"Sipariş etiketi ekle\"</b> eylemi ekleyin (örn. <code>merafraud-block</code>). İş akışını <b>Açık</b> konuma getirin.",
+      sf5_h:"Tamamlandı — siparişlerinizi filtreleyin",
+      sf5_p:"<b>Siparişler</b> bölümünde, işaretlenen siparişleri görmek için istediğiniz zaman <code>tag:merafraud-block</code> arayın. Başka bir işlem gerekmez — Shopify bunu bundan sonra otomatik olarak çalıştırır.",
+      sf_callout:"💡 Sadece etiketleme değil, gerçek zamanlı engelleme ile tamamen otomatik olmasını mı istiyorsunuz? Bunun için küçük bir özel sunucu gerekir — <a href=\"downloads/shopify_webhook_integration.py\" download style=\"color:var(--cyan);\">shopify_webhook_integration.py</a> dosyasını indirin veya Destek üzerinden bizden yardım isteyin.",
+      other_h2:"Diğer E-Ticaret Platformları", other_badge:"Bir geliştirici veya ekibimiz bunu kurabilir",
+      other_p:"Henüz her platform için hazır, kodsuz bir rehberimiz yok — ama MeraFraud, standart bir web isteği yapabilen <b>her</b> platformla çalışır. Aşağıdan bir platforma tıklayarak onun için başlangıç entegrasyon dosyasını indirin:",
+      legend_tested:"Test edilmiş yöntem, yüksek güven", legend_documented:"Belgelendi ama sürüme bağlı",
+      legend_generic:"Genel şablon — platformunuz için alan eşleştirmesi gerekir",
+      other_warn:"⚠ Bunların hiçbiri o platformda canlı bir mağazaya karşı test edilmedi (hepsinde hesabımız yok). Dosyayı bir geliştiriciye verin — her durum için tak-çalıştır bir eklenti değil, gerçek ve çalışan bir başlangıç noktasıdır. Tam güven düzeyi dökümü için <a href=\"downloads/platform-templates/README.md\" download style=\"color:var(--cyan);\">README.md</a> dosyasına bakın.",
+      other1_h:"Platformunuzun webhook veya \"özel kod\" alanını destekleyip desteklemediğini kontrol edin",
+      other1_p:"Yukarıdaki platformların çoğu, \"sipariş oluşturuldu\" olayları için bir webhook eklemenize veya ödeme sayfasına özel kod yerleştirmenize izin verir.",
+      other2_h:"MeraFraud'a yönlendirin",
+      other2_p:"Sitenizi kim yönetiyorsa (bünyenizdeki bir geliştirici veya platformun destek ekibi), <a href=\"downloads/generic_checkout_integration.py\" download style=\"color:var(--cyan);\">generic_checkout_integration.py</a> dosyasında gösterilen aynı yöntemi kullanır — ödeme sırasında API anahtarınızla MeraFraud'un <code>/api/predict</code> uç noktasını çağırır.",
+      other3_h:"Ya da doğrudan size yardımcı olalım",
+      other3_p:"Platformunuzun adını belirterek bir danışmana mesaj gönderin (sohbet balonu, sağ alt) — sisteminize özel entegrasyon noktasının tam olarak nerede olduğunu size söyleyelim.",
+      notsure_h:"Hangisinin size uygun olduğundan emin değil misiniz?", notsure_p:"Platformunuzu söyleyin, size adım adım yol gösterelim.",
+      notsure_btn:"💬 Sohbette Sorun",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
