@@ -14,6 +14,10 @@
     background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); border-radius:14px;
     padding:18px 22px; margin:24px 0 8px; font-size:13.5px; color:var(--review);
   }
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -24,21 +28,25 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap-narrow hero">
-  <span class="eyebrow">Legal</span>
-  <h1>Terms of Service</h1>
-  <div class="draft-notice">
+  <span class="eyebrow" data-i18n="eyebrow">Legal</span>
+  <h1 data-i18n="h1">Terms of Service</h1>
+  <div class="draft-notice" data-i18n="draft_notice">
     ⚠ <b>Draft document.</b> This is a starting template for an MVP, not a legally
     reviewed contract. Have this reviewed by a qualified lawyer before relying on it —
     especially the liability and accuracy sections below, given that fraud-detection
@@ -47,42 +55,42 @@
 </section>
 
 <section class="wrap-narrow prose" style="padding-bottom:80px;">
-  <span class="updated-note">Last updated: July 2026</span>
+  <span class="updated-note" data-i18n="updated">Last updated: July 2026</span>
 
-  <h2>1. Agreement to terms</h2>
-  <p>By creating an account or using the MeraFraud API or dashboard ("Service"), you agree to these Terms of Service. If you do not agree, do not use the Service.</p>
+  <h2 data-i18n="h2_1">1. Agreement to terms</h2>
+  <p data-i18n="p_1">By creating an account or using the MeraFraud API or dashboard ("Service"), you agree to these Terms of Service. If you do not agree, do not use the Service.</p>
 
-  <h2>2. Description of service</h2>
-  <p>MeraFraud provides a machine-learning-based fraud risk scoring API and an accompanying dashboard for e-commerce merchants ("you", "Merchant"). The Service returns a risk score and a recommended decision (approve / review / block) for transactions you submit. <b>The Service is a decision-support tool, not a guarantee.</b> You remain solely responsible for the final decision on any transaction.</p>
+  <h2 data-i18n="h2_2">2. Description of service</h2>
+  <p data-i18n="p_2">MeraFraud provides a machine-learning-based fraud risk scoring API and an accompanying dashboard for e-commerce merchants ("you", "Merchant"). The Service returns a risk score and a recommended decision (approve / review / block) for transactions you submit. <b>The Service is a decision-support tool, not a guarantee.</b> You remain solely responsible for the final decision on any transaction.</p>
 
-  <h2>3. No guarantee of accuracy</h2>
-  <p>Fraud detection is probabilistic. The Service may produce false positives (flagging legitimate transactions) and false negatives (missing actual fraud). In this MVP, the underlying model is trained on synthetic data and has not been validated against your specific transaction patterns. You should independently evaluate the Service's performance before relying on it for high-stakes decisions.</p>
+  <h2 data-i18n="h2_3">3. No guarantee of accuracy</h2>
+  <p data-i18n="p_3">Fraud detection is probabilistic. The Service may produce false positives (flagging legitimate transactions) and false negatives (missing actual fraud). In this MVP, the underlying model is trained on synthetic data and has not been validated against your specific transaction patterns. You should independently evaluate the Service's performance before relying on it for high-stakes decisions.</p>
 
-  <h2>4. Your responsibilities</h2>
+  <h2 data-i18n="h2_4">4. Your responsibilities</h2>
   <ul>
-    <li>Keep your API key confidential; you are responsible for all activity under your key</li>
-    <li>Do not submit regulated cardholder data (full card numbers, CVV, etc.) to the API</li>
-    <li>Comply with applicable law in how you use transaction decisions (e.g. non-discrimination, consumer protection)</li>
-    <li>Do not use the Service to build a competing fraud-detection product without a separate agreement</li>
+    <li data-i18n="li_41">Keep your API key confidential; you are responsible for all activity under your key</li>
+    <li data-i18n="li_42">Do not submit regulated cardholder data (full card numbers, CVV, etc.) to the API</li>
+    <li data-i18n="li_43">Comply with applicable law in how you use transaction decisions (e.g. non-discrimination, consumer protection)</li>
+    <li data-i18n="li_44">Do not use the Service to build a competing fraud-detection product without a separate agreement</li>
   </ul>
 
-  <h2>5. Acceptable use</h2>
-  <p>You may not use the Service to process transactions you know to be fraudulent, to launder money, or in any way that violates applicable law. We may suspend accounts that violate this section.</p>
+  <h2 data-i18n="h2_5">5. Acceptable use</h2>
+  <p data-i18n="p_5">You may not use the Service to process transactions you know to be fraudulent, to launder money, or in any way that violates applicable law. We may suspend accounts that violate this section.</p>
 
-  <h2>6. Pricing and payment</h2>
-  <p>Current plans and pricing are listed on our <a href="pricing.html" style="color:var(--pink-2);">Pricing page</a>. Prices may change with notice. Paid plans are billed as described at signup (billing integration is not yet implemented in this MVP).</p>
+  <h2 data-i18n="h2_6">6. Pricing and payment</h2>
+  <p data-i18n="p_6">Current plans and pricing are listed on our <a href="pricing.html" style="color:var(--pink-2);">Pricing page</a>. Prices may change with notice. Paid plans are billed as described at signup (billing integration is not yet implemented in this MVP).</p>
 
-  <h2>7. Limitation of liability</h2>
-  <p>To the maximum extent permitted by law, MeraFraud is not liable for indirect, incidental, or consequential damages arising from your use of the Service, including losses resulting from fraud that the Service failed to detect, or legitimate transactions the Service incorrectly flagged. This section requires careful legal drafting appropriate to your jurisdiction before real-world use.</p>
+  <h2 data-i18n="h2_7">7. Limitation of liability</h2>
+  <p data-i18n="p_7">To the maximum extent permitted by law, MeraFraud is not liable for indirect, incidental, or consequential damages arising from your use of the Service, including losses resulting from fraud that the Service failed to detect, or legitimate transactions the Service incorrectly flagged. This section requires careful legal drafting appropriate to your jurisdiction before real-world use.</p>
 
-  <h2>8. Termination</h2>
-  <p>You may stop using the Service at any time. We may suspend or terminate accounts that violate these Terms or applicable law, with notice where reasonably possible.</p>
+  <h2 data-i18n="h2_8">8. Termination</h2>
+  <p data-i18n="p_8">You may stop using the Service at any time. We may suspend or terminate accounts that violate these Terms or applicable law, with notice where reasonably possible.</p>
 
-  <h2>9. Changes to these terms</h2>
-  <p>We may update these Terms as the product evolves. Continued use of the Service after changes take effect constitutes acceptance of the updated Terms.</p>
+  <h2 data-i18n="h2_9">9. Changes to these terms</h2>
+  <p data-i18n="p_9">We may update these Terms as the product evolves. Continued use of the Service after changes take effect constitutes acceptance of the updated Terms.</p>
 
-  <h2>10. Contact</h2>
-  <p>Questions about these Terms? Reach us at <a href="mailto:hello@merafraud.com" style="color:var(--pink-2);">hello@merafraud.com</a> or via our <a href="contact.html" style="color:var(--pink-2);">Contact page</a>.</p>
+  <h2 data-i18n="h2_10">10. Contact</h2>
+  <p data-i18n="p_10">Questions about these Terms? Reach us at <a href="mailto:hello@merafraud.com" style="color:var(--pink-2);">hello@merafraud.com</a> or via our <a href="contact.html" style="color:var(--pink-2);">Contact page</a>.</p>
 </section>
 
 <footer>
@@ -90,33 +98,125 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
 
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      eyebrow:"Legal", h1:"Terms of Service",
+      draft_notice:"⚠ <b>Draft document.</b> This is a starting template for an MVP, not a legally reviewed contract. Have this reviewed by a qualified lawyer before relying on it — especially the liability and accuracy sections below, given that fraud-detection decisions can affect real money and real customers.",
+      updated:"Last updated: July 2026",
+      h2_1:"1. Agreement to terms",
+      p_1:"By creating an account or using the MeraFraud API or dashboard (\"Service\"), you agree to these Terms of Service. If you do not agree, do not use the Service.",
+      h2_2:"2. Description of service",
+      p_2:"MeraFraud provides a machine-learning-based fraud risk scoring API and an accompanying dashboard for e-commerce merchants (\"you\", \"Merchant\"). The Service returns a risk score and a recommended decision (approve / review / block) for transactions you submit. <b>The Service is a decision-support tool, not a guarantee.</b> You remain solely responsible for the final decision on any transaction.",
+      h2_3:"3. No guarantee of accuracy",
+      p_3:"Fraud detection is probabilistic. The Service may produce false positives (flagging legitimate transactions) and false negatives (missing actual fraud). In this MVP, the underlying model is trained on synthetic data and has not been validated against your specific transaction patterns. You should independently evaluate the Service's performance before relying on it for high-stakes decisions.",
+      h2_4:"4. Your responsibilities",
+      li_41:"Keep your API key confidential; you are responsible for all activity under your key",
+      li_42:"Do not submit regulated cardholder data (full card numbers, CVV, etc.) to the API",
+      li_43:"Comply with applicable law in how you use transaction decisions (e.g. non-discrimination, consumer protection)",
+      li_44:"Do not use the Service to build a competing fraud-detection product without a separate agreement",
+      h2_5:"5. Acceptable use",
+      p_5:"You may not use the Service to process transactions you know to be fraudulent, to launder money, or in any way that violates applicable law. We may suspend accounts that violate this section.",
+      h2_6:"6. Pricing and payment",
+      p_6:"Current plans and pricing are listed on our <a href=\"pricing.html\" style=\"color:var(--pink-2);\">Pricing page</a>. Prices may change with notice. Paid plans are billed as described at signup (billing integration is not yet implemented in this MVP).",
+      h2_7:"7. Limitation of liability",
+      p_7:"To the maximum extent permitted by law, MeraFraud is not liable for indirect, incidental, or consequential damages arising from your use of the Service, including losses resulting from fraud that the Service failed to detect, or legitimate transactions the Service incorrectly flagged. This section requires careful legal drafting appropriate to your jurisdiction before real-world use.",
+      h2_8:"8. Termination",
+      p_8:"You may stop using the Service at any time. We may suspend or terminate accounts that violate these Terms or applicable law, with notice where reasonably possible.",
+      h2_9:"9. Changes to these terms",
+      p_9:"We may update these Terms as the product evolves. Continued use of the Service after changes take effect constitutes acceptance of the updated Terms.",
+      h2_10:"10. Contact",
+      p_10:"Questions about these Terms? Reach us at <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--pink-2);\">hello@merafraud.com</a> or via our <a href=\"contact.html\" style=\"color:var(--pink-2);\">Contact page</a>.",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      eyebrow:"Yasal", h1:"Kullanım Şartları",
+      draft_notice:"⚠ <b>Taslak belge.</b> Bu, MVP için bir başlangıç şablonudur, hukuki incelemeden geçmiş bir sözleşme değildir. Buna güvenmeden önce, özellikle aşağıdaki sorumluluk ve doğruluk bölümlerini, dolandırıcılık tespit kararlarının gerçek parayı ve gerçek müşterileri etkileyebileceği göz önünde bulundurularak nitelikli bir avukata inceletin.",
+      updated:"Son güncelleme: Temmuz 2026",
+      h2_1:"1. Şartların kabulü",
+      p_1:"Bir hesap oluşturarak veya MeraFraud API'sini ya da panelini (\"Hizmet\") kullanarak, bu Kullanım Şartlarını kabul etmiş olursunuz. Kabul etmiyorsanız, Hizmeti kullanmayın.",
+      h2_2:"2. Hizmet tanımı",
+      p_2:"MeraFraud, e-ticaret satıcıları (\"siz\", \"Satıcı\") için makine öğrenmesi tabanlı bir dolandırıcılık risk puanlama API'si ve buna eşlik eden bir panel sunar. Hizmet, gönderdiğiniz işlemler için bir risk skoru ve önerilen bir karar (onayla / incele / engelle) döndürür. <b>Hizmet, bir karar destek aracıdır, bir garanti değildir.</b> Herhangi bir işlemdeki nihai karardan tek başınıza sorumlu kalırsınız.",
+      h2_3:"3. Doğruluk garantisi yok",
+      p_3:"Dolandırıcılık tespiti olasılıksaldır. Hizmet, yanlış pozitifler (meşru işlemleri işaretleme) ve yanlış negatifler (gerçek dolandırıcılığı kaçırma) üretebilir. Bu MVP'de, temel model sentetik veri üzerinde eğitilmiştir ve sizin özel işlem örüntülerinize karşı doğrulanmamıştır. Yüksek riskli kararlar için güvenmeden önce Hizmetin performansını bağımsız olarak değerlendirmelisiniz.",
+      h2_4:"4. Sorumluluklarınız",
+      li_41:"API anahtarınızı gizli tutun; anahtarınız altındaki tüm etkinlikten siz sorumlusunuz",
+      li_42:"API'ye düzenlemeye tabi kart sahibi verileri (tam kart numaraları, CVV vb.) göndermeyin",
+      li_43:"İşlem kararlarını kullanma şeklinizde yürürlükteki yasalara uyun (ör. ayrımcılık yapmama, tüketici koruması)",
+      li_44:"Ayrı bir anlaşma olmadan rakip bir dolandırıcılık tespit ürünü geliştirmek için Hizmeti kullanmayın",
+      h2_5:"5. Kabul edilebilir kullanım",
+      p_5:"Hizmeti, dolandırıcılık olduğunu bildiğiniz işlemleri işlemek, kara para aklamak veya yürürlükteki yasaları ihlal edecek herhangi bir şekilde kullanamazsınız. Bu bölümü ihlal eden hesapları askıya alabiliriz.",
+      h2_6:"6. Fiyatlandırma ve ödeme",
+      p_6:"Güncel planlar ve fiyatlandırma <a href=\"pricing.html\" style=\"color:var(--pink-2);\">Fiyatlandırma sayfamızda</a> listelenmiştir. Fiyatlar bildirimle değişebilir. Ücretli planlar, kayıt sırasında açıklandığı şekilde faturalandırılır (faturalandırma entegrasyonu bu MVP'de henüz uygulanmamıştır).",
+      h2_7:"7. Sorumluluk sınırlaması",
+      p_7:"Yasaların izin verdiği azami ölçüde, MeraFraud; Hizmeti kullanımınızdan kaynaklanan dolaylı, arızi veya sonuç olarak ortaya çıkan zararlardan sorumlu değildir; buna Hizmetin tespit edemediği dolandırıcılıktan kaynaklanan kayıplar veya Hizmetin hatalı şekilde işaretlediği meşru işlemler de dahildir. Bu bölüm, gerçek dünyada kullanılmadan önce yargı bölgenize uygun, dikkatli bir hukuki hazırlık gerektirir.",
+      h2_8:"8. Fesih",
+      p_8:"Hizmeti istediğiniz zaman kullanmayı bırakabilirsiniz. Bu Şartları veya yürürlükteki yasaları ihlal eden hesapları, makul olduğu ölçüde bildirimde bulunarak askıya alabilir veya sonlandırabiliriz.",
+      h2_9:"9. Bu şartlardaki değişiklikler",
+      p_9:"Ürün geliştikçe bu Şartları güncelleyebiliriz. Değişiklikler yürürlüğe girdikten sonra Hizmeti kullanmaya devam etmeniz, güncellenmiş Şartları kabul ettiğiniz anlamına gelir.",
+      h2_10:"10. İletişim",
+      p_10:"Bu Şartlar hakkında sorularınız mı var? Bize <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--pink-2);\">hello@merafraud.com</a> adresinden veya <a href=\"contact.html\" style=\"color:var(--pink-2);\">İletişim sayfamız</a> üzerinden ulaşabilirsiniz.",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
