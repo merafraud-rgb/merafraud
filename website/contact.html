@@ -31,6 +31,11 @@
   .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--pink-1); }
   .btn-primary{ border:none; cursor:pointer; width:100%; }
   .form-note{ font-size:12px; color:var(--text-lo); margin-top:14px; text-align:center; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -42,74 +47,78 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html" class="active">Contact</a>
-    <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="contact.html" class="active" data-i18n="nav_contact">Contact</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap hero">
-  <span class="eyebrow">Contact</span>
-  <h1>Let's talk about your fraud problem.</h1>
-  <p class="lede">Questions about pricing, integration, or a Scale plan? Reach out — we typically respond within one business day.</p>
+  <span class="eyebrow" data-i18n="hero_eyebrow">Contact</span>
+  <h1 data-i18n="hero_h1">Let's talk about your fraud problem.</h1>
+  <p class="lede" data-i18n="hero_lede">Questions about pricing, integration, or a Scale plan? Reach out — we typically respond within one business day.</p>
 </section>
 
 <section class="wrap">
   <div class="contact-grid">
     <div>
       <div class="card info-card reveal">
-        <h3>Email</h3>
+        <h3 data-i18n="info_email_h">Email</h3>
         <a href="mailto:hello@merafraud.com">hello@merafraud.com</a>
       </div>
       <div class="card info-card">
-        <h3>Sales &amp; Partnerships</h3>
+        <h3 data-i18n="info_sales_h">Sales &amp; Partnerships</h3>
         <a href="mailto:sales@merafraud.com">sales@merafraud.com</a>
       </div>
       <div class="card info-card">
-        <h3>Phone / WhatsApp</h3>
+        <h3 data-i18n="info_phone_h">Phone / WhatsApp</h3>
         <a href="https://wa.me/905374575844?text=Hi%20MeraFraud%2C%20I%20have%20a%20question." target="_blank" rel="noopener">+90 537 457 58 44</a>
       </div>
       <div class="card info-card">
-        <h3>Response Time</h3>
-        <p>Within 1 business day, Monday–Friday.</p>
+        <h3 data-i18n="info_response_h">Response Time</h3>
+        <p data-i18n="info_response_p">Within 1 business day, Monday–Friday.</p>
       </div>
     </div>
 
     <div class="card form-card reveal reveal-2">
       <form id="contactForm" onsubmit="handleSubmit(event)">
         <div class="field">
-          <label>Name</label>
+          <label data-i18n="f_name">Name</label>
           <input type="text" required>
         </div>
         <div class="field">
-          <label>Work Email</label>
+          <label data-i18n="f_email">Work Email</label>
           <input type="email" required>
         </div>
         <div class="field">
-          <label>Store / Company Name</label>
+          <label data-i18n="f_company">Store / Company Name</label>
           <input type="text">
         </div>
         <div class="field">
-          <label>What do you need?</label>
+          <label data-i18n="f_need">What do you need?</label>
           <select>
-            <option>General question</option>
-            <option>Pricing / Scale plan</option>
-            <option>Technical integration help</option>
-            <option>Partnership</option>
-            <option>Other</option>
+            <option data-i18n="opt_general">General question</option>
+            <option data-i18n="opt_pricing">Pricing / Scale plan</option>
+            <option data-i18n="opt_tech">Technical integration help</option>
+            <option data-i18n="opt_partner">Partnership</option>
+            <option data-i18n="opt_other">Other</option>
           </select>
         </div>
         <div class="field">
-          <label>Message</label>
-          <textarea required placeholder="Tell us a bit about your store and what you're looking for…"></textarea>
+          <label data-i18n="f_message">Message</label>
+          <textarea required data-i18n-ph="f_message_ph" placeholder="Tell us a bit about your store and what you're looking for…"></textarea>
         </div>
-        <button type="submit" class="btn-primary">Send Message</button>
-        <p class="form-note" id="formNote">This form doesn't send anywhere yet in this MVP — wire it to an email service (e.g. Formspree, Resend) before going live.</p>
+        <button type="submit" class="btn-primary" data-i18n="f_submit">Send Message</button>
+        <p class="form-note" id="formNote" data-i18n="f_note">This form doesn't send anywhere yet in this MVP — wire it to an email service (e.g. Formspree, Resend) before going live.</p>
       </form>
     </div>
   </div>
@@ -120,29 +129,29 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
@@ -151,11 +160,77 @@
 function handleSubmit(e){
   e.preventDefault();
   const note = document.getElementById('formNote');
-  note.textContent = "Thanks! (Demo only — this form isn't connected to an inbox yet.)";
+  note.textContent = (window.mfLang === 'tr')
+    ? "Teşekkürler! (Sadece demo — bu form henüz bir gelen kutusuna bağlı değil.)"
+    : "Thanks! (Demo only — this form isn't connected to an inbox yet.)";
   note.style.color = 'var(--safe)';
 }
 </script>
 <script src="animations.js"></script>
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"Contact", hero_h1:"Let's talk about your fraud problem.",
+      hero_lede:"Questions about pricing, integration, or a Scale plan? Reach out — we typically respond within one business day.",
+      info_email_h:"Email", info_sales_h:"Sales &amp; Partnerships", info_phone_h:"Phone / WhatsApp",
+      info_response_h:"Response Time", info_response_p:"Within 1 business day, Monday–Friday.",
+      f_name:"Name", f_email:"Work Email", f_company:"Store / Company Name", f_need:"What do you need?",
+      opt_general:"General question", opt_pricing:"Pricing / Scale plan", opt_tech:"Technical integration help",
+      opt_partner:"Partnership", opt_other:"Other", f_message:"Message",
+      f_message_ph:"Tell us a bit about your store and what you're looking for…",
+      f_submit:"Send Message",
+      f_note:"This form doesn't send anywhere yet in this MVP — wire it to an email service (e.g. Formspree, Resend) before going live.",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"İletişim", hero_h1:"Dolandırıcılık sorununuzu konuşalım.",
+      hero_lede:"Fiyatlandırma, entegrasyon veya Scale planı hakkında sorularınız mı var? Bize ulaşın — genellikle bir iş günü içinde yanıt veriyoruz.",
+      info_email_h:"E-posta", info_sales_h:"Satış ve İş Ortaklıkları", info_phone_h:"Telefon / WhatsApp",
+      info_response_h:"Yanıt Süresi", info_response_p:"Pazartesi–Cuma, 1 iş günü içinde.",
+      f_name:"Ad Soyad", f_email:"İş E-postası", f_company:"Mağaza / Şirket Adı", f_need:"Neye ihtiyacınız var?",
+      opt_general:"Genel soru", opt_pricing:"Fiyatlandırma / Scale planı", opt_tech:"Teknik entegrasyon desteği",
+      opt_partner:"İş ortaklığı", opt_other:"Diğer", f_message:"Mesaj",
+      f_message_ph:"Mağazanız ve aradığınız çözüm hakkında biraz bilgi verin…",
+      f_submit:"Mesaj Gönder",
+      f_note:"Bu form şu an hiçbir yere gönderilmiyor (MVP aşaması) — canlıya almadan önce bir e-posta servisine (ör. Formspree, Resend) bağlanmalı.",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n-ph')];
+      if(v !== undefined) el.setAttribute('placeholder', v);
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
