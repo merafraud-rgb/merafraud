@@ -1,0 +1,18 @@
+name: Keep MeraFraud API Awake
+
+# Render'in ücretsiz planı, ~15 dakika istek gelmeyince API'yi uykuya alır ve
+# bir sonraki isteğin uyanması 50-60 saniye sürer. Bu, o süre içinde dashboard'da
+# "API unreachable" uyarısına yol açar. Bu iş akışı, 10 dakikada bir sadece
+# /api/health uç noktasına küçük bir istek atarak API'yi sürekli uyanık tutar.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping MeraFraud API health endpoint
+        run: curl -sf --max-time 30 https://merafraud-apimerafraud-api-v2.onrender.com/api/health || true
