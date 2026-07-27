@@ -39,6 +39,11 @@
     border:1px solid var(--card-border);
   }
   .cta-band h2{ font-size:clamp(24px,3vw,32px); margin-bottom:14px; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -51,76 +56,80 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html" class="active">About</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" class="active" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap hero">
-  <span class="eyebrow">About Us</span>
-  <h1>We built the fraud team that small businesses couldn't hire.</h1>
-  <p class="lede">MeraFraud started from a simple observation: enterprise-grade fraud detection has always existed — but only enterprises could afford it. SMEs were left to fend for themselves against the same sophisticated attacks.</p>
+  <span class="eyebrow" data-i18n="hero_eyebrow">About Us</span>
+  <h1 data-i18n="hero_h1">We built the fraud team that small businesses couldn't hire.</h1>
+  <p class="lede" data-i18n="hero_lede">MeraFraud started from a simple observation: enterprise-grade fraud detection has always existed — but only enterprises could afford it. SMEs were left to fend for themselves against the same sophisticated attacks.</p>
 </section>
 
 <section class="wrap">
   <div class="card mission-card reveal">
-    <h2>Our mission</h2>
-    <p>Give every small and medium e-commerce business access to the same real-time, machine-learning-driven fraud protection that only large platforms could previously justify building in-house — without the enterprise price tag, the months-long integration, or the black-box decisions.</p>
+    <h2 data-i18n="mission_h2">Our mission</h2>
+    <p data-i18n="mission_p">Give every small and medium e-commerce business access to the same real-time, machine-learning-driven fraud protection that only large platforms could previously justify building in-house — without the enterprise price tag, the months-long integration, or the black-box decisions.</p>
   </div>
 </section>
 
 <section class="wrap section" style="padding-top:0;">
   <div class="section-head">
-    <span class="eyebrow">What We Believe</span>
-    <h2>Our principles</h2>
+    <span class="eyebrow" data-i18n="believe_eyebrow">What We Believe</span>
+    <h2 data-i18n="believe_h2">Our principles</h2>
   </div>
   <div class="value-grid">
     <div class="card value-card reveal reveal-1">
-      <h3>Explainability over black boxes</h3>
-      <p>A risk score without a reason isn't useful — it's just another number to distrust. Every decision MeraFraud makes comes with plain-language reasoning.</p>
+      <h3 data-i18n="v1_h">Explainability over black boxes</h3>
+      <p data-i18n="v1_p">A risk score without a reason isn't useful — it's just another number to distrust. Every decision MeraFraud makes comes with plain-language reasoning.</p>
     </div>
     <div class="card value-card reveal reveal-2">
-      <h3>Access, not exclusivity</h3>
-      <p>Fraud protection shouldn't be a luxury reserved for companies with dedicated risk teams. We designed MeraFraud to be usable by a two-person shop on day one.</p>
+      <h3 data-i18n="v2_h">Access, not exclusivity</h3>
+      <p data-i18n="v2_p">Fraud protection shouldn't be a luxury reserved for companies with dedicated risk teams. We designed MeraFraud to be usable by a two-person shop on day one.</p>
     </div>
     <div class="card value-card reveal reveal-3">
-      <h3>Your rules, not just ours</h3>
-      <p>No two stores have the same risk tolerance. That's why thresholds are configurable per merchant, not fixed by us.</p>
+      <h3 data-i18n="v3_h">Your rules, not just ours</h3>
+      <p data-i18n="v3_p">No two stores have the same risk tolerance. That's why thresholds are configurable per merchant, not fixed by us.</p>
     </div>
   </div>
 </section>
 
 <section class="wrap section" style="padding-top:0;">
   <div class="section-head">
-    <span class="eyebrow">Team</span>
-    <h2>Who's behind MeraFraud</h2>
+    <span class="eyebrow" data-i18n="team_eyebrow">Team</span>
+    <h2 data-i18n="team_h2">Who's behind MeraFraud</h2>
   </div>
   <div class="team-grid">
     <div class="card team-card reveal reveal-1">
       <div class="team-avatar">D</div>
       <div>
         <h3>Duran Ceylan</h3>
-        <div class="role">Co-Founder / CEO</div>
+        <div class="role" data-i18n="role_ceo">Co-Founder / CEO</div>
       </div>
     </div>
     <div class="card team-card reveal reveal-2">
       <div class="team-avatar">B</div>
       <div>
         <h3>Burak Kır</h3>
-        <div class="role">Co-Founder / CTO</div>
+        <div class="role" data-i18n="role_cto">Co-Founder / CTO</div>
       </div>
     </div>
     <div class="card team-card reveal reveal-3">
       <div class="team-avatar">E</div>
       <div>
         <h3>Ezel Ceylan</h3>
-        <div class="role">Co-Founder / COO</div>
+        <div class="role" data-i18n="role_coo">Co-Founder / COO</div>
       </div>
     </div>
   </div>
@@ -128,8 +137,8 @@
 
 <section class="wrap">
   <div class="cta-band reveal">
-    <h2>Want to see it for yourself?</h2>
-    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
+    <h2 data-i18n="cta_h2">Want to see it for yourself?</h2>
+    <a href="../dashboard/signup.html" class="btn-primary" data-i18n="cta_btn">Get Your API Key — Free</a>
   </div>
 </section>
 
@@ -138,34 +147,102 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
 
 <script src="animations.js"></script>
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"About Us", hero_h1:"We built the fraud team that small businesses couldn't hire.",
+      hero_lede:"MeraFraud started from a simple observation: enterprise-grade fraud detection has always existed — but only enterprises could afford it. SMEs were left to fend for themselves against the same sophisticated attacks.",
+      mission_h2:"Our mission",
+      mission_p:"Give every small and medium e-commerce business access to the same real-time, machine-learning-driven fraud protection that only large platforms could previously justify building in-house — without the enterprise price tag, the months-long integration, or the black-box decisions.",
+      believe_eyebrow:"What We Believe", believe_h2:"Our principles",
+      v1_h:"Explainability over black boxes",
+      v1_p:"A risk score without a reason isn't useful — it's just another number to distrust. Every decision MeraFraud makes comes with plain-language reasoning.",
+      v2_h:"Access, not exclusivity",
+      v2_p:"Fraud protection shouldn't be a luxury reserved for companies with dedicated risk teams. We designed MeraFraud to be usable by a two-person shop on day one.",
+      v3_h:"Your rules, not just ours",
+      v3_p:"No two stores have the same risk tolerance. That's why thresholds are configurable per merchant, not fixed by us.",
+      team_eyebrow:"Team", team_h2:"Who's behind MeraFraud",
+      role_ceo:"Co-Founder / CEO", role_cto:"Co-Founder / CTO", role_coo:"Co-Founder / COO",
+      cta_h2:"Want to see it for yourself?", cta_btn:"Get Your API Key — Free",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"Hakkımızda", hero_h1:"Küçük işletmelerin kiralayamadığı dolandırıcılık ekibini biz kurduk.",
+      hero_lede:"MeraFraud basit bir gözlemle başladı: kurumsal düzeyde dolandırıcılık tespiti her zaman var oldu — ama sadece büyük şirketler buna gücü yetiyordu. KOBİ'ler aynı karmaşık saldırılara karşı kendi başlarına bırakılmıştı.",
+      mission_h2:"Misyonumuz",
+      mission_p:"Daha önce yalnızca büyük platformların kendi bünyelerinde geliştirmeyi göze alabildiği gerçek zamanlı, yapay zeka destekli dolandırıcılık korumasını, kurumsal fiyat etiketi, aylar süren entegrasyon veya kara kutu kararlar olmadan her küçük ve orta ölçekli e-ticaret işletmesine sunmak.",
+      believe_eyebrow:"Neye İnanıyoruz", believe_h2:"İlkelerimiz",
+      v1_h:"Kara kutu yerine açıklanabilirlik",
+      v1_p:"Gerekçesi olmayan bir risk skoru işe yaramaz — güvenilmeyecek bir sayıdan ibarettir. MeraFraud'un verdiği her karar, sade bir dille açıklanmış gerekçeyle birlikte gelir.",
+      v2_h:"Ayrıcalık değil, erişim",
+      v2_p:"Dolandırıcılık koruması, özel risk ekipleri olan şirketlere ayrılmış bir lüks olmamalı. MeraFraud'u, iki kişilik bir mağazanın ilk günden kullanabileceği şekilde tasarladık.",
+      v3_h:"Sadece bizim değil, sizin kurallarınız",
+      v3_p:"Hiçbir iki mağazanın risk toleransı aynı değildir. Bu yüzden eşikler bizim tarafımızdan sabitlenmez, her satıcı için ayarlanabilir.",
+      team_eyebrow:"Ekip", team_h2:"MeraFraud'un arkasında kimler var",
+      role_ceo:"Kurucu Ortak / CEO", role_cto:"Kurucu Ortak / CTO", role_coo:"Kurucu Ortak / COO",
+      cta_h2:"Kendiniz görmek ister misiniz?", cta_btn:"API Anahtarınızı Alın — Ücretsiz",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
