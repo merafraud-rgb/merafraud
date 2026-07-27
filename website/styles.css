@@ -50,7 +50,7 @@ header{
 .logo-text span{color:var(--pink-2);}
 .main-nav{ display:flex; align-items:center; gap:28px; }
 .main-nav a{
-  font-size:14px; color:var(--text-lo); text-decoration:none; transition:color .15s;
+  font-size:14px; font-weight:500; color:var(--text-lo); text-decoration:none; transition:color .15s;
   position:relative; padding-bottom:4px;
 }
 .main-nav a:hover{ color:var(--text-hi); }
