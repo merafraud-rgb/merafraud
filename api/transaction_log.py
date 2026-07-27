@@ -1,58 +1,102 @@
 """
 MeraFraud - Transaction Log & Report Export
 -----------------------------------------------
-Keeps a rolling log of scored transactions per tenant, so merchants can
-export their history as a CSV report (Settings page → "Export Report").
+Keeps a log of scored transactions per tenant, so merchants can export
+their history as a CSV report (Settings page → "Export Report"), and so
+there's a growing, real dataset to eventually retrain the fraud model on
+(see model/train_model.py and README's "Model yeniden eğitimi" section).
 
-This is intentionally simple (a capped JSON list per tenant, not a real
-database/warehouse) — fine for an MVP's reporting needs. For high-volume
-production use, swap this for a proper table (e.g. PostgreSQL) so exports
-can be filtered/paginated instead of loading everything into memory.
+This now lives in PostgreSQL (same DATABASE_URL as tenants.py) instead of
+a JSON file — on Render's free tier, a JSON file on disk gets wiped on
+every redeploy / sleep-wake cycle, which would have silently thrown away
+exactly the real-world data this log exists to eventually train on.
 """
 
-import json
+import os
 import csv
 import io
 import threading
-from pathlib import Path
 from datetime import datetime, timezone
 
-LOG_PATH = Path(__file__).resolve().parent.parent / "data" / "transaction_log.json"
+import psycopg2
+import psycopg2.extras
+
 _lock = threading.Lock()
-MAX_ROWS_PER_TENANT = 1000  # oldest rows drop off past this, keeps the file small
+
+_DB_INITIALIZED = False
+_init_lock = threading.Lock()
 
 
-def _load():
-    if not LOG_PATH.exists():
-        return {}
-    with open(LOG_PATH) as f:
-        return json.load(f)
+def _now():
+    return datetime.now(timezone.utc).isoformat()
 
 
-def _save(data):
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(LOG_PATH, "w") as f:
-        json.dump(data, f)
+def _get_conn():
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL is not set. Add it in your .env (local) or in "
+            "Render's Environment tab (production) — see .env.example."
+        )
+    conn = psycopg2.connect(database_url)
+    _ensure_schema(conn)
+    return conn
+
+
+def _ensure_schema(conn):
+    global _DB_INITIALIZED
+    if _DB_INITIALIZED:
+        return
+    with _init_lock:
+        if _DB_INITIALIZED:
+            return
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS transaction_logs (
+                    id SERIAL PRIMARY KEY,
+                    tenant_id TEXT NOT NULL,
+                    scored_at TEXT NOT NULL,
+                    customer_id TEXT,
+                    transaction_amount DOUBLE PRECISION,
+                    risk_score DOUBLE PRECISION,
+                    risk_level TEXT
+                )
+            """)
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_transaction_logs_tenant
+                ON transaction_logs (tenant_id, scored_at)
+            """)
+        conn.commit()
+        _DB_INITIALIZED = True
 
 
 def log_transaction(tenant_id: str, row: dict, risk_score: float, risk_level: str, customer_id: str | None):
-    with _lock:
-        data = _load()
-        data.setdefault(tenant_id, [])
-        data[tenant_id].append({
-            "scored_at": datetime.now(timezone.utc).isoformat(),
-            "customer_id": customer_id or "",
-            "transaction_amount": row.get("transaction_amount"),
-            "risk_score": round(risk_score, 4),
-            "risk_level": risk_level,
-        })
-        data[tenant_id] = data[tenant_id][-MAX_ROWS_PER_TENANT:]  # cap growth
-        _save(data)
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO transaction_logs
+                    (tenant_id, scored_at, customer_id, transaction_amount, risk_score, risk_level)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (tenant_id, _now(), customer_id or "", row.get("transaction_amount"),
+                  round(risk_score, 4), risk_level))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def get_transactions(tenant_id: str) -> list:
-    data = _load()
-    return data.get(tenant_id, [])
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT scored_at, customer_id, transaction_amount, risk_score, risk_level
+                FROM transaction_logs WHERE tenant_id = %s ORDER BY scored_at
+            """, (tenant_id,))
+            rows = cur.fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
 
 
 def to_csv(tenant_id: str) -> str:
