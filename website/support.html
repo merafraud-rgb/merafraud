@@ -45,6 +45,11 @@
   @media (max-width:600px){ .field-row{ grid-template-columns:1fr; } }
   .btn-primary{ border:none; cursor:pointer; width:100%; }
   .form-note{ font-size:12px; color:var(--text-lo); margin-top:14px; text-align:center; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -56,89 +61,93 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="support.html" class="active">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="support.html" class="active" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap hero">
-  <span class="eyebrow">Support</span>
-  <h1>We're here to help.</h1>
-  <p class="lede">Get an instant answer from the chat bubble in the corner, message us on WhatsApp, or open a support ticket below.</p>
+  <span class="eyebrow" data-i18n="hero_eyebrow">Support</span>
+  <h1 data-i18n="hero_h1">We're here to help.</h1>
+  <p class="lede" data-i18n="hero_lede">Get an instant answer from the chat bubble in the corner, message us on WhatsApp, or open a support ticket below.</p>
 </section>
 
 <section class="wrap">
   <div class="channels">
     <div class="card channel-card reveal reveal-1">
       <div class="channel-icon">💬</div>
-      <h3>Instant Chat</h3>
-      <p>Ask our support bot anything — API keys, billing, trials, reports. Available on every page.</p>
-      <span class="btn-secondary" onclick="document.getElementById('mf-support-bubble').click()" style="cursor:pointer; display:inline-block;">Open Chat</span>
+      <h3 data-i18n="ch1_h">Instant Chat</h3>
+      <p data-i18n="ch1_p">Ask our support bot anything — API keys, billing, trials, reports. Available on every page.</p>
+      <span class="btn-secondary" onclick="document.getElementById('mf-support-bubble').click()" style="cursor:pointer; display:inline-block;" data-i18n="ch1_btn">Open Chat</span>
     </div>
     <div class="card channel-card whatsapp reveal reveal-2">
       <div class="channel-icon">🟢</div>
       <h3>WhatsApp</h3>
-      <p>Prefer messaging? Chat with our team directly on WhatsApp for a fast, personal response.</p>
-      <a href="#" id="whatsappLink" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;">Message Us</a>
+      <p data-i18n="ch2_p">Prefer messaging? Chat with our team directly on WhatsApp for a fast, personal response.</p>
+      <a href="#" id="whatsappLink" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;" data-i18n="ch2_btn">Message Us</a>
     </div>
     <div class="card channel-card reveal reveal-3">
       <div class="channel-icon">✉️</div>
-      <h3>Email / Ticket</h3>
-      <p>For anything detailed — account issues, invoices, integration help — open a ticket below.</p>
-      <a href="#ticketForm" class="btn-secondary" style="display:inline-block;">Open a Ticket</a>
+      <h3 data-i18n="ch3_h">Email / Ticket</h3>
+      <p data-i18n="ch3_p">For anything detailed — account issues, invoices, integration help — open a ticket below.</p>
+      <a href="#ticketForm" class="btn-secondary" style="display:inline-block;" data-i18n="ch3_btn">Open a Ticket</a>
     </div>
   </div>
 </section>
 
 <section class="wrap-narrow faq-section">
   <div class="section-head">
-    <span class="eyebrow">Self-Serve Help</span>
-    <h2>Frequently asked questions</h2>
+    <span class="eyebrow" data-i18n="faq_eyebrow">Self-Serve Help</span>
+    <h2 data-i18n="faq_h2">Frequently asked questions</h2>
   </div>
   <div id="faqList"></div>
 </section>
 
 <section class="wrap-narrow" id="ticketForm">
   <div class="card ticket-card reveal">
-    <h2 style="font-size:20px; margin-bottom:6px;">Open a Support Ticket</h2>
-    <p style="font-size:13.5px; margin-bottom:24px;">Standard issues get resolved fastest through Instant Chat above. For anything account-specific or non-standard, use this form to reach a human advisor directly.</p>
+    <h2 style="font-size:20px; margin-bottom:6px;" data-i18n="ticket_h2">Open a Support Ticket</h2>
+    <p style="font-size:13.5px; margin-bottom:24px;" data-i18n="ticket_p">Standard issues get resolved fastest through Instant Chat above. For anything account-specific or non-standard, use this form to reach a human advisor directly.</p>
     <form onsubmit="handleTicket(event)">
       <div class="field-row">
         <div class="field">
-          <label>Name</label>
+          <label data-i18n="f_name">Name</label>
           <input type="text" required>
         </div>
         <div class="field">
-          <label>Email</label>
+          <label data-i18n="f_email">Email</label>
           <input type="email" required>
         </div>
       </div>
       <div class="field-row">
         <div class="field">
-          <label>Store Name</label>
+          <label data-i18n="f_store">Store Name</label>
           <input type="text">
         </div>
         <div class="field">
-          <label>Issue Type</label>
+          <label data-i18n="f_issuetype">Issue Type</label>
           <select>
-            <option>Account / API key</option>
-            <option>Billing / Invoice</option>
-            <option>Technical integration</option>
-            <option>Report / data export</option>
-            <option>Other</option>
+            <option data-i18n="opt_account">Account / API key</option>
+            <option data-i18n="opt_billing">Billing / Invoice</option>
+            <option data-i18n="opt_tech">Technical integration</option>
+            <option data-i18n="opt_report">Report / data export</option>
+            <option data-i18n="opt_other">Other</option>
           </select>
         </div>
       </div>
       <div class="field">
-        <label>Describe the issue</label>
-        <textarea required placeholder="What happened, and what were you expecting?"></textarea>
+        <label data-i18n="f_describe">Describe the issue</label>
+        <textarea required data-i18n-ph="f_describe_ph" placeholder="What happened, and what were you expecting?"></textarea>
       </div>
-      <button type="submit" class="btn-primary" id="ticketBtn">Submit Ticket</button>
-      <p class="form-note" id="ticketNote">Demo only — this form isn't connected to a real helpdesk inbox yet.</p>
+      <button type="submit" class="btn-primary" id="ticketBtn" data-i18n="f_submit">Submit Ticket</button>
+      <p class="form-note" id="ticketNote" data-i18n="f_note">Demo only — this form isn't connected to a real helpdesk inbox yet.</p>
     </form>
   </div>
 </section>
@@ -148,66 +157,162 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
 
 <script>
-const FAQS = [
-  { q: "How do I get my API key?", a: "Visit the Sign Up page, enter your store name and pick a risk profile — your API key is generated instantly, no waiting." },
-  { q: "How does the 7-day free trial work?", a: "Every plan includes a 7-day free trial. You won't be charged until day 8, and you can cancel anytime before then." },
-  { q: "Can I change my risk thresholds later?", a: "Yes, anytime — via the API (PUT /api/tenants/thresholds) or by picking a new preset profile." },
-  { q: "Do you support Turkish Lira / local cards?", a: "Yes, payments are processed via a local Turkish payment provider, so TRY billing and Turkish-issued cards are supported." },
-  { q: "How do I export a usage report?", a: "Go to Dashboard → Settings, then click \"Export Transaction Report (CSV)\" under the Usage section — it downloads your real transaction history instantly." },
-  { q: "Is my transaction data shared with other merchants?", a: "No — see our Privacy Policy for full details on data handling and model training practices." },
-];
+var TICKET_DICT = {
+  en: {
+    faqs: [
+      { q: "How do I get my API key?", a: "Visit the Sign Up page, enter your store name and pick a risk profile — your API key is generated instantly, no waiting." },
+      { q: "How does the 7-day free trial work?", a: "Every plan includes a 7-day free trial. You won't be charged until day 8, and you can cancel anytime before then." },
+      { q: "Can I change my risk thresholds later?", a: "Yes, anytime — via the API (PUT /api/tenants/thresholds) or by picking a new preset profile." },
+      { q: "Do you support Turkish Lira / local cards?", a: "Yes, payments are processed via a local Turkish payment provider, so TRY billing and Turkish-issued cards are supported." },
+      { q: "How do I export a usage report?", a: "Go to Dashboard → Settings, then click \"Export Transaction Report (CSV)\" under the Usage section — it downloads your real transaction history instantly." },
+      { q: "Is my transaction data shared with other merchants?", a: "No — see our Privacy Policy for full details on data handling and model training practices." },
+    ],
+    whatsapp_text: "Hi MeraFraud, I need help.",
+    ticket_created: "Ticket {id} created (demo). A real advisor would follow up by email shortly."
+  },
+  tr: {
+    faqs: [
+      { q: "API anahtarımı nasıl alırım?", a: "Kayıt sayfasına gidin, mağaza adınızı girin ve bir risk profili seçin — API anahtarınız anında oluşturulur, beklemeye gerek yok." },
+      { q: "7 günlük ücretsiz deneme nasıl çalışır?", a: "Her plan 7 günlük ücretsiz deneme içerir. 8. güne kadar ücretlendirilmezsiniz ve o zamana kadar istediğiniz an iptal edebilirsiniz." },
+      { q: "Risk eşiklerimi daha sonra değiştirebilir miyim?", a: "Evet, istediğiniz zaman — API üzerinden (PUT /api/tenants/thresholds) ya da yeni bir hazır profil seçerek." },
+      { q: "Türk Lirası / yerli kartları destekliyor musunuz?", a: "Evet, ödemeler yerel bir Türk ödeme sağlayıcısı üzerinden işlenir, bu yüzden TL faturalandırma ve Türkiye'de düzenlenmiş kartlar desteklenir." },
+      { q: "Bir kullanım raporunu nasıl dışa aktarırım?", a: "Panel → Ayarlar'a gidin, ardından Kullanım bölümünde \"İşlem Raporunu Dışa Aktar (CSV)\"a tıklayın — gerçek işlem geçmişinizi anında indirir." },
+      { q: "İşlem verilerim başka satıcılarla paylaşılıyor mu?", a: "Hayır — veri işleme ve model eğitimi uygulamaları hakkında tam bilgi için Gizlilik Politikamıza bakın." },
+    ],
+    whatsapp_text: "Merhaba MeraFraud, yardıma ihtiyacım var.",
+    ticket_created: "{id} numaralı talep oluşturuldu (demo). Gerçek bir danışman kısa süre içinde e-posta ile geri dönüş yapardı."
+  }
+};
 
-const faqList = document.getElementById('faqList');
-faqList.innerHTML = FAQS.map((item, i) => `
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q"><span>${item.q}</span><span class="plus">+</span></div>
-    <div class="faq-a">${item.a}</div>
-  </div>
-`).join('');
+function renderFaqs(){
+  var lang = window.mfLang || 'tr';
+  var faqList = document.getElementById('faqList');
+  faqList.innerHTML = TICKET_DICT[lang].faqs.map(function(item){
+    return `<div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q"><span>${item.q}</span><span class="plus">+</span></div>
+      <div class="faq-a">${item.a}</div>
+    </div>`;
+  }).join('');
+}
 
-document.getElementById('whatsappLink').href =
-  `https://wa.me/905374575844?text=${encodeURIComponent('Hi MeraFraud, I need help.')}`;
-fetch("https://merafraud-api.onrender.com/api/config").then(r => r.json()).then(cfg => {
-  document.getElementById('whatsappLink').href =
-    `https://wa.me/${cfg.whatsapp_number}?text=${encodeURIComponent('Hi MeraFraud, I need help.')}`;
-}).catch(() => {});
+function updateWhatsapp(){
+  var lang = window.mfLang || 'tr';
+  var text = TICKET_DICT[lang].whatsapp_text;
+  document.getElementById('whatsappLink').href = `https://wa.me/905374575844?text=${encodeURIComponent(text)}`;
+  fetch("https://merafraud-apimerafraud-api-v2.onrender.com/api/config").then(r => r.json()).then(cfg => {
+    document.getElementById('whatsappLink').href = `https://wa.me/${cfg.whatsapp_number}?text=${encodeURIComponent(text)}`;
+  }).catch(() => {});
+}
 
 function handleTicket(e){
   e.preventDefault();
+  var lang = window.mfLang || 'tr';
   const note = document.getElementById('ticketNote');
   const ticketId = 'MF-' + Math.random().toString(36).slice(2,8).toUpperCase();
-  note.textContent = `Ticket ${ticketId} created (demo). A real advisor would follow up by email shortly.`;
+  note.textContent = TICKET_DICT[lang].ticket_created.replace('{id}', ticketId);
   note.style.color = 'var(--safe)';
 }
 </script>
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"Support", hero_h1:"We're here to help.",
+      hero_lede:"Get an instant answer from the chat bubble in the corner, message us on WhatsApp, or open a support ticket below.",
+      ch1_h:"Instant Chat", ch1_p:"Ask our support bot anything — API keys, billing, trials, reports. Available on every page.", ch1_btn:"Open Chat",
+      ch2_p:"Prefer messaging? Chat with our team directly on WhatsApp for a fast, personal response.", ch2_btn:"Message Us",
+      ch3_h:"Email / Ticket", ch3_p:"For anything detailed — account issues, invoices, integration help — open a ticket below.", ch3_btn:"Open a Ticket",
+      faq_eyebrow:"Self-Serve Help", faq_h2:"Frequently asked questions",
+      ticket_h2:"Open a Support Ticket",
+      ticket_p:"Standard issues get resolved fastest through Instant Chat above. For anything account-specific or non-standard, use this form to reach a human advisor directly.",
+      f_name:"Name", f_email:"Email", f_store:"Store Name", f_issuetype:"Issue Type",
+      opt_account:"Account / API key", opt_billing:"Billing / Invoice", opt_tech:"Technical integration",
+      opt_report:"Report / data export", opt_other:"Other",
+      f_describe:"Describe the issue", f_describe_ph:"What happened, and what were you expecting?",
+      f_submit:"Submit Ticket", f_note:"Demo only — this form isn't connected to a real helpdesk inbox yet.",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"Destek", hero_h1:"Yardım etmek için buradayız.",
+      hero_lede:"Köşedeki sohbet balonundan anında yanıt alın, WhatsApp'tan bize mesaj gönderin veya aşağıdan bir destek talebi açın.",
+      ch1_h:"Anlık Sohbet", ch1_p:"Destek botumuza her şeyi sorun — API anahtarları, faturalandırma, denemeler, raporlar. Her sayfada mevcuttur.", ch1_btn:"Sohbeti Aç",
+      ch2_p:"Mesajlaşmayı mı tercih edersiniz? Hızlı ve kişisel bir yanıt için ekibimizle doğrudan WhatsApp'tan sohbet edin.", ch2_btn:"Bize Mesaj Gönderin",
+      ch3_h:"E-posta / Talep", ch3_p:"Detaylı bir konu için — hesap sorunları, faturalar, entegrasyon yardımı — aşağıdan bir talep açın.", ch3_btn:"Talep Aç",
+      faq_eyebrow:"Kendi Kendine Yardım", faq_h2:"Sıkça sorulan sorular",
+      ticket_h2:"Destek Talebi Aç",
+      ticket_p:"Standart sorunlar en hızlı yukarıdaki Anlık Sohbet üzerinden çözülür. Hesabınıza özel veya standart dışı bir konu için, doğrudan bir insan danışmana ulaşmak üzere bu formu kullanın.",
+      f_name:"Ad Soyad", f_email:"E-posta", f_store:"Mağaza Adı", f_issuetype:"Sorun Türü",
+      opt_account:"Hesap / API anahtarı", opt_billing:"Faturalandırma / Fatura", opt_tech:"Teknik entegrasyon",
+      opt_report:"Rapor / veri dışa aktarma", opt_other:"Diğer",
+      f_describe:"Sorunu açıklayın", f_describe_ph:"Ne oldu ve ne bekliyordunuz?",
+      f_submit:"Talebi Gönder", f_note:"Sadece demo — bu form henüz gerçek bir destek kutusuna bağlı değil.",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n-ph')];
+      if(v !== undefined) el.setAttribute('placeholder', v);
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+    renderFaqs();
+    updateWhatsapp();
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
