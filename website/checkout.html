@@ -66,6 +66,11 @@
     background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4);
     display:flex; align-items:center; justify-content:center; font-size:26px; color:var(--safe);
   }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -77,22 +82,26 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html" class="active">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" class="active" data-i18n="nav_pricing">Pricing</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap-narrow hero">
-  <span class="eyebrow">Checkout</span>
-  <h1>Start your 7-day free trial.</h1>
+  <span class="eyebrow" data-i18n="hero_eyebrow">Checkout</span>
+  <h1 data-i18n="hero_h1">Start your 7-day free trial.</h1>
 </section>
 
-<div class="not-live-banner wrap-narrow">
+<div class="not-live-banner wrap-narrow" data-i18n="not_live_banner">
   ⚠ <b>Demo checkout — not connected to a real payment processor yet.</b> No card data
   on this page is transmitted, stored, or validated anywhere. To accept real payments,
   this form must be replaced with a hosted payment field from a licensed provider (see
@@ -102,26 +111,26 @@
 <section class="wrap">
   <div class="checkout-grid">
     <div class="card summary-card reveal">
-      <h3>Order Summary</h3>
+      <h3 data-i18n="summary_h">Order Summary</h3>
       <div class="plan-row">
         <span class="name" id="planName">Growth</span>
         <span class="price" id="planPrice">€49/mo</span>
       </div>
-      <div class="summary-line"><span>Billing cycle</span><span>Monthly</span></div>
-      <div class="summary-line"><span>Trial period</span><span>7 days, free</span></div>
-      <div class="summary-line"><span>Due today</span><span id="dueToday">€0.00</span></div>
-      <div class="summary-total"><span id="totalLabel">Due after trial</span><span id="planPriceTotal">€49.00</span></div>
-      <div class="trial-note" id="trialNote">✓ You won't be charged until your 7-day trial ends. Cancel anytime before then from your dashboard.</div>
+      <div class="summary-line"><span data-i18n="billing_cycle">Billing cycle</span><span data-i18n="monthly">Monthly</span></div>
+      <div class="summary-line"><span data-i18n="trial_period">Trial period</span><span data-i18n="trial_period_val">7 days, free</span></div>
+      <div class="summary-line"><span data-i18n="due_today_label">Due today</span><span id="dueToday">€0.00</span></div>
+      <div class="summary-total"><span id="totalLabel" data-i18n="due_after_trial">Due after trial</span><span id="planPriceTotal">€49.00</span></div>
+      <div class="trial-note" id="trialNote" data-i18n="trial_note">✓ You won't be charged until your 7-day trial ends. Cancel anytime before then from your dashboard.</div>
     </div>
 
     <div class="card pay-card reveal reveal-2">
       <form id="payForm" onsubmit="handleCheckout(event)">
         <div class="field">
-          <label>Cardholder Name</label>
-          <input type="text" placeholder="Name as shown on card" required>
+          <label data-i18n="f_cardholder">Cardholder Name</label>
+          <input type="text" data-i18n-ph="f_cardholder_ph" placeholder="Name as shown on card" required>
         </div>
         <div class="field">
-          <label>Card Number</label>
+          <label data-i18n="f_cardnum">Card Number</label>
           <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" required>
           <div class="card-brands">
             <span class="card-brand">VISA</span>
@@ -131,7 +140,7 @@
         </div>
         <div class="field-row-3">
           <div class="field">
-            <label>Expiry</label>
+            <label data-i18n="f_expiry">Expiry</label>
             <input type="text" placeholder="MM/YY" maxlength="5" required>
           </div>
           <div class="field">
@@ -139,31 +148,31 @@
             <input type="text" placeholder="123" maxlength="4" required>
           </div>
           <div class="field">
-            <label>Country</label>
+            <label data-i18n="f_country">Country</label>
             <select>
               <option>Türkiye</option>
-              <option>Germany</option>
-              <option>Other</option>
+              <option data-i18n="opt_germany">Germany</option>
+              <option data-i18n="opt_other">Other</option>
             </select>
           </div>
         </div>
         <div class="field">
-          <label>Billing Email</label>
+          <label data-i18n="f_billing_email">Billing Email</label>
           <input type="email" placeholder="billing@yourstore.com" required>
         </div>
 
-        <div class="secure-note">
+        <div class="secure-note" data-i18n="secure_note">
           🔒 Your payment info is encrypted in transit. MeraFraud never stores full card numbers.
         </div>
 
-        <button type="submit" class="btn-primary" id="submitBtn">Start Free Trial</button>
-        <div class="powered-by">Payments will be processed via a licensed local provider (iyzico) once live.</div>
+        <button type="submit" class="btn-primary" id="submitBtn" data-i18n="submit_trial">Start Free Trial</button>
+        <div class="powered-by" data-i18n="powered_by">Payments will be processed via a licensed local provider (iyzico) once live.</div>
       </form>
 
       <div id="successState">
         <div class="success-icon">✓</div>
-        <h3 style="font-size:20px; margin-bottom:10px;">Trial started (demo)</h3>
-        <p style="font-size:14px; max-width:360px; margin:0 auto;">In a live environment, you'd now get a confirmation email and your plan would activate immediately with billing starting in 7 days.</p>
+        <h3 style="font-size:20px; margin-bottom:10px;" data-i18n="success_h">Trial started (demo)</h3>
+        <p style="font-size:14px; max-width:360px; margin:0 auto;" id="successMsg" data-i18n="success_p">In a live environment, you'd now get a confirmation email and your plan would activate immediately with billing starting in 7 days.</p>
       </div>
     </div>
   </div>
@@ -174,29 +183,29 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
@@ -207,36 +216,114 @@ const PLANS = {
   growth: { name: 'Growth', price: 49 },
   scale:  { name: 'Scale', price: 199 },
 };
-const API_BASE = "https://merafraud-api.onrender.com/api";
+const API_BASE = "https://merafraud-apimerafraud-api-v2.onrender.com/api";
+
+var DICT = {
+  en: {
+    nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+    nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard",
+    hero_eyebrow:"Checkout", hero_h1:"Start your 7-day free trial.",
+    not_live_banner:"⚠ <b>Demo checkout — not connected to a real payment processor yet.</b> No card data on this page is transmitted, stored, or validated anywhere. To accept real payments, this form must be replaced with a hosted payment field from a licensed provider (see note at the bottom of this page).",
+    summary_h:"Order Summary", billing_cycle:"Billing cycle", monthly:"Monthly",
+    trial_period:"Trial period", trial_period_val:"7 days, free", due_today_label:"Due today",
+    due_after_trial:"Due after trial", billed_today:"Billed today",
+    trial_note:"✓ You won't be charged until your 7-day trial ends. Cancel anytime before then from your dashboard.",
+    f_cardholder:"Cardholder Name", f_cardholder_ph:"Name as shown on card", f_cardnum:"Card Number",
+    f_expiry:"Expiry", f_country:"Country", opt_germany:"Germany", opt_other:"Other",
+    f_billing_email:"Billing Email",
+    secure_note:"🔒 Your payment info is encrypted in transit. MeraFraud never stores full card numbers.",
+    submit_trial:"Start Free Trial", submit_pay:"Pay Now",
+    powered_by:"Payments will be processed via a licensed local provider (iyzico) once live.",
+    success_h:"Trial started (demo)",
+    success_p:"In a live environment, you'd now get a confirmation email and your plan would activate immediately with billing starting in 7 days.",
+    demo_msg:"Demo mode: iyzico isn't connected yet (see .env.example). In a live environment, you'd be redirected to a secure iyzico payment form now.",
+    checkout_created_msg:"iyzico session created. In a full integration, the secure payment form would render here.",
+    footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+    footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+    footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+    footer_copy:"© 2026 MeraFraud. All rights reserved."
+  },
+  tr: {
+    nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+    nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel",
+    hero_eyebrow:"Ödeme", hero_h1:"7 günlük ücretsiz denemenizi başlatın.",
+    not_live_banner:"⚠ <b>Demo ödeme sayfası — henüz gerçek bir ödeme sağlayıcısına bağlı değil.</b> Bu sayfadaki hiçbir kart verisi hiçbir yere iletilmez, saklanmaz veya doğrulanmaz. Gerçek ödeme almak için bu formun, lisanslı bir sağlayıcının barındırılan ödeme alanıyla değiştirilmesi gerekir (sayfanın altındaki nota bakın).",
+    summary_h:"Sipariş Özeti", billing_cycle:"Faturalandırma dönemi", monthly:"Aylık",
+    trial_period:"Deneme süresi", trial_period_val:"7 gün, ücretsiz", due_today_label:"Bugün ödenecek",
+    due_after_trial:"Deneme sonrası ödenecek", billed_today:"Bugün faturalandırılır",
+    trial_note:"✓ 7 günlük deneme süreniz bitene kadar ücretlendirilmezsiniz. O zamana kadar panelinizden istediğiniz zaman iptal edebilirsiniz.",
+    f_cardholder:"Kart Sahibinin Adı", f_cardholder_ph:"Kartın üzerindeki isim", f_cardnum:"Kart Numarası",
+    f_expiry:"Son Kullanma Tarihi", f_country:"Ülke", opt_germany:"Almanya", opt_other:"Diğer",
+    f_billing_email:"Fatura E-postası",
+    secure_note:"🔒 Ödeme bilgileriniz iletim sırasında şifrelenir. MeraFraud tam kart numaralarını asla saklamaz.",
+    submit_trial:"Ücretsiz Denemeyi Başlat", submit_pay:"Şimdi Öde",
+    powered_by:"Ödemeler, canlıya geçtiğinde lisanslı yerel bir sağlayıcı (iyzico) üzerinden işlenecektir.",
+    success_h:"Deneme başlatıldı (demo)",
+    success_p:"Canlı ortamda şimdi bir onay e-postası alırsınız ve planınız hemen etkinleşir, faturalandırma 7 gün sonra başlar.",
+    demo_msg:"Demo modu: iyzico henüz bağlı değil (.env.example dosyasına bakın). Canlı ortamda şimdi güvenli bir iyzico ödeme formuna yönlendirilirdiniz.",
+    checkout_created_msg:"iyzico oturumu oluşturuldu. Tam entegrasyonda güvenli ödeme formu burada görüntülenir.",
+    footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+    footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+    footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+    footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+  }
+};
+
+var currentMode = 'trial';
+
+function applyLang(lang){
+  document.documentElement.setAttribute('lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var v = DICT[lang][el.getAttribute('data-i18n')];
+    if(v !== undefined) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var v = DICT[lang][el.getAttribute('data-i18n-ph')];
+    if(v !== undefined) el.setAttribute('placeholder', v);
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  window.mfLang = lang;
+  renderPlanTexts();
+}
+
+function renderPlanTexts(){
+  var lang = window.mfLang || 'tr';
+  var d = DICT[lang];
+  var totalLabel = document.getElementById('totalLabel');
+  var trialNote = document.getElementById('trialNote');
+  var submitBtn = document.getElementById('submitBtn');
+  if(currentMode === 'buy'){
+    totalLabel.textContent = d.billed_today;
+    trialNote.style.display = 'none';
+    submitBtn.textContent = d.submit_pay;
+  } else {
+    totalLabel.textContent = d.due_after_trial;
+    trialNote.style.display = 'block';
+    trialNote.textContent = d.trial_note;
+    submitBtn.textContent = d.submit_trial;
+  }
+}
 
 function loadPlanFromQuery(){
   const params = new URLSearchParams(window.location.search);
   const key = params.get('plan') || 'growth';
-  const mode = params.get('mode') || 'trial'; // 'trial' or 'buy'
+  currentMode = params.get('mode') || 'trial';
   const plan = PLANS[key] || PLANS.growth;
 
   document.getElementById('planName').textContent = plan.name;
   document.getElementById('planPrice').textContent = `€${plan.price}/mo`;
 
   const dueTodayEl = document.getElementById('dueToday');
-  const totalRow = document.getElementById('totalRow');
-  const totalLabel = document.getElementById('totalLabel');
-  const trialNote = document.getElementById('trialNote');
-  const submitBtn = document.getElementById('submitBtn');
+  document.getElementById('planPriceTotal').textContent = `€${plan.price.toFixed(2)}`;
 
-  if(mode === 'buy'){
+  if(currentMode === 'buy'){
     dueTodayEl.textContent = `€${plan.price.toFixed(2)}`;
-    totalLabel.textContent = 'Billed today';
-    document.getElementById('planPriceTotal').textContent = `€${plan.price.toFixed(2)}`;
-    trialNote.style.display = 'none';
-    submitBtn.textContent = 'Pay Now';
   } else {
     dueTodayEl.textContent = '€0.00';
-    totalLabel.textContent = 'Due after trial';
-    document.getElementById('planPriceTotal').textContent = `€${plan.price.toFixed(2)}`;
-    trialNote.style.display = 'block';
-    submitBtn.textContent = 'Start Free Trial';
   }
+  renderPlanTexts();
 }
 loadPlanFromQuery();
 
@@ -245,11 +332,9 @@ function handleCheckout(e){
   const email = document.querySelector('#payForm input[type="email"]').value;
   const params = new URLSearchParams(window.location.search);
   const plan = params.get('plan') || 'growth';
+  const lang = window.mfLang || 'tr';
+  const d = DICT[lang];
 
-  // Real card fields on this page are never sent anywhere — see the
-  // comment at the top of this file. Instead we ask our OWN backend to
-  // start a real iyzico-hosted checkout session (if iyzico is configured
-  // in .env) or fall back to a demo confirmation.
   fetch(`${API_BASE}/checkout/initialize`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ plan, email })
@@ -259,19 +344,24 @@ function handleCheckout(e){
       document.getElementById('payForm').classList.add('hide');
       document.getElementById('successState').classList.add('show');
       if(result.demo_mode){
-        document.querySelector('#successState p').textContent =
-          "Demo mode: iyzico isn't connected yet (see .env.example). In a live environment, you'd be redirected to a secure iyzico payment form now.";
+        document.getElementById('successMsg').textContent = d.demo_msg;
       } else if(result.checkoutFormContent){
-        document.querySelector('#successState p').textContent =
-          "iyzico session created. In a full integration, the secure payment form would render here.";
+        document.getElementById('successMsg').textContent = d.checkout_created_msg;
       }
     })
     .catch(() => {
-      // Backend unreachable — still show the demo confirmation so the UI doesn't dead-end
       document.getElementById('payForm').classList.add('hide');
       document.getElementById('successState').classList.add('show');
     });
 }
+
+document.querySelectorAll('.lang-btn').forEach(function(b){
+  b.addEventListener('click', function(){
+    localStorage.setItem('mf_lang', b.dataset.lang);
+    applyLang(b.dataset.lang);
+  });
+});
+applyLang(localStorage.getItem('mf_lang') || 'tr');
 </script>
 <script src="animations.js"></script>
 <script src="support.js"></script>
