@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,6 +35,7 @@
   .logo-text span{color:var(--pink-2);}
   .back-link{ font-size:13px; color:var(--text-lo); text-decoration:none; }
   .back-link:hover{ color:var(--pink-2); }
+  .header-links{ display:flex; align-items:center; gap:16px; }
 
   h1{ font-family:'Fraunces', serif; font-weight:600; font-size:28px; margin-bottom:8px; }
   .lede{ color:var(--text-lo); font-size:14.5px; margin-bottom:32px; }
@@ -58,11 +60,9 @@
     border:1px solid var(--card-border); color:var(--text-hi); cursor:pointer;
   }
 
-  /* Logged-out state */
   #loggedOutState{ display:block; }
   #loggedInState{ display:none; }
 
-  /* Logged-in account panel */
   .account-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13.5px; }
   .account-row:last-child{ border-bottom:none; }
   .account-row .label{ color:var(--text-lo); }
@@ -114,6 +114,11 @@
     font-size:12px; color:var(--review); background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3);
     padding:12px 14px; border-radius:10px; margin-bottom:14px; word-break:break-all;
   }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -123,55 +128,61 @@
       <div class="logo-mark"></div>
       <div class="logo-text">Mera<span>Fraud</span></div>
     </a>
-    <a class="back-link" href="index.html">← Back to dashboard</a>
+    <div class="header-links">
+      <a class="back-link" href="index.html" data-i18n="back_dashboard">← Back to dashboard</a>
+      <div class="lang-switch">
+        <button type="button" class="lang-btn" data-lang="tr">TR</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
   </header>
 
-  <h1>Account Settings</h1>
-  <p class="lede">Manage your risk thresholds and see your account at a glance.</p>
+  <h1 data-i18n="h1">Account Settings</h1>
+  <p class="lede" data-i18n="lede">Manage your risk thresholds and see your account at a glance.</p>
 
   <div id="loggedOutState">
     <div class="panel">
       <div class="auth-tabs">
-        <div class="auth-tab active" data-tab="key">Paste API Key</div>
-        <div class="auth-tab" data-tab="login">Log In</div>
-        <div class="auth-tab" data-tab="forgot">Forgot Password</div>
+        <div class="auth-tab active" data-tab="key" data-i18n="tab_key">Paste API Key</div>
+        <div class="auth-tab" data-tab="login" data-i18n="tab_login">Log In</div>
+        <div class="auth-tab" data-tab="forgot" data-i18n="tab_forgot">Forgot Password</div>
       </div>
 
       <div id="tab-key">
-        <h2 style="font-size:16px; margin:18px 0 4px;">Sign in with your API key</h2>
-        <div class="sub">Paste the key you got at signup — it stays only in this browser, never sent anywhere except to MeraFraud's own API.</div>
+        <h2 style="font-size:16px; margin:18px 0 4px;" data-i18n="key_h2">Sign in with your API key</h2>
+        <div class="sub" data-i18n="key_sub">Paste the key you got at signup — it stays only in this browser, never sent anywhere except to MeraFraud's own API.</div>
         <div class="field">
-          <label>API Key</label>
+          <label data-i18n="api_key_label">API Key</label>
           <input type="text" id="apiKeyInput" placeholder="sk_live_...">
         </div>
-        <button class="btn-primary" onclick="loadAccount()">Load My Account</button>
+        <button class="btn-primary" onclick="loadAccount()" data-i18n="load_account">Load My Account</button>
         <div class="error-msg" id="loadError"></div>
       </div>
 
       <div id="tab-login" style="display:none;">
-        <h2 style="font-size:16px; margin:18px 0 4px;">Log in with email</h2>
-        <div class="sub">Lost your API key? Logging in retrieves it for you — no need to remember it separately.</div>
-        <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@yourstore.com"></div>
-        <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="Your password"></div>
-        <button class="btn-primary" onclick="doLogin()">Log In</button>
+        <h2 style="font-size:16px; margin:18px 0 4px;" data-i18n="login_h2">Log in with email</h2>
+        <div class="sub" data-i18n="login_sub">Lost your API key? Logging in retrieves it for you — no need to remember it separately.</div>
+        <div class="field"><label data-i18n="email_label">Email</label><input type="email" id="loginEmail" placeholder="you@yourstore.com"></div>
+        <div class="field"><label data-i18n="password_label">Password</label><input type="password" id="loginPassword" data-i18n-ph="your_password_ph" placeholder="Your password"></div>
+        <button class="btn-primary" onclick="doLogin()" data-i18n="tab_login">Log In</button>
         <div class="error-msg" id="loginError"></div>
       </div>
 
       <div id="tab-forgot" style="display:none;">
-        <h2 style="font-size:16px; margin:18px 0 4px;">Reset your password</h2>
-        <div class="sub" id="forgotStep1Sub">Enter the email you signed up with.</div>
+        <h2 style="font-size:16px; margin:18px 0 4px;" data-i18n="forgot_h2">Reset your password</h2>
+        <div class="sub" id="forgotStep1Sub" data-i18n="forgot_sub">Enter the email you signed up with.</div>
 
         <div id="forgotStep1">
-          <div class="field"><label>Email</label><input type="email" id="forgotEmail" placeholder="you@yourstore.com"></div>
-          <button class="btn-primary" onclick="requestReset()">Send Reset Link</button>
+          <div class="field"><label data-i18n="email_label">Email</label><input type="email" id="forgotEmail" placeholder="you@yourstore.com"></div>
+          <button class="btn-primary" onclick="requestReset()" data-i18n="send_reset">Send Reset Link</button>
           <div class="error-msg" id="forgotError"></div>
         </div>
 
         <div id="forgotStep2" style="display:none;">
           <div class="demo-note" id="demoTokenNote"></div>
-          <div class="field"><label>Reset Token</label><input type="text" id="resetToken" placeholder="Paste the token above"></div>
-          <div class="field"><label>New Password</label><input type="password" id="resetNewPassword" placeholder="At least 6 characters"></div>
-          <button class="btn-primary" onclick="doReset()">Set New Password</button>
+          <div class="field"><label data-i18n="reset_token_label">Reset Token</label><input type="text" id="resetToken" data-i18n-ph="reset_token_ph" placeholder="Paste the token above"></div>
+          <div class="field"><label data-i18n="new_password_label">New Password</label><input type="password" id="resetNewPassword" data-i18n-ph="f_pass_ph" placeholder="At least 6 characters"></div>
+          <button class="btn-primary" onclick="doReset()" data-i18n="set_new_password">Set New Password</button>
           <div class="error-msg" id="resetError"></div>
         </div>
       </div>
@@ -181,50 +192,50 @@
   <div id="loggedInState">
     <div class="panel">
       <h2 id="storeName">—</h2>
-      <div class="sub">Signed in with your API key on this device</div>
-      <div class="account-row"><span class="label">Store name</span><span class="value" id="rowName">—</span></div>
-      <div class="account-row"><span class="label">Email</span><span class="value" id="rowEmail">—</span></div>
-      <div class="account-row"><span class="label">API key</span><span class="value" id="rowKey">—</span></div>
-      <div class="account-row"><span class="label">Member since</span><span class="value" id="rowSince">—</span></div>
+      <div class="sub" data-i18n="signed_in_sub">Signed in with your API key on this device</div>
+      <div class="account-row"><span class="label" data-i18n="row_store_name">Store name</span><span class="value" id="rowName">—</span></div>
+      <div class="account-row"><span class="label" data-i18n="email_label">Email</span><span class="value" id="rowEmail">—</span></div>
+      <div class="account-row"><span class="label" data-i18n="row_api_key">API key</span><span class="value" id="rowKey">—</span></div>
+      <div class="account-row"><span class="label" data-i18n="row_member_since">Member since</span><span class="value" id="rowSince">—</span></div>
       <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
-        <button class="btn-secondary" onclick="logout()">Switch account / Log out</button>
-        <button class="btn-danger" onclick="confirmRegenerateKey()">🔄 Regenerate API Key</button>
+        <button class="btn-secondary" onclick="logout()" data-i18n="logout_btn">Switch account / Log out</button>
+        <button class="btn-danger" onclick="confirmRegenerateKey()" data-i18n="regen_btn">🔄 Regenerate API Key</button>
       </div>
       <div class="error-msg" id="regenError"></div>
       <div class="demo-note" id="regenNote" style="display:none;"></div>
     </div>
 
     <div class="panel">
-      <h2>Usage this session</h2>
-      <div class="sub">Live counters from your account</div>
+      <h2 data-i18n="usage_h2">Usage this session</h2>
+      <div class="sub" data-i18n="usage_sub">Live counters from your account</div>
       <div class="usage-grid">
-        <div class="usage-card"><div class="n" id="uTotal">0</div><div class="l">Total calls</div></div>
-        <div class="usage-card"><div class="n" id="uApproved">0</div><div class="l">Approved</div></div>
-        <div class="usage-card"><div class="n" id="uReviewed">0</div><div class="l">Reviewed</div></div>
-        <div class="usage-card"><div class="n" id="uBlocked">0</div><div class="l">Blocked</div></div>
+        <div class="usage-card"><div class="n" id="uTotal">0</div><div class="l" data-i18n="usage_total">Total calls</div></div>
+        <div class="usage-card"><div class="n" id="uApproved">0</div><div class="l" data-i18n="usage_approved">Approved</div></div>
+        <div class="usage-card"><div class="n" id="uReviewed">0</div><div class="l" data-i18n="usage_reviewed">Reviewed</div></div>
+        <div class="usage-card"><div class="n" id="uBlocked">0</div><div class="l" data-i18n="usage_blocked">Blocked</div></div>
       </div>
-      <button class="btn-secondary" onclick="exportReport()" style="margin-top:18px; width:100%;">📄 Export Transaction Report (CSV)</button>
+      <button class="btn-secondary" onclick="exportReport()" style="margin-top:18px; width:100%;" data-i18n="export_btn">📄 Export Transaction Report (CSV)</button>
     </div>
 
     <div class="panel">
-      <h2>Risk Thresholds</h2>
-      <div class="sub">Drag to change how sensitive MeraFraud is for your store. Takes effect immediately on your next API call.</div>
+      <h2 data-i18n="thresholds_h2">Risk Thresholds</h2>
+      <div class="sub" data-i18n="thresholds_sub">Drag to change how sensitive MeraFraud is for your store. Takes effect immediately on your next API call.</div>
 
       <div class="slider-group">
         <div class="slider-head">
-          <span class="name">Review threshold</span>
+          <span class="name" data-i18n="review_threshold">Review threshold</span>
           <span class="val" id="reviewVal">0.35</span>
         </div>
-        <div class="slider-head" style="margin-bottom:0;"><span class="desc">Scores above this get flagged for manual review</span></div>
+        <div class="slider-head" style="margin-bottom:0;"><span class="desc" data-i18n="review_desc">Scores above this get flagged for manual review</span></div>
         <input type="range" id="reviewSlider" min="0" max="0.95" step="0.01" oninput="onSliderChange()">
       </div>
 
       <div class="slider-group">
         <div class="slider-head">
-          <span class="name">Block threshold</span>
+          <span class="name" data-i18n="block_threshold">Block threshold</span>
           <span class="val" id="blockVal">0.75</span>
         </div>
-        <div class="slider-head" style="margin-bottom:0;"><span class="desc">Scores above this get blocked automatically</span></div>
+        <div class="slider-head" style="margin-bottom:0;"><span class="desc" data-i18n="block_desc">Scores above this get blocked automatically</span></div>
         <input type="range" id="blockSlider" min="0.05" max="1" step="0.01" oninput="onSliderChange()">
       </div>
 
@@ -233,11 +244,11 @@
         <div class="seg review" id="segReview"></div>
         <div class="seg block" id="segBlock"></div>
       </div>
-      <div class="risk-labels"><span>0%</span><span>Risk score</span><span>100%</span></div>
+      <div class="risk-labels"><span>0%</span><span data-i18n="risk_score_label">Risk score</span><span>100%</span></div>
 
       <div class="save-row">
-        <button class="btn-primary" onclick="saveThresholds()">Save Changes</button>
-        <span class="save-note" id="saveNote">✓ Saved</span>
+        <button class="btn-primary" onclick="saveThresholds()" data-i18n="save_changes">Save Changes</button>
+        <span class="save-note" id="saveNote" data-i18n="saved_note">✓ Saved</span>
       </div>
       <div class="error-msg" id="saveError"></div>
     </div>
@@ -247,6 +258,108 @@
 <script>
 const API_BASE = "https://merafraud-apimerafraud-api-v2.onrender.com/api";
 
+var DICT = {
+  en: {
+    back_dashboard:"← Back to dashboard",
+    h1:"Account Settings", lede:"Manage your risk thresholds and see your account at a glance.",
+    tab_key:"Paste API Key", tab_login:"Log In", tab_forgot:"Forgot Password",
+    key_h2:"Sign in with your API key",
+    key_sub:"Paste the key you got at signup — it stays only in this browser, never sent anywhere except to MeraFraud's own API.",
+    api_key_label:"API Key", load_account:"Load My Account",
+    login_h2:"Log in with email",
+    login_sub:"Lost your API key? Logging in retrieves it for you — no need to remember it separately.",
+    email_label:"Email", password_label:"Password", your_password_ph:"Your password",
+    forgot_h2:"Reset your password", forgot_sub:"Enter the email you signed up with.",
+    send_reset:"Send Reset Link", reset_token_label:"Reset Token", reset_token_ph:"Paste the token above",
+    new_password_label:"New Password", f_pass_ph:"At least 6 characters", set_new_password:"Set New Password",
+    signed_in_sub:"Signed in with your API key on this device",
+    row_store_name:"Store name", row_api_key:"API key", row_member_since:"Member since",
+    logout_btn:"Switch account / Log out", regen_btn:"🔄 Regenerate API Key",
+    usage_h2:"Usage this session", usage_sub:"Live counters from your account",
+    usage_total:"Total calls", usage_approved:"Approved", usage_reviewed:"Reviewed", usage_blocked:"Blocked",
+    export_btn:"📄 Export Transaction Report (CSV)",
+    thresholds_h2:"Risk Thresholds",
+    thresholds_sub:"Drag to change how sensitive MeraFraud is for your store. Takes effect immediately on your next API call.",
+    review_threshold:"Review threshold", review_desc:"Scores above this get flagged for manual review",
+    block_threshold:"Block threshold", block_desc:"Scores above this get blocked automatically",
+    risk_score_label:"Risk score", save_changes:"Save Changes", saved_note:"✓ Saved",
+    err_paste_key:"Please paste your API key.",
+    err_verify_key:"Couldn't verify that key. Check it's correct and the API is running.",
+    err_both_fields:"Enter both email and password.",
+    err_account_email:"Enter your account email.",
+    err_token_pass:"Paste the token and choose a password of at least 6 characters.",
+    confirm_regen:"This will immediately invalidate your CURRENT API key. Anywhere you've already installed it (Shopify Flow, WooCommerce plugin, your own server) will stop working until you update it with the new key.\n\nContinue?",
+    regen_success:"✓ New key generated. <b>Update it everywhere you use MeraFraud</b> — your old key no longer works.",
+    export_fail:"Couldn't export report: ",
+    demo_mode_prefix:"⚠ <b>Demo mode:</b> no real email was sent (SMTP not configured). For this demo, here's your token directly:",
+    demo_mode_expires:"Expires in ",
+    demo_mode_minutes:" minutes.",
+    real_email_suffix:" Check your inbox (and spam folder) for the code, then paste it below.",
+    date_locale:"en-GB"
+  },
+  tr: {
+    back_dashboard:"← Panele dön",
+    h1:"Hesap Ayarları", lede:"Risk eşiklerinizi yönetin ve hesabınızı bir bakışta görün.",
+    tab_key:"API Anahtarı Yapıştır", tab_login:"Giriş Yap", tab_forgot:"Şifremi Unuttum",
+    key_h2:"API anahtarınızla giriş yapın",
+    key_sub:"Kayıt sırasında aldığınız anahtarı yapıştırın — sadece bu tarayıcıda kalır, MeraFraud'un kendi API'si dışında hiçbir yere gönderilmez.",
+    api_key_label:"API Anahtarı", load_account:"Hesabımı Yükle",
+    login_h2:"E-posta ile giriş yapın",
+    login_sub:"API anahtarınızı mı kaybettiniz? Giriş yapmak sizin için onu geri getirir — ayrıca hatırlamanıza gerek yok.",
+    email_label:"E-posta", password_label:"Şifre", your_password_ph:"Şifreniz",
+    forgot_h2:"Şifrenizi sıfırlayın", forgot_sub:"Kayıt olurken kullandığınız e-postayı girin.",
+    send_reset:"Sıfırlama Bağlantısı Gönder", reset_token_label:"Sıfırlama Kodu", reset_token_ph:"Yukarıdaki kodu yapıştırın",
+    new_password_label:"Yeni Şifre", f_pass_ph:"En az 6 karakter", set_new_password:"Yeni Şifreyi Kaydet",
+    signed_in_sub:"Bu cihazda API anahtarınızla giriş yaptınız",
+    row_store_name:"Mağaza adı", row_api_key:"API anahtarı", row_member_since:"Üyelik tarihi",
+    logout_btn:"Hesap değiştir / Çıkış yap", regen_btn:"🔄 API Anahtarını Yenile",
+    usage_h2:"Bu oturumdaki kullanım", usage_sub:"Hesabınızdan canlı sayaçlar",
+    usage_total:"Toplam çağrı", usage_approved:"Onaylandı", usage_reviewed:"İncelendi", usage_blocked:"Engellendi",
+    export_btn:"📄 İşlem Raporunu Dışa Aktar (CSV)",
+    thresholds_h2:"Risk Eşikleri",
+    thresholds_sub:"MeraFraud'un mağazanız için ne kadar hassas olacağını değiştirmek için sürükleyin. Bir sonraki API çağrınızda hemen etkili olur.",
+    review_threshold:"İnceleme eşiği", review_desc:"Bu değerin üzerindeki skorlar manuel inceleme için işaretlenir",
+    block_threshold:"Engelleme eşiği", block_desc:"Bu değerin üzerindeki skorlar otomatik olarak engellenir",
+    risk_score_label:"Risk skoru", save_changes:"Değişiklikleri Kaydet", saved_note:"✓ Kaydedildi",
+    err_paste_key:"Lütfen API anahtarınızı yapıştırın.",
+    err_verify_key:"Bu anahtar doğrulanamadı. Doğru olduğundan ve API'nin çalıştığından emin olun.",
+    err_both_fields:"Hem e-posta hem şifre girin.",
+    err_account_email:"Hesap e-postanızı girin.",
+    err_token_pass:"Kodu yapıştırın ve en az 6 karakter uzunluğunda bir şifre seçin.",
+    confirm_regen:"Bu, MEVCUT API anahtarınızı hemen geçersiz kılar. Onu kurduğunuz her yer (Shopify Flow, WooCommerce eklentisi, kendi sunucunuz) yeni anahtarla güncelleyene kadar çalışmayı durdurur.\n\nDevam edilsin mi?",
+    regen_success:"✓ Yeni anahtar oluşturuldu. <b>MeraFraud'u kullandığınız her yerde güncelleyin</b> — eski anahtarınız artık çalışmıyor.",
+    export_fail:"Rapor dışa aktarılamadı: ",
+    demo_mode_prefix:"⚠ <b>Demo modu:</b> gerçek bir e-posta gönderilmedi (SMTP yapılandırılmadı). Bu demo için kodunuz doğrudan burada:",
+    demo_mode_expires:"Şu sürede sona erer: ",
+    demo_mode_minutes:" dakika.",
+    real_email_suffix:" Kodu gelen kutunuzda (ve spam klasöründe) kontrol edin, ardından aşağıya yapıştırın.",
+    date_locale:"tr-TR"
+  }
+};
+
+function applyLang(lang){
+  document.documentElement.setAttribute('lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var v = DICT[lang][el.getAttribute('data-i18n')];
+    if(v !== undefined) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var v = DICT[lang][el.getAttribute('data-i18n-ph')];
+    if(v !== undefined) el.setAttribute('placeholder', v);
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  window.mfLang = lang;
+}
+document.querySelectorAll('.lang-btn').forEach(function(b){
+  b.addEventListener('click', function(){
+    localStorage.setItem('mf_lang', b.dataset.lang);
+    applyLang(b.dataset.lang);
+  });
+});
+applyLang(localStorage.getItem('mf_lang') || 'tr');
+
 function authHeaders(extra = {}){
   return { "X-API-Key": localStorage.getItem('merafraud_api_key'), ...extra };
 }
@@ -254,15 +367,16 @@ function authHeaders(extra = {}){
 async function loadAccount(){
   const key = document.getElementById('apiKeyInput').value.trim();
   const errorEl = document.getElementById('loadError');
+  const d = DICT[window.mfLang || 'tr'];
   errorEl.classList.remove('show');
-  if(!key){ errorEl.textContent = 'Please paste your API key.'; errorEl.classList.add('show'); return; }
+  if(!key){ errorEl.textContent = d.err_paste_key; errorEl.classList.add('show'); return; }
 
   localStorage.setItem('merafraud_api_key', key);
   try{
     await refreshAccount();
   }catch(e){
     localStorage.removeItem('merafraud_api_key');
-    errorEl.textContent = "Couldn't verify that key. Check it's correct and the API is running.";
+    errorEl.textContent = d.err_verify_key;
     errorEl.classList.add('show');
   }
 }
@@ -282,7 +396,8 @@ function renderAccount(t){
   document.getElementById('rowName').textContent = t.name;
   document.getElementById('rowEmail').textContent = t.email || '—';
   document.getElementById('rowKey').textContent = t.api_key;
-  document.getElementById('rowSince').textContent = new Date(t.created_at).toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' });
+  const locale = DICT[window.mfLang || 'tr'].date_locale;
+  document.getElementById('rowSince').textContent = new Date(t.created_at).toLocaleDateString(locale, { year:'numeric', month:'short', day:'numeric' });
 
   document.getElementById('uTotal').textContent = t.usage.total_calls;
   document.getElementById('uApproved').textContent = t.usage.approved;
@@ -323,8 +438,8 @@ async function saveThresholds(){
       body: JSON.stringify({ block, review })
     });
     if(!res.ok){
-      const d = await res.json().catch(()=>({}));
-      throw new Error(d.error || 'Save failed');
+      const dErr = await res.json().catch(()=>({}));
+      throw new Error(dErr.error || 'Save failed');
     }
     document.getElementById('saveNote').classList.add('show');
   }catch(e){
@@ -340,8 +455,8 @@ function logout(){
   document.getElementById('apiKeyInput').value = '';
 }
 
-// ── Export transaction report as CSV ────────────────────────────────────
 async function exportReport(){
+  const d = DICT[window.mfLang || 'tr'];
   try{
     const res = await fetch(`${API_BASE}/reports/transactions.csv`, { headers: authHeaders() });
     if(!res.ok) throw new Error('Export failed');
@@ -355,11 +470,10 @@ async function exportReport(){
     a.remove();
     URL.revokeObjectURL(url);
   }catch(e){
-    alert("Couldn't export report: " + e.message);
+    alert(d.export_fail + e.message);
   }
 }
 
-// ── Tab switching ──────────────────────────────────────────────────────
 document.querySelectorAll('.auth-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -370,15 +484,15 @@ document.querySelectorAll('.auth-tab').forEach(tab => {
   });
 });
 
-// ── Log in with email + password (also recovers a lost API key) ────────
 async function doLogin(){
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const errorEl = document.getElementById('loginError');
+  const d = DICT[window.mfLang || 'tr'];
   errorEl.classList.remove('show');
 
   if(!email || !password){
-    errorEl.textContent = 'Enter both email and password.';
+    errorEl.textContent = d.err_both_fields;
     errorEl.classList.add('show');
     return;
   }
@@ -388,8 +502,8 @@ async function doLogin(){
       body: JSON.stringify({ email, password })
     });
     if(!res.ok){
-      const d = await res.json().catch(()=>({}));
-      throw new Error(d.error || 'Login failed');
+      const dErr = await res.json().catch(()=>({}));
+      throw new Error(dErr.error || 'Login failed');
     }
     const tenant = await res.json();
     localStorage.setItem('merafraud_api_key', tenant.api_key);
@@ -400,31 +514,31 @@ async function doLogin(){
   }
 }
 
-// ── Forgot password: step 1, request a token ────────────────────────────
 async function requestReset(){
   const email = document.getElementById('forgotEmail').value.trim();
   const errorEl = document.getElementById('forgotError');
+  const d = DICT[window.mfLang || 'tr'];
   errorEl.classList.remove('show');
-  if(!email){ errorEl.textContent = 'Enter your account email.'; errorEl.classList.add('show'); return; }
+  if(!email){ errorEl.textContent = d.err_account_email; errorEl.classList.add('show'); return; }
 
   try{
     const res = await fetch(`${API_BASE}/auth/forgot-password`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ email })
     });
-    const d = await res.json();
-    if(!res.ok) throw new Error(d.error || 'Something went wrong');
+    const dResp = await res.json();
+    if(!res.ok) throw new Error(dResp.error || 'Something went wrong');
 
     document.getElementById('forgotStep1').style.display = 'none';
     document.getElementById('forgotStep2').style.display = 'block';
 
-    if(d.reset_token){
+    if(dResp.reset_token){
       document.getElementById('demoTokenNote').innerHTML =
-        `⚠ <b>Demo mode:</b> no real email was sent (SMTP not configured). For this demo, here's your token directly:<br><br><b>${d.reset_token}</b><br><br>Expires in ${d.expires_in_minutes} minutes.`;
-      document.getElementById('resetToken').value = d.reset_token;
+        `${d.demo_mode_prefix}<br><br><b>${dResp.reset_token}</b><br><br>${d.demo_mode_expires}${dResp.expires_in_minutes}${d.demo_mode_minutes}`;
+      document.getElementById('resetToken').value = dResp.reset_token;
     } else {
       document.getElementById('demoTokenNote').innerHTML =
-        `✓ ${d.message} Check your inbox (and spam folder) for the code, then paste it below.`;
+        `✓ ${dResp.message}${d.real_email_suffix}`;
     }
   }catch(e){
     errorEl.textContent = e.message;
@@ -432,15 +546,15 @@ async function requestReset(){
   }
 }
 
-// ── Forgot password: step 2, set a new password with the token ─────────
 async function doReset(){
   const token = document.getElementById('resetToken').value.trim();
   const newPassword = document.getElementById('resetNewPassword').value;
   const errorEl = document.getElementById('resetError');
+  const d = DICT[window.mfLang || 'tr'];
   errorEl.classList.remove('show');
 
   if(!token || newPassword.length < 6){
-    errorEl.textContent = 'Paste the token and choose a password of at least 6 characters.';
+    errorEl.textContent = d.err_token_pass;
     errorEl.classList.add('show');
     return;
   }
@@ -460,13 +574,9 @@ async function doReset(){
   }
 }
 
-// ── Regenerate API key (invalidates the old one immediately) ───────────
 async function confirmRegenerateKey(){
-  const sure = confirm(
-    "This will immediately invalidate your CURRENT API key. Anywhere you've " +
-    "already installed it (Shopify Flow, WooCommerce plugin, your own server) " +
-    "will stop working until you update it with the new key.\n\nContinue?"
-  );
+  const d = DICT[window.mfLang || 'tr'];
+  const sure = confirm(d.confirm_regen);
   if(!sure) return;
 
   const errorEl = document.getElementById('regenError');
@@ -482,14 +592,13 @@ async function confirmRegenerateKey(){
     renderAccount(tenant);
     const note = document.getElementById('regenNote');
     note.style.display = 'block';
-    note.innerHTML = `✓ New key generated. <b>Update it everywhere you use MeraFraud</b> — your old key no longer works.`;
+    note.innerHTML = d.regen_success;
   }catch(e){
     errorEl.textContent = e.message;
     errorEl.classList.add('show');
   }
 }
 
-// Auto-login if a key is already stored (e.g. saved right after signup)
 (async function init(){
   const stored = localStorage.getItem('merafraud_api_key');
   if(stored){
