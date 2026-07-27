@@ -34,11 +34,12 @@ a{color:inherit;}
 
 /* ---------- Header / nav ---------- */
 header{
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex; align-items:center;
   padding:24px 0; border-bottom:1px solid rgba(255,255,255,0.08);
   max-width:1080px; margin:0 auto; padding-left:28px; padding-right:28px;
+  gap:24px;
 }
-.logo{display:flex; align-items:center; gap:12px; text-decoration:none;}
+.logo{display:flex; align-items:center; gap:12px; text-decoration:none; margin-right:auto;}
 .logo-mark{
   width:32px; height:32px;
   background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
@@ -50,8 +51,14 @@ header{
 .main-nav{ display:flex; align-items:center; gap:28px; }
 .main-nav a{
   font-size:14px; color:var(--text-lo); text-decoration:none; transition:color .15s;
+  position:relative; padding-bottom:4px;
 }
-.main-nav a:hover, .main-nav a.active{ color:var(--text-hi); }
+.main-nav a:hover{ color:var(--text-hi); }
+.main-nav a.active{ color:var(--text-hi); font-weight:600; }
+.main-nav a.active::after{
+  content:''; position:absolute; left:0; right:0; bottom:-6px; height:2px; border-radius:2px;
+  background:linear-gradient(90deg,var(--purple-2),var(--pink-1));
+}
 .nav-cta{
   text-decoration:none; font-size:13.5px; font-weight:600; color:#fff !important;
   padding:10px 20px; border-radius:999px;
