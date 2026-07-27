@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,6 +54,11 @@
   }
   .cta-band h2{ font-size:clamp(26px,3.5vw,38px); margin-bottom:14px; }
   .cta-band p{ max-width:480px; margin:0 auto 28px; font-size:15px; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
 </style>
 </head>
 <body>
@@ -65,140 +71,143 @@
     <div class="logo-text">Mera<span>Fraud</span></div>
   </a>
   <nav class="main-nav">
-    <a href="index.html" class="active">Home</a>
-    <a href="about.html">About</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="integrations.html">Connect Your Store</a>
-    <a href="support.html">Support</a>
-    <a href="../dashboard/index.html">Dashboard</a>
-    <a href="../dashboard/signup.html" class="nav-cta">Get Started</a>
+    <a href="index.html" class="active" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
   </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
 </header>
 
 <section class="wrap hero" id="tour-hero">
-  <span class="eyebrow">SaaS · Real-time protection for SMEs</span>
-  <h1>Stop fraud <em>before it costs you</em> a single sale.</h1>
-  <p class="lede">MeraFraud scores every e-commerce transaction in milliseconds using a machine learning model trained on payment and behavioral signals — so you can approve confidently, review what's uncertain, and block what isn't.</p>
+  <span class="eyebrow" data-i18n="hero_eyebrow">SaaS · Real-time protection for SMEs</span>
+  <h1 data-i18n="hero_h1">Stop fraud <em>before it costs you</em> a single sale.</h1>
+  <p class="lede" data-i18n="hero_lede">MeraFraud scores every e-commerce transaction in milliseconds using a machine learning model trained on payment and behavioral signals — so you can approve confidently, review what's uncertain, and block what isn't.</p>
   <div class="hero-ctas">
-    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
-    <a href="../dashboard/index.html" class="btn-secondary">View Live Dashboard</a>
+    <a href="../dashboard/signup.html" class="btn-primary" data-i18n="cta_get_key">Get Your API Key — Free</a>
+    <a href="../dashboard/index.html" class="btn-secondary" data-i18n="cta_view_dash">View Live Dashboard</a>
   </div>
   <div class="trust-row" id="tour-trust">
-    <div><b>0.87</b>Model ROC-AUC</div>
-    <div><b>&lt;50ms</b>Avg. response time</div>
-    <div><b>98%</b>Fraud precision</div>
-    <div><b>€0</b>To start</div>
+    <div><b>0.87</b><span data-i18n="trust_auc">Model ROC-AUC</span></div>
+    <div><b>&lt;50ms</b><span data-i18n="trust_latency">Avg. response time</span></div>
+    <div><b>98%</b><span data-i18n="trust_precision">Fraud precision</span></div>
+    <div><b>€0</b><span data-i18n="trust_start">To start</span></div>
   </div>
 </section>
 
 <div class="marquee">
   <div class="marquee-track">
-    <span class="marquee-item"><span class="dot"></span>Real-time risk scoring</span>
-    <span class="marquee-item"><span class="dot"></span>Explainable decisions</span>
-    <span class="marquee-item"><span class="dot"></span>Multi-tenant architecture</span>
-    <span class="marquee-item"><span class="dot"></span>Global activity map</span>
-    <span class="marquee-item"><span class="dot"></span>Custom risk profiles</span>
-    <span class="marquee-item"><span class="dot"></span>Simple REST API</span>
-    <span class="marquee-item"><span class="dot"></span>7-day free trial</span>
-    <!-- duplicated for seamless loop -->
-    <span class="marquee-item"><span class="dot"></span>Real-time risk scoring</span>
-    <span class="marquee-item"><span class="dot"></span>Explainable decisions</span>
-    <span class="marquee-item"><span class="dot"></span>Multi-tenant architecture</span>
-    <span class="marquee-item"><span class="dot"></span>Global activity map</span>
-    <span class="marquee-item"><span class="dot"></span>Custom risk profiles</span>
-    <span class="marquee-item"><span class="dot"></span>Simple REST API</span>
-    <span class="marquee-item"><span class="dot"></span>7-day free trial</span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m1">Real-time risk scoring</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m2">Explainable decisions</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m3">Multi-tenant architecture</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m4">Global activity map</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m5">Custom risk profiles</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m6">Simple REST API</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m7">7-day free trial</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m1">Real-time risk scoring</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m2">Explainable decisions</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m3">Multi-tenant architecture</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m4">Global activity map</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m5">Custom risk profiles</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m6">Simple REST API</span></span>
+    <span class="marquee-item"><span class="dot"></span><span data-i18n="m7">7-day free trial</span></span>
   </div>
 </div>
 
 <section class="wrap section">
   <div class="problem-solution" id="tour-problem">
     <div class="card ps-card problem reveal reveal-1">
-      <span class="ps-tag">The Problem</span>
-      <h3>Fraudsters move faster than SMEs can react.</h3>
-      <p>E-commerce businesses face increasingly sophisticated fraud. Every fraudulent order costs money and erodes customer trust — and small teams rarely have the resources to keep up. It's whack-a-mole with a blindfold on.</p>
+      <span class="ps-tag" data-i18n="problem_tag">The Problem</span>
+      <h3 data-i18n="problem_h3">Fraudsters move faster than SMEs can react.</h3>
+      <p data-i18n="problem_p">E-commerce businesses face increasingly sophisticated fraud. Every fraudulent order costs money and erodes customer trust — and small teams rarely have the resources to keep up. It's whack-a-mole with a blindfold on.</p>
     </div>
     <div class="card ps-card solution reveal reveal-2">
-      <span class="ps-tag">The Solution</span>
-      <h3>A bodyguard for your checkout that never sleeps.</h3>
-      <p>MeraFraud combines payment behavior, account history, and device signals into a single real-time risk score — with a plain-language reason attached to every decision, so your team always knows why.</p>
+      <span class="ps-tag" data-i18n="solution_tag">The Solution</span>
+      <h3 data-i18n="solution_h3">A bodyguard for your checkout that never sleeps.</h3>
+      <p data-i18n="solution_p">MeraFraud combines payment behavior, account history, and device signals into a single real-time risk score — with a plain-language reason attached to every decision, so your team always knows why.</p>
     </div>
   </div>
 </section>
 
 <section class="wrap section">
   <div class="section-head">
-    <span class="eyebrow">Why MeraFraud</span>
-    <h2>Built for teams without a fraud department.</h2>
-    <p>You don't need a data science team or a six-figure enterprise contract to get real protection.</p>
+    <span class="eyebrow" data-i18n="why_eyebrow">Why MeraFraud</span>
+    <h2 data-i18n="why_h2">Built for teams without a fraud department.</h2>
+    <p data-i18n="why_p">You don't need a data science team or a six-figure enterprise contract to get real protection.</p>
   </div>
   <div class="grid-3" id="tour-features">
     <div class="card feature-card reveal reveal-1">
       <div class="feature-icon">⚡</div>
-      <h3>Real-time scoring</h3>
-      <p>Every transaction gets a risk score in milliseconds, right at checkout — before the order is confirmed.</p>
+      <h3 data-i18n="f1_h">Real-time scoring</h3>
+      <p data-i18n="f1_p">Every transaction gets a risk score in milliseconds, right at checkout — before the order is confirmed.</p>
     </div>
     <div class="card feature-card reveal reveal-2">
       <div class="feature-icon">🔍</div>
-      <h3>Explainable decisions</h3>
-      <p>No black box. Every score comes with the top reasons behind it, in plain language your team can act on.</p>
+      <h3 data-i18n="f2_h">Explainable decisions</h3>
+      <p data-i18n="f2_p">No black box. Every score comes with the top reasons behind it, in plain language your team can act on.</p>
     </div>
     <div class="card feature-card reveal reveal-3">
       <div class="feature-icon">🎛️</div>
-      <h3>Your risk, your rules</h3>
-      <p>Choose Lenient, Standard, or Strict — or set your own thresholds. Tune sensitivity to match your business.</p>
+      <h3 data-i18n="f3_h">Your risk, your rules</h3>
+      <p data-i18n="f3_p">Choose Lenient, Standard, or Strict — or set your own thresholds. Tune sensitivity to match your business.</p>
     </div>
     <div class="card feature-card reveal reveal-4">
       <div class="feature-icon">🔌</div>
-      <h3>Simple REST API</h3>
-      <p>One endpoint, one API key. Send a transaction, get back approve / review / block. Works with any stack.</p>
+      <h3 data-i18n="f4_h">Simple REST API</h3>
+      <p data-i18n="f4_p">One endpoint, one API key. Send a transaction, get back approve / review / block. Works with any stack.</p>
     </div>
     <div class="card feature-card reveal reveal-5">
       <div class="feature-icon">🌍</div>
-      <h3>Global visibility</h3>
-      <p>See where risk is coming from with a live geographic view of flagged activity across your markets.</p>
+      <h3 data-i18n="f5_h">Global visibility</h3>
+      <p data-i18n="f5_p">See where risk is coming from with a live geographic view of flagged activity across your markets.</p>
     </div>
     <div class="card feature-card reveal reveal-6">
       <div class="feature-icon">📈</div>
-      <h3>Grows with your data</h3>
-      <p>As you accumulate real transaction outcomes, the underlying model can be retrained on your own patterns.</p>
+      <h3 data-i18n="f6_h">Grows with your data</h3>
+      <p data-i18n="f6_p">As you accumulate real transaction outcomes, the underlying model can be retrained on your own patterns.</p>
     </div>
   </div>
 </section>
 
 <section class="wrap section">
   <div class="section-head">
-    <span class="eyebrow">How It Works</span>
-    <h2>Live in minutes, not months.</h2>
+    <span class="eyebrow" data-i18n="how_eyebrow">How It Works</span>
+    <h2 data-i18n="how_h2">Live in minutes, not months.</h2>
   </div>
   <div class="card steps" id="tour-steps">
     <div class="step reveal reveal-1">
       <div class="step-num"></div>
       <div class="step-body">
-        <h3>Create your account</h3>
-        <p>Enter your store name and pick a risk profile. Get your API key instantly — no sales call required.</p>
+        <h3 data-i18n="s1_h">Create your account</h3>
+        <p data-i18n="s1_p">Enter your store name and pick a risk profile. Get your API key instantly — no sales call required.</p>
       </div>
     </div>
     <div class="step reveal reveal-2">
       <div class="step-num"></div>
       <div class="step-body">
-        <h3>Send a transaction</h3>
-        <p>Call the <code>/api/predict</code> endpoint from your checkout flow with your API key and transaction details.</p>
+        <h3 data-i18n="s2_h">Send a transaction</h3>
+        <p data-i18n="s2_p">Call the <code>/api/predict</code> endpoint from your checkout flow with your API key and transaction details.</p>
       </div>
     </div>
     <div class="step reveal reveal-3">
       <div class="step-num"></div>
       <div class="step-body">
-        <h3>Get a decision</h3>
-        <p>Receive a risk score, a decision (approve / review / block), and the reasons behind it — in under 50ms.</p>
+        <h3 data-i18n="s3_h">Get a decision</h3>
+        <p data-i18n="s3_p">Receive a risk score, a decision (approve / review / block), and the reasons behind it — in under 50ms.</p>
       </div>
     </div>
     <div class="step reveal reveal-4">
       <div class="step-num"></div>
       <div class="step-body">
-        <h3>Monitor and tune</h3>
-        <p>Watch activity on your live dashboard and adjust your risk thresholds as you learn your fraud patterns.</p>
+        <h3 data-i18n="s4_h">Monitor and tune</h3>
+        <p data-i18n="s4_p">Watch activity on your live dashboard and adjust your risk thresholds as you learn your fraud patterns.</p>
       </div>
     </div>
   </div>
@@ -206,9 +215,9 @@
 
 <section class="wrap">
   <div class="cta-band reveal" id="tour-cta">
-    <h2>Ready to see it on your own transactions?</h2>
-    <p>No credit card, no commitment. Get an API key and start scoring in the next two minutes.</p>
-    <a href="../dashboard/signup.html" class="btn-primary">Get Your API Key — Free</a>
+    <h2 data-i18n="cta_h2">Ready to see it on your own transactions?</h2>
+    <p data-i18n="cta_p">No credit card, no commitment. Get an API key and start scoring in the next two minutes.</p>
+    <a href="../dashboard/signup.html" class="btn-primary" data-i18n="cta_get_key">Get Your API Key — Free</a>
   </div>
 </section>
 
@@ -217,29 +226,29 @@
     <div class="footer-grid">
       <div class="footer-col footer-brand">
         <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
-        <p>AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
-        <a href="pricing.html">Pricing</a>
-        <a href="integrations.html">Connect Your Store</a>
-        <a href="../dashboard/index.html">Dashboard</a>
-        <a href="../dashboard/signup.html">Get API Key</a>
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+        <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="support.html">Support</a>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="contact.html" data-i18n="nav_contact">Contact</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 MeraFraud. All rights reserved.</span>
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
     </div>
   </div>
 </footer>
@@ -247,5 +256,97 @@
 <script src="animations.js"></script>
 <script src="tour.js" data-tour-autostart="true"></script>
 <script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_contact:"Contact",
+      nav_integrations:"Connect Your Store", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"SaaS · Real-time protection for SMEs",
+      hero_h1:"Stop fraud <em>before it costs you</em> a single sale.",
+      hero_lede:"MeraFraud scores every e-commerce transaction in milliseconds using a machine learning model trained on payment and behavioral signals — so you can approve confidently, review what's uncertain, and block what isn't.",
+      cta_get_key:"Get Your API Key — Free", cta_view_dash:"View Live Dashboard",
+      trust_auc:"Model ROC-AUC", trust_latency:"Avg. response time", trust_precision:"Fraud precision", trust_start:"To start",
+      m1:"Real-time risk scoring", m2:"Explainable decisions", m3:"Multi-tenant architecture",
+      m4:"Global activity map", m5:"Custom risk profiles", m6:"Simple REST API", m7:"7-day free trial",
+      problem_tag:"The Problem", problem_h3:"Fraudsters move faster than SMEs can react.",
+      problem_p:"E-commerce businesses face increasingly sophisticated fraud. Every fraudulent order costs money and erodes customer trust — and small teams rarely have the resources to keep up. It's whack-a-mole with a blindfold on.",
+      solution_tag:"The Solution", solution_h3:"A bodyguard for your checkout that never sleeps.",
+      solution_p:"MeraFraud combines payment behavior, account history, and device signals into a single real-time risk score — with a plain-language reason attached to every decision, so your team always knows why.",
+      why_eyebrow:"Why MeraFraud", why_h2:"Built for teams without a fraud department.",
+      why_p:"You don't need a data science team or a six-figure enterprise contract to get real protection.",
+      f1_h:"Real-time scoring", f1_p:"Every transaction gets a risk score in milliseconds, right at checkout — before the order is confirmed.",
+      f2_h:"Explainable decisions", f2_p:"No black box. Every score comes with the top reasons behind it, in plain language your team can act on.",
+      f3_h:"Your risk, your rules", f3_p:"Choose Lenient, Standard, or Strict — or set your own thresholds. Tune sensitivity to match your business.",
+      f4_h:"Simple REST API", f4_p:"One endpoint, one API key. Send a transaction, get back approve / review / block. Works with any stack.",
+      f5_h:"Global visibility", f5_p:"See where risk is coming from with a live geographic view of flagged activity across your markets.",
+      f6_h:"Grows with your data", f6_p:"As you accumulate real transaction outcomes, the underlying model can be retrained on your own patterns.",
+      how_eyebrow:"How It Works", how_h2:"Live in minutes, not months.",
+      s1_h:"Create your account", s1_p:"Enter your store name and pick a risk profile. Get your API key instantly — no sales call required.",
+      s2_h:"Send a transaction", s2_p:"Call the <code>/api/predict</code> endpoint from your checkout flow with your API key and transaction details.",
+      s3_h:"Get a decision", s3_p:"Receive a risk score, a decision (approve / review / block), and the reasons behind it — in under 50ms.",
+      s4_h:"Monitor and tune", s4_p:"Watch activity on your live dashboard and adjust your risk thresholds as you learn your fraud patterns.",
+      cta_h2:"Ready to see it on your own transactions?",
+      cta_p:"No credit card, no commitment. Get an API key and start scoring in the next two minutes.",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_contact:"İletişim",
+      nav_integrations:"Mağazanızı Bağlayın", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"SaaS · KOBİ'ler için gerçek zamanlı koruma",
+      hero_h1:"Dolandırıcılığı <em>bir satışa mal olmadan</em> durdurun.",
+      hero_lede:"MeraFraud, ödeme ve davranış sinyalleriyle eğitilmiş bir yapay zeka modeli kullanarak her e-ticaret işlemini milisaniyeler içinde puanlar — böylece güvenle onaylayabilir, belirsiz olanı inceleyebilir ve olmayanı engelleyebilirsiniz.",
+      cta_get_key:"API Anahtarınızı Alın — Ücretsiz", cta_view_dash:"Canlı Paneli Görüntüle",
+      trust_auc:"Model ROC-AUC", trust_latency:"Ort. yanıt süresi", trust_precision:"Dolandırıcılık kesinliği", trust_start:"Başlamak için",
+      m1:"Gerçek zamanlı risk puanlama", m2:"Açıklanabilir kararlar", m3:"Çoklu müşteri mimarisi",
+      m4:"Küresel etkinlik haritası", m5:"Özel risk profilleri", m6:"Basit REST API", m7:"7 gün ücretsiz deneme",
+      problem_tag:"Sorun", problem_h3:"Dolandırıcılar, KOBİ'lerin tepki verebileceğinden daha hızlı hareket ediyor.",
+      problem_p:"E-ticaret işletmeleri giderek daha karmaşık dolandırıcılıklarla karşı karşıya. Her sahte sipariş hem paraya mal olur hem de müşteri güvenini zedeler — küçük ekiplerin buna yetişecek kaynağı nadiren vardır. Gözü bağlı köstebek avlamaya benziyor.",
+      solution_tag:"Çözüm", solution_h3:"Hiç uyumayan, ödeme sayfanız için bir koruma.",
+      solution_p:"MeraFraud; ödeme davranışını, hesap geçmişini ve cihaz sinyallerini tek bir gerçek zamanlı risk skorunda birleştirir — her karara sade bir dille açıklanmış gerekçe ekler, böylece ekibiniz nedenini her zaman bilir.",
+      why_eyebrow:"Neden MeraFraud", why_h2:"Dolandırıcılık departmanı olmayan ekipler için tasarlandı.",
+      why_p:"Gerçek koruma elde etmek için bir veri bilimi ekibine ya da yüksek maliyetli kurumsal sözleşmelere ihtiyacınız yok.",
+      f1_h:"Gerçek zamanlı puanlama", f1_p:"Her işlem, sipariş onaylanmadan önce, tam ödeme anında milisaniyeler içinde bir risk skoru alır.",
+      f2_h:"Açıklanabilir kararlar", f2_p:"Kara kutu yok. Her skor, ekibinizin harekete geçebileceği sade bir dille en önemli gerekçeleriyle birlikte gelir.",
+      f3_h:"Risk sizin, kurallar sizin", f3_p:"Esnek, Standart veya Sıkı'yı seçin — ya da kendi eşiklerinizi belirleyin. Hassasiyeti işletmenize göre ayarlayın.",
+      f4_h:"Basit REST API", f4_p:"Tek uç nokta, tek API anahtarı. Bir işlem gönderin, onayla / incele / engelle yanıtını alın. Her teknoloji yığınıyla çalışır.",
+      f5_h:"Küresel görünürlük", f5_p:"Pazarlarınızdaki işaretlenmiş etkinliğin canlı coğrafi görünümüyle riskin nereden geldiğini görün.",
+      f6_h:"Verinizle büyür", f6_p:"Gerçek işlem sonuçları biriktikçe, alttaki model kendi örüntülerinizle yeniden eğitilebilir.",
+      how_eyebrow:"Nasıl Çalışır", how_h2:"Aylar değil, dakikalar içinde canlıya geçin.",
+      s1_h:"Hesabınızı oluşturun", s1_p:"Mağaza adınızı girin ve bir risk profili seçin. API anahtarınızı anında alın — satış görüşmesi gerekmez.",
+      s2_h:"Bir işlem gönderin", s2_p:"Ödeme akışınızdan API anahtarınız ve işlem detaylarıyla <code>/api/predict</code> uç noktasını çağırın.",
+      s3_h:"Bir karar alın", s3_p:"50ms'nin altında bir risk skoru, bir karar (onayla / incele / engelle) ve arkasındaki gerekçeleri alın.",
+      s4_h:"İzleyin ve ayarlayın", s4_p:"Canlı panelinizde etkinliği izleyin ve dolandırıcılık örüntülerinizi öğrendikçe risk eşiklerinizi ayarlayın.",
+      cta_h2:"Kendi işlemlerinizde görmeye hazır mısınız?",
+      cta_p:"Kredi kartı yok, taahhüt yok. Bir API anahtarı alın ve önümüzdeki iki dakika içinde puanlamaya başlayın.",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
 </body>
 </html>
