@@ -11,14 +11,23 @@ already-computed decision — whichever is MORE severe wins (block > review
 > approve). This means custom rules can only make a transaction look
 riskier, never override a genuine high-risk score down to "approve" —
 that's a deliberate safety choice.
+
+Data storage: PostgreSQL (DATABASE_URL) — same database tenants.py uses.
+Previously this was a local JSON file, which meant every rule a merchant
+configured was wiped on Render's free tier whenever the service redeployed
+or woke from sleep. Moved here for the same reason tenants.py was moved.
 """
 
-import json
+import os
+import secrets
 import threading
-from pathlib import Path
 
-RULES_PATH = Path(__file__).resolve().parent.parent / "data" / "custom_rules.json"
+import psycopg2
+import psycopg2.extras
+
 _lock = threading.Lock()
+_DB_INITIALIZED = False
+_init_lock = threading.Lock()
 
 ALLOWED_FIELDS = {
     "transaction_amount", "amount_ratio_to_avg", "account_age_days", "customer_ltv",
@@ -32,17 +41,39 @@ ALLOWED_ACTIONS = {"review", "block"}  # rules can only escalate, never auto-app
 SEVERITY = {"approve": 0, "review": 1, "block": 2}
 
 
-def _load():
-    if not RULES_PATH.exists():
-        return {}
-    with open(RULES_PATH) as f:
-        return json.load(f)
+def _get_conn():
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL is not set. Add it in your .env (local) or in "
+            "Render's Environment tab (production) — see .env.example."
+        )
+    conn = psycopg2.connect(database_url)
+    _ensure_schema(conn)
+    return conn
 
 
-def _save(data):
-    RULES_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(RULES_PATH, "w") as f:
-        json.dump(data, f, indent=2)
+def _ensure_schema(conn):
+    global _DB_INITIALIZED
+    if _DB_INITIALIZED:
+        return
+    with _init_lock:
+        if _DB_INITIALIZED:
+            return
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS custom_rules (
+                    id TEXT PRIMARY KEY,
+                    tenant_id TEXT NOT NULL,
+                    field TEXT NOT NULL,
+                    operator TEXT NOT NULL,
+                    value DOUBLE PRECISION NOT NULL
+                )
+            """)
+            cur.execute("ALTER TABLE custom_rules ADD COLUMN IF NOT EXISTS action TEXT NOT NULL DEFAULT 'review'")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_custom_rules_tenant ON custom_rules (tenant_id)")
+        conn.commit()
+        _DB_INITIALIZED = True
 
 
 def validate_rule(field: str, operator: str, value, action: str) -> str | None:
@@ -61,32 +92,44 @@ def validate_rule(field: str, operator: str, value, action: str) -> str | None:
 
 
 def add_rule(tenant_id: str, field: str, operator: str, value: float, action: str) -> dict:
-    with _lock:
-        data = _load()
-        data.setdefault(tenant_id, [])
-        rule = {
-            "id": f"rule_{len(data[tenant_id]) + 1}_{field}",
-            "field": field, "operator": operator, "value": float(value), "action": action,
-        }
-        data[tenant_id].append(rule)
-        _save(data)
-        return rule
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor() as cur:
+            rule_id = f"rule_{secrets.token_hex(5)}_{field}"
+            cur.execute("""
+                INSERT INTO custom_rules (id, tenant_id, field, operator, value, action)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (rule_id, tenant_id, field, operator, float(value), action))
+        conn.commit()
+        return {"id": rule_id, "field": field, "operator": operator, "value": float(value), "action": action}
+    finally:
+        conn.close()
 
 
 def list_rules(tenant_id: str) -> list:
-    return _load().get(tenant_id, [])
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, field, operator, value, action FROM custom_rules WHERE tenant_id = %s ORDER BY id",
+                (tenant_id,),
+            )
+            rows = cur.fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
 
 
 def delete_rule(tenant_id: str, rule_id: str) -> bool:
-    with _lock:
-        data = _load()
-        rules = data.get(tenant_id, [])
-        new_rules = [r for r in rules if r["id"] != rule_id]
-        if len(new_rules) == len(rules):
-            return False  # nothing removed
-        data[tenant_id] = new_rules
-        _save(data)
-        return True
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor() as cur:
+            cur.execute("DELETE FROM custom_rules WHERE tenant_id = %s AND id = %s", (tenant_id, rule_id))
+            deleted = cur.rowcount > 0
+        conn.commit()
+        return deleted
+    finally:
+        conn.close()
 
 
 def _compare(actual, operator, target):
