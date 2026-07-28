@@ -71,6 +71,10 @@ def _ensure_schema(conn):
                     usage JSONB NOT NULL
                 )
             """)
+            # ALTER ... IF NOT EXISTS so this is safe to run against a table
+            # that was created before trial_ends_at existed (Render/Neon
+            # already has live tenant rows from before this field existed).
+            cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS trial_ends_at TEXT")
         conn.commit()
         _DB_INITIALIZED = True
 
@@ -108,11 +112,12 @@ def seed_demo_tenant():
                 "thresholds": {"block": 0.75, "review": 0.35},
                 "created_at": _now(),
                 "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
+                "trial_ends_at": None,  # demo account, never expires
             }
             cur.execute("""
                 INSERT INTO tenants (id, name, email, password_hash, reset_token,
-                    reset_token_expires, api_key, thresholds, created_at, usage)
-                VALUES (%s, %s, NULL, NULL, NULL, NULL, %s, %s, %s, %s)
+                    reset_token_expires, api_key, thresholds, created_at, usage, trial_ends_at)
+                VALUES (%s, %s, NULL, NULL, NULL, NULL, %s, %s, %s, %s, NULL)
             """, (demo["id"], demo["name"], demo["api_key"],
                   json.dumps(demo["thresholds"]), demo["created_at"], json.dumps(demo["usage"])))
         conn.commit()
@@ -121,11 +126,18 @@ def seed_demo_tenant():
         conn.close()
 
 
-def create_tenant(name: str, thresholds: dict | None = None, email: str | None = None, password: str | None = None) -> dict:
+def create_tenant(name: str, thresholds: dict | None = None, email: str | None = None,
+                   password: str | None = None, trial_days: int = 7) -> dict:
+    """trial_days defaults to 7 to match the "7-day free trial" already
+    advertised on the pricing page — public self-serve signup should never
+    let the caller override this (see /api/tenants in app.py). For a longer
+    pilot trial, create the tenant normally and then call set_trial_end()
+    as an admin action."""
     conn = _get_conn()
     try:
         with _lock, conn.cursor() as cur:
             tenant_id = secrets.token_hex(6)
+            trial_ends_at = (datetime.now(timezone.utc) + timedelta(days=trial_days)).isoformat() if trial_days else None
             tenant = {
                 "id": tenant_id,
                 "name": name,
@@ -137,16 +149,36 @@ def create_tenant(name: str, thresholds: dict | None = None, email: str | None =
                 "thresholds": thresholds or {"block": 0.75, "review": 0.35},
                 "created_at": _now(),
                 "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
+                "trial_ends_at": trial_ends_at,
             }
             cur.execute("""
                 INSERT INTO tenants (id, name, email, password_hash, reset_token,
-                    reset_token_expires, api_key, thresholds, created_at, usage)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    reset_token_expires, api_key, thresholds, created_at, usage, trial_ends_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (tenant["id"], tenant["name"], tenant["email"], tenant["password_hash"],
                   tenant["reset_token"], tenant["reset_token_expires"], tenant["api_key"],
-                  json.dumps(tenant["thresholds"]), tenant["created_at"], json.dumps(tenant["usage"])))
+                  json.dumps(tenant["thresholds"]), tenant["created_at"], json.dumps(tenant["usage"]),
+                  tenant["trial_ends_at"]))
         conn.commit()
         return tenant
+    finally:
+        conn.close()
+
+
+def set_trial_end(tenant_id: str, days_from_now: int) -> dict | None:
+    """Admin action: (re)set a tenant's trial end date, counted from today.
+    Used to give a specific merchant (e.g. a pilot customer) a longer free
+    period than the standard 7 days — pass e.g. 30 for "first month free"."""
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            trial_ends_at = (datetime.now(timezone.utc) + timedelta(days=days_from_now)).isoformat()
+            cur.execute("UPDATE tenants SET trial_ends_at = %s WHERE id = %s",
+                        (trial_ends_at, tenant_id))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(row) if row else None
     finally:
         conn.close()
 
