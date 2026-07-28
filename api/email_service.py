@@ -88,6 +88,15 @@ def send_fraud_alert_email(to_email: str, store_name: str, risk_score: float, re
     </div>
     """
     return send_email(to_email, subject, html)
+
+
+def send_welcome_email(to_email: str, store_name: str) -> bool:
+    """Sent right after a merchant signs up with an email address. This was
+    previously missing its own function signature — its body had been
+    accidentally left as unreachable code after send_fraud_alert_email's
+    return statement, which meant every real-email signup crashed with
+    AttributeError: module 'email_service' has no attribute
+    'send_welcome_email'. Fixed here."""
     subject = "Welcome to MeraFraud"
     html = f"""
     <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
