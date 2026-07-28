@@ -24,16 +24,27 @@ How it works:
 
 Privacy note: only report identifiers (IP, email domain+hash, device ID)
 are stored — never full transaction details, names, or card data.
+
+Data storage: PostgreSQL (DATABASE_URL) — same database tenants.py uses.
+Previously this was a local JSON file, which meant the entire shared
+blacklist was wiped on Render's free tier whenever the service redeployed
+or woke from sleep — defeating the whole point of a network that's
+supposed to accumulate over time. Moved here for the same reason
+tenants.py was moved.
 """
 
-import json
+import os
 import hashlib
+import json
 import threading
 from datetime import datetime, timezone
-from pathlib import Path
 
-BLACKLIST_PATH = Path(__file__).resolve().parent.parent / "data" / "shared_blacklist.json"
+import psycopg2
+import psycopg2.extras
+
 _lock = threading.Lock()
+_DB_INITIALIZED = False
+_init_lock = threading.Lock()
 
 # How many DIFFERENT tenants must report the same identifier before it's
 # trusted as a network-wide signal (prevents one bad-faith report, or a
@@ -47,60 +58,117 @@ def _now():
 
 
 def _hash_identifier(value: str) -> str:
-    """Store a hash, not the raw value — so even this internal file
-    doesn't hold plaintext emails/IPs at rest."""
+    """Store a hash, not the raw value — so even this table doesn't hold
+    plaintext emails/IPs at rest."""
     return hashlib.sha256(value.strip().lower().encode()).hexdigest()[:24]
 
 
-def _load():
-    if not BLACKLIST_PATH.exists():
-        return {"ips": {}, "emails": {}, "devices": {}}
-    with open(BLACKLIST_PATH) as f:
-        return json.load(f)
+def _get_conn():
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL is not set. Add it in your .env (local) or in "
+            "Render's Environment tab (production) — see .env.example."
+        )
+    conn = psycopg2.connect(database_url)
+    _ensure_schema(conn)
+    return conn
 
 
-def _save(data):
-    BLACKLIST_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(BLACKLIST_PATH, "w") as f:
-        json.dump(data, f, indent=2)
+def _ensure_schema(conn):
+    global _DB_INITIALIZED
+    if _DB_INITIALIZED:
+        return
+    with _init_lock:
+        if _DB_INITIALIZED:
+            return
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS shared_blacklist (
+                    category TEXT NOT NULL,
+                    key_hash TEXT NOT NULL,
+                    reporting_tenants JSONB NOT NULL,
+                    first_reported TEXT NOT NULL,
+                    last_reported TEXT NOT NULL,
+                    PRIMARY KEY (category, key_hash)
+                )
+            """)
+        conn.commit()
+        _DB_INITIALIZED = True
 
 
 def report_fraud(tenant_id: str, ip: str | None = None, email: str | None = None, device_id: str | None = None) -> dict:
     """A tenant confirms an identifier was involved in fraud. Safe to call
     multiple times — reports are deduplicated per tenant per identifier."""
-    with _lock:
-        data = _load()
-        reported = []
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            reported = []
+            now = _now()
 
-        for category, raw_value in (("ips", ip), ("emails", email), ("devices", device_id)):
-            if not raw_value:
-                continue
-            key = _hash_identifier(raw_value)
-            entry = data[category].setdefault(key, {"reporting_tenants": [], "first_reported": _now(), "last_reported": _now()})
-            if tenant_id not in entry["reporting_tenants"]:
-                entry["reporting_tenants"].append(tenant_id)
-            entry["last_reported"] = _now()
-            reported.append({"category": category, "report_count": len(entry["reporting_tenants"])})
+            for category, raw_value in (("ips", ip), ("emails", email), ("devices", device_id)):
+                if not raw_value:
+                    continue
+                key_hash = _hash_identifier(raw_value)
 
-        _save(data)
+                cur.execute(
+                    "SELECT reporting_tenants FROM shared_blacklist WHERE category = %s AND key_hash = %s",
+                    (category, key_hash),
+                )
+                row = cur.fetchone()
+                reporting_tenants = row["reporting_tenants"] if row else []
+                if isinstance(reporting_tenants, str):
+                    reporting_tenants = json.loads(reporting_tenants)
+
+                if tenant_id not in reporting_tenants:
+                    reporting_tenants.append(tenant_id)
+
+                if row:
+                    cur.execute("""
+                        UPDATE shared_blacklist SET reporting_tenants = %s, last_reported = %s
+                        WHERE category = %s AND key_hash = %s
+                    """, (json.dumps(reporting_tenants), now, category, key_hash))
+                else:
+                    cur.execute("""
+                        INSERT INTO shared_blacklist (category, key_hash, reporting_tenants, first_reported, last_reported)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (category, key_hash, json.dumps(reporting_tenants), now, now))
+
+                reported.append({"category": category, "report_count": len(reporting_tenants)})
+
+        conn.commit()
         return {"status": "ok", "reported": reported}
+    finally:
+        conn.close()
 
 
 def check_identifier(ip: str | None = None, email: str | None = None, device_id: str | None = None) -> dict:
     """Checks whether any submitted identifier is flagged by the network.
     Returns which ones matched and how many independent tenants reported them."""
-    data = _load()
-    matches = []
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            matches = []
+            for category, raw_value in (("ips", ip), ("emails", email), ("devices", device_id)):
+                if not raw_value:
+                    continue
+                key_hash = _hash_identifier(raw_value)
+                cur.execute(
+                    "SELECT reporting_tenants FROM shared_blacklist WHERE category = %s AND key_hash = %s",
+                    (category, key_hash),
+                )
+                row = cur.fetchone()
+                if not row:
+                    continue
+                reporting_tenants = row["reporting_tenants"]
+                if isinstance(reporting_tenants, str):
+                    reporting_tenants = json.loads(reporting_tenants)
+                if len(reporting_tenants) >= MIN_INDEPENDENT_REPORTS:
+                    matches.append({"category": category, "report_count": len(reporting_tenants)})
 
-    for category, raw_value in (("ips", ip), ("emails", email), ("devices", device_id)):
-        if not raw_value:
-            continue
-        key = _hash_identifier(raw_value)
-        entry = data[category].get(key)
-        if entry and len(entry["reporting_tenants"]) >= MIN_INDEPENDENT_REPORTS:
-            matches.append({"category": category, "report_count": len(entry["reporting_tenants"])})
-
-    return {"is_flagged": len(matches) > 0, "matches": matches}
+        return {"is_flagged": len(matches) > 0, "matches": matches}
+    finally:
+        conn.close()
 
 
 def apply_network_risk_adjustment(base_score: float, network_check: dict) -> tuple[float, list[str]]:
@@ -116,9 +184,17 @@ def apply_network_risk_adjustment(base_score: float, network_check: dict) -> tup
 def network_stats() -> dict:
     """Aggregate, anonymous stats for the dashboard — how big the shared
     network is, without exposing any individual identifier or tenant."""
-    data = _load()
-    return {
-        "total_reported_ips": len(data["ips"]),
-        "total_reported_emails": len(data["emails"]),
-        "total_reported_devices": len(data["devices"]),
-    }
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            counts = {}
+            for category in ("ips", "emails", "devices"):
+                cur.execute("SELECT COUNT(*) FROM shared_blacklist WHERE category = %s", (category,))
+                counts[category] = cur.fetchone()[0]
+        return {
+            "total_reported_ips": counts["ips"],
+            "total_reported_emails": counts["emails"],
+            "total_reported_devices": counts["devices"],
+        }
+    finally:
+        conn.close()
