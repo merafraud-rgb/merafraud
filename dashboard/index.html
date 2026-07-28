@@ -365,7 +365,7 @@
         </div>
       </div>
 
-      <button class="btn-primary" onclick="scoreTransaction()" data-i18n="calc_btn">Calculate Risk</button>
+      <button class="btn-primary" id="calcBtn" onclick="scoreTransaction()" data-i18n="calc_btn">Calculate Risk</button>
       <button class="btn-secondary" onclick="fillNormal()" data-i18n="fill_btn">Example: Fill normal transaction</button>
 
       <div class="result" id="result">
@@ -435,7 +435,7 @@ var DICT = {
     t_addr:"Address mismatch", t_ip:"IP/country mismatch", t_device:"New device",
     t_payment:"New payment method", t_email:"Free email", t_shipping:"Express shipping",
     f_failed:"Failed Payments / Login Attempts (last 7 days)",
-    calc_btn:"Calculate Risk", fill_btn:"Example: Fill normal transaction",
+    calc_btn:"Calculate Risk", calc_btn_scoring:"Scoring…", calc_btn_waking:"Waking up API…", fill_btn:"Example: Fill normal transaction",
     mock_note:"⚠ API unreachable — this result is a local JS approximation. Start the Flask API for real model scores (see README).",
     imp_h2:"What Is the Model Looking At?", imp_sub:"Global feature importances from the RandomForest model",
     footer:"MeraFraud · AI-powered fraud detection for SMEs",
@@ -482,7 +482,7 @@ var DICT = {
     t_addr:"Adres uyuşmazlığı", t_ip:"IP/ülke uyuşmazlığı", t_device:"Yeni cihaz",
     t_payment:"Yeni ödeme yöntemi", t_email:"Ücretsiz e-posta", t_shipping:"Hızlı kargo",
     f_failed:"Başarısız Ödeme / Giriş Denemeleri (son 7 gün)",
-    calc_btn:"Riski Hesapla", fill_btn:"Örnek: Normal işlem doldur",
+    calc_btn:"Riski Hesapla", calc_btn_scoring:"Hesaplanıyor…", calc_btn_waking:"API uyanıyor…", fill_btn:"Örnek: Normal işlem doldur",
     mock_note:"⚠ API'ye ulaşılamıyor — bu sonuç yerel bir JS tahminidir. Gerçek model skorları için Flask API'yi başlatın (README'ye bakın).",
     imp_h2:"Model Neye Bakıyor?", imp_sub:"RandomForest modelinden küresel özellik önem dereceleri",
     footer:"MeraFraud · KOBİ'ler için yapay zeka destekli dolandırıcılık tespiti",
@@ -760,29 +760,49 @@ function mockReasons(p){
   return r.length ? r.slice(0,3) : [d.reason_none];
 }
 
+async function tryPredict(payload, timeoutMs){
+  const res = await fetch(`${API_BASE}/predict`, {
+    method:'POST', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(timeoutMs)
+  });
+  if(!res.ok) throw new Error();
+  return res.json();
+}
+
 async function scoreTransaction(){
   const payload = collectPayload();
   let score, reasons, usedMock = false;
+  const btn = document.getElementById('calcBtn');
+  const originalLabel = btn.textContent;
 
-  // Always attempt the real API, even if an earlier health check flagged us
-  // offline — a stale flag shouldn't force mock mode when the API has since
-  // come back. Only fall back if this actual call fails.
+  // Two-phase attempt: a quick try first (covers the normal, already-warm
+  // case), then — only if that fails — a much longer wait with an honest
+  // "waking up" message. Render's free tier can take 50-60s to wake from a
+  // full cold start, and GitHub Actions' keep-alive ping isn't guaranteed
+  // to land every 10 minutes on the dot, so this gives a real cold start a
+  // genuine chance to succeed instead of silently faking a result.
+  btn.disabled = true;
+  btn.textContent = t().calc_btn_scoring;
   try{
-    const res = await fetch(`${API_BASE}/predict`, {
-      method:'POST', headers: authHeaders({'Content-Type':'application/json'}), body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(12000)
-    });
-    if(!res.ok) throw new Error();
-    const d = await res.json();
+    const d = await tryPredict(payload, 6000);
     score = d.risk_score; reasons = d.reasons;
-    if(!apiOnline){
-      apiOnline = true;
-      document.getElementById('statusDot').classList.remove('offline');
-      document.getElementById('statusText').textContent = t().status_online.replace('{n}', (lastHealthData?.training_rows || 60000).toLocaleString('en-US'));
-    }
-  }catch(e){ usedMock = true; }
+  }catch(e1){
+    btn.textContent = t().calc_btn_waking;
+    try{
+      const d = await tryPredict(payload, 55000);
+      score = d.risk_score; reasons = d.reasons;
+    }catch(e2){ usedMock = true; }
+  }
 
+  if(!usedMock && !apiOnline){
+    apiOnline = true;
+    document.getElementById('statusDot').classList.remove('offline');
+    document.getElementById('statusText').textContent = t().status_online.replace('{n}', (lastHealthData?.training_rows || 60000).toLocaleString('en-US'));
+  }
   if(usedMock){ score = mockScore(payload); reasons = mockReasons(payload); }
+
+  btn.disabled = false;
+  btn.textContent = originalLabel;
 
   lastResult = { score, reasons, usedMock, payload };
   renderResult(score, reasons, usedMock);
