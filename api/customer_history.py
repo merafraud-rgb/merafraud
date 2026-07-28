@@ -21,15 +21,23 @@ IMPORTANT: this is a rule-based adjustment layered on top of the ML score,
 NOT something the trained model itself learned (we don't have historical
 labeled cancellation data to train on yet). It's a transparent, tunable
 business rule — see SERIAL_CANCELLER_* constants below.
+
+Data storage: PostgreSQL (DATABASE_URL) — same database tenants.py uses.
+Previously this was a local JSON file, which meant every history record
+was wiped on Render's free tier whenever the service redeployed or woke
+from sleep. Moved here for the same reason tenants.py was moved.
 """
 
-import json
+import os
 import threading
-from pathlib import Path
 from datetime import datetime, timezone
 
-HISTORY_PATH = Path(__file__).resolve().parent.parent / "data" / "customer_history.json"
+import psycopg2
+import psycopg2.extras
+
 _lock = threading.Lock()
+_DB_INITIALIZED = False
+_init_lock = threading.Lock()
 
 # Tunable thresholds for flagging a "serial canceller"
 SERIAL_CANCELLER_MIN_ORDERS = 3       # need at least this many orders before judging a rate
@@ -41,57 +49,105 @@ def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def _load():
-    if not HISTORY_PATH.exists():
-        return {}
-    with open(HISTORY_PATH) as f:
-        return json.load(f)
+def _get_conn():
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL is not set. Add it in your .env (local) or in "
+            "Render's Environment tab (production) — see .env.example."
+        )
+    conn = psycopg2.connect(database_url)
+    _ensure_schema(conn)
+    return conn
 
 
-def _save(data):
-    HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(HISTORY_PATH, "w") as f:
-        json.dump(data, f, indent=2)
+def _ensure_schema(conn):
+    global _DB_INITIALIZED
+    if _DB_INITIALIZED:
+        return
+    with _init_lock:
+        if _DB_INITIALIZED:
+            return
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS customer_history (
+                    tenant_id TEXT NOT NULL,
+                    customer_id TEXT NOT NULL,
+                    total_orders INTEGER NOT NULL DEFAULT 0,
+                    cancelled_orders INTEGER NOT NULL DEFAULT 0,
+                    fulfilled_orders INTEGER NOT NULL DEFAULT 0,
+                    last_order_id TEXT,
+                    last_outcome TEXT,
+                    last_updated TEXT,
+                    PRIMARY KEY (tenant_id, customer_id)
+                )
+            """)
+        conn.commit()
+        _DB_INITIALIZED = True
 
 
 def record_order_outcome(tenant_id: str, customer_id: str, outcome: str, order_id: str | None = None) -> dict:
     """outcome: 'placed' | 'cancelled' | 'fulfilled'"""
-    with _lock:
-        data = _load()
-        data.setdefault(tenant_id, {})
-        record = data[tenant_id].setdefault(customer_id, {
-            "total_orders": 0,
-            "cancelled_orders": 0,
-            "fulfilled_orders": 0,
-            "last_order_id": None,
-            "last_outcome": None,
-            "last_updated": None,
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT * FROM customer_history WHERE tenant_id = %s AND customer_id = %s",
+                (tenant_id, customer_id),
+            )
+            row = cur.fetchone()
+
+            total = row["total_orders"] if row else 0
+            cancelled = row["cancelled_orders"] if row else 0
+            fulfilled = row["fulfilled_orders"] if row else 0
+
+            if outcome == "placed":
+                total += 1
+            elif outcome == "cancelled":
+                cancelled += 1
+            elif outcome == "fulfilled":
+                fulfilled += 1
+
+            now = _now()
+            cur.execute("""
+                INSERT INTO customer_history
+                    (tenant_id, customer_id, total_orders, cancelled_orders, fulfilled_orders,
+                     last_order_id, last_outcome, last_updated)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (tenant_id, customer_id) DO UPDATE SET
+                    total_orders = EXCLUDED.total_orders,
+                    cancelled_orders = EXCLUDED.cancelled_orders,
+                    fulfilled_orders = EXCLUDED.fulfilled_orders,
+                    last_order_id = EXCLUDED.last_order_id,
+                    last_outcome = EXCLUDED.last_outcome,
+                    last_updated = EXCLUDED.last_updated
+            """, (tenant_id, customer_id, total, cancelled, fulfilled, order_id, outcome, now))
+        conn.commit()
+        return compute_risk({
+            "total_orders": total, "cancelled_orders": cancelled, "fulfilled_orders": fulfilled,
+            "last_order_id": order_id, "last_outcome": outcome, "last_updated": now,
         })
-
-        if outcome == "placed":
-            record["total_orders"] += 1
-        elif outcome == "cancelled":
-            record["cancelled_orders"] += 1
-        elif outcome == "fulfilled":
-            record["fulfilled_orders"] += 1
-
-        record["last_order_id"] = order_id
-        record["last_outcome"] = outcome
-        record["last_updated"] = _now()
-
-        _save(data)
-        return compute_risk(record)
+    finally:
+        conn.close()
 
 
 def get_customer_history(tenant_id: str, customer_id: str) -> dict:
-    data = _load()
-    record = data.get(tenant_id, {}).get(customer_id)
-    if not record:
-        return {
-            "total_orders": 0, "cancelled_orders": 0, "fulfilled_orders": 0,
-            "cancellation_rate": 0.0, "is_serial_canceller": False,
-        }
-    return compute_risk(record)
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT * FROM customer_history WHERE tenant_id = %s AND customer_id = %s",
+                (tenant_id, customer_id),
+            )
+            row = cur.fetchone()
+        if not row:
+            return {
+                "total_orders": 0, "cancelled_orders": 0, "fulfilled_orders": 0,
+                "cancellation_rate": 0.0, "is_serial_canceller": False,
+            }
+        return compute_risk(dict(row))
+    finally:
+        conn.close()
 
 
 def compute_risk(record: dict) -> dict:
