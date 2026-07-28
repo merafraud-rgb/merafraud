@@ -400,10 +400,36 @@ def tenants_collection():
         profile = payload.get("risk_profile", "standard")
         thresholds = RISK_PROFILES.get(profile, RISK_PROFILES["standard"])
 
+    # trial_days is intentionally NOT read from the request body here — this
+    # is the public, unauthenticated self-serve signup route, and letting a
+    # client pick their own trial length would let anyone grant themselves
+    # an unlimited free account. create_tenant() defaults to the standard
+    # 7-day trial. Longer trials (pilot customers) are set separately via
+    # the admin-only /api/tenants/<id>/trial route below.
     tenant = tenant_store.create_tenant(name, thresholds, email, password)
     if email:
         email_service.send_welcome_email(email, name)  # no-op if SMTP isn't configured
     return jsonify(tenant_store.public_view(tenant)), 201
+
+
+@app.route("/api/tenants/<tenant_id>/trial", methods=["PUT"])
+def set_tenant_trial(tenant_id):
+    """Admin-only: (re)set how many days from today a specific tenant's free
+    trial runs. Use this for pilot merchants who get more than the standard
+    7 days (e.g. {"days": 30} for a first-month-free pilot deal)."""
+    admin_key = request.headers.get("X-Admin-Key")
+    if not admin_key or admin_key != ADMIN_API_KEY:
+        return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
+
+    payload = request.get_json(force=True, silent=True) or {}
+    days = payload.get("days")
+    if not isinstance(days, int) or days <= 0:
+        return jsonify({"error": "'days' must be a positive integer"}), 400
+
+    updated = tenant_store.set_trial_end(tenant_id, days)
+    if not updated:
+        return jsonify({"error": "Tenant not found"}), 404
+    return jsonify(tenant_store.public_view(updated))
 
 
 # ---------------------------------------------------------------------------
