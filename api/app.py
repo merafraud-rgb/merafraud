@@ -44,6 +44,8 @@ import disposable_email
 import custom_rules
 import phone_validation
 import shared_intelligence
+import bin_lookup
+import postal_lookup
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = BASE_DIR / "model" / "merafraud_model.pkl"
@@ -210,6 +212,9 @@ def predict():
     customer_ip = payload.get("customer_ip")
     billing_country = payload.get("billing_country")
     customer_phone = payload.get("customer_phone")
+    card_bin = payload.get("card_bin")
+    postal_code = payload.get("postal_code")
+    billing_city = payload.get("billing_city")
 
     # 1) Customer order/cancellation history (existing)
     customer_risk = None
@@ -243,9 +248,21 @@ def predict():
     score, extra = shared_intelligence.apply_network_risk_adjustment(score, network_check)
     reasons = extra + reasons
 
+    # 6) Card BIN issuer-country vs. billing-country mismatch
+    if card_bin:
+        bin_info = bin_lookup.lookup_bin(card_bin)
+        score, extra = bin_lookup.apply_bin_risk_adjustment(score, bin_info, billing_country)
+        reasons = extra + reasons
+
+    # 7) Billing postal/ZIP code doesn't exist, or doesn't match claimed city
+    if postal_code and billing_country:
+        postal_check = postal_lookup.lookup_postal_code(postal_code, billing_country)
+        score, extra = postal_lookup.apply_postal_risk_adjustment(score, postal_check, billing_city)
+        reasons = extra + reasons
+
     level = risk_level(score, thresholds)
 
-    # 6) Custom per-merchant rules — can only escalate, never override down
+    # 8) Custom per-merchant rules — can only escalate, never override down
     level, rule_reasons = custom_rules.evaluate_rules(g.tenant["id"], row, level)
     reasons = rule_reasons + reasons
 
