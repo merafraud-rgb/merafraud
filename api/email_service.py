@@ -1,53 +1,72 @@
 """
 MeraFraud - Email Sending
 -------------------------------
-Sends real emails via SMTP if configured (see .env.example), otherwise
-silently no-ops and the caller falls back to "demo mode" (e.g. showing a
-reset token on screen instead of emailing it).
+Sends real emails through Resend's HTTP API, otherwise silently no-ops and
+the caller falls back to "demo mode" (e.g. showing a reset token on screen
+instead of emailing it).
 
-Works with ANY SMTP provider — Gmail, SendGrid, Postmark, Amazon SES,
-Resend, your own mail server — since it uses the standard SMTP protocol,
-not a provider-specific SDK. Set the SMTP_* variables in .env to enable it.
+IMPORTANT: this used to send over raw SMTP (port 587). Render's free web
+services block all outbound traffic to SMTP ports (25, 465, 587) as of
+September 2025 to fight spam abuse — see
+https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports
+That's why signup/welcome emails were silently never arriving even though
+SMTP_HOST/SMTP_USERNAME/SMTP_PASSWORD were all correctly set: every
+connection attempt to smtp.resend.com:587 was blocked at the network level
+before it ever reached Resend, with no exception raised to log. Switched
+here to Resend's REST API, which goes over plain HTTPS (port 443) — not
+blocked on the free tier.
+
+Set RESEND_API_KEY (and optionally SMTP_FROM_EMAIL / SMTP_FROM_NAME) in
+your .env (local) or Render's Environment tab (production) to enable this.
+The RESEND_API_KEY is the same API key already created in the Resend
+dashboard (previously used as SMTP_PASSWORD) — just add it under this new
+name too; the old SMTP_* vars can stay, they're just unused now.
 """
 
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
+
+RESEND_API_URL = "https://api.resend.com/emails"
 
 
 def is_configured() -> bool:
-    return bool(os.environ.get("SMTP_HOST") and os.environ.get("SMTP_USERNAME"))
+    return bool(os.environ.get("RESEND_API_KEY"))
 
 
 def send_email(to_email: str, subject: str, html_body: str, text_body: str | None = None) -> bool:
     """Returns True if the email was sent, False if email isn't configured
     (caller should fall back to demo behavior) or sending failed."""
-    if not is_configured():
+    api_key = os.environ.get("RESEND_API_KEY")
+    if not api_key:
         return False
 
-    host = os.environ["SMTP_HOST"]
-    port = int(os.environ.get("SMTP_PORT", 587))
-    username = os.environ["SMTP_USERNAME"]
-    password = os.environ.get("SMTP_PASSWORD", "")
-    from_email = os.environ.get("SMTP_FROM_EMAIL", username)
+    from_email = os.environ.get("SMTP_FROM_EMAIL", "hello@merafraud.com")
     from_name = os.environ.get("SMTP_FROM_NAME", "MeraFraud")
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = f"{from_name} <{from_email}>"
-    msg["To"] = to_email
+    payload = {
+        "from": f"{from_name} <{from_email}>",
+        "to": [to_email],
+        "subject": subject,
+        "html": html_body,
+    }
     if text_body:
-        msg.attach(MIMEText(text_body, "plain"))
-    msg.attach(MIMEText(html_body, "html"))
+        payload["text"] = text_body
 
     try:
-        with smtplib.SMTP(host, port, timeout=10) as server:
-            server.starttls()
-            server.login(username, password)
-            server.sendmail(from_email, [to_email], msg.as_string())
+        resp = requests.post(
+            RESEND_API_URL,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=10,
+        )
+        if resp.status_code >= 400:
+            print(f"[email] Failed to send to {to_email}: {resp.status_code} {resp.text}")
+            return False
         return True
-    except Exception as e:
+    except requests.RequestException as e:
         print(f"[email] Failed to send to {to_email}: {e}")
         return False
 
