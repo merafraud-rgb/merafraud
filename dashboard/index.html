@@ -347,6 +347,22 @@
           <label data-i18n="f_items">Items in Cart</label>
           <input type="number" id="f_items" value="1">
         </div>
+        <div class="field">
+          <label data-i18n="f_bin">Card BIN (first 6 digits)</label>
+          <input type="text" id="f_bin" value="454360" maxlength="8">
+        </div>
+        <div class="field">
+          <label data-i18n="f_country">Billing Country (ISO code)</label>
+          <input type="text" id="f_country" value="DE" maxlength="2" style="text-transform:uppercase;">
+        </div>
+        <div class="field">
+          <label data-i18n="f_postal">Billing Postal Code</label>
+          <input type="text" id="f_postal" value="00000">
+        </div>
+        <div class="field">
+          <label data-i18n="f_city">Billing City</label>
+          <input type="text" id="f_city" value="Berlin">
+        </div>
       </div>
 
       <div class="toggle-row" id="toggleRow">
@@ -432,6 +448,8 @@ var DICT = {
     f_amount:"Transaction Amount (€)", f_ratio:"Ratio to Average (×)", f_age:"Account Age (days)",
     f_ltv:"Customer Lifetime Value (€)", f_lasttx:"Time Since Last Transaction (min)",
     f_tx24h:"Transactions in Last 24h", f_hour:"Hour (0–23)", f_items:"Items in Cart",
+    f_bin:"Card BIN (first 6 digits)", f_country:"Billing Country (ISO code)",
+    f_postal:"Billing Postal Code", f_city:"Billing City",
     t_addr:"Address mismatch", t_ip:"IP/country mismatch", t_device:"New device",
     t_payment:"New payment method", t_email:"Free email", t_shipping:"Express shipping",
     f_failed:"Failed Payments / Login Attempts (last 7 days)",
@@ -479,6 +497,8 @@ var DICT = {
     f_amount:"İşlem Tutarı (€)", f_ratio:"Ortalamaya Oran (×)", f_age:"Hesap Yaşı (gün)",
     f_ltv:"Müşteri Yaşam Boyu Değeri (€)", f_lasttx:"Son İşlemden Bu Yana Geçen Süre (dk)",
     f_tx24h:"Son 24 Saatteki İşlemler", f_hour:"Saat (0–23)", f_items:"Sepetteki Ürünler",
+    f_bin:"Kart BIN (ilk 6 hane)", f_country:"Fatura Ülkesi (ISO kodu)",
+    f_postal:"Fatura Posta Kodu", f_city:"Fatura Şehri",
     t_addr:"Adres uyuşmazlığı", t_ip:"IP/ülke uyuşmazlığı", t_device:"Yeni cihaz",
     t_payment:"Yeni ödeme yöntemi", t_email:"Ücretsiz e-posta", t_shipping:"Hızlı kargo",
     f_failed:"Başarısız Ödeme / Giriş Denemeleri (son 7 gün)",
@@ -721,7 +741,7 @@ function collectPayload(){
   document.querySelectorAll('#toggleRow .toggle').forEach(t=>{
     toggles[t.dataset.key] = t.querySelector('input').checked ? 1 : 0;
   });
-  return {
+  const payload = {
     transaction_amount: amount,
     amount_ratio_to_avg: parseFloat(document.getElementById('f_ratio').value)||1,
     account_age_days: parseFloat(document.getElementById('f_age').value)||0,
@@ -734,6 +754,17 @@ function collectPayload(){
     login_attempts_before_purchase: parseFloat(document.getElementById('f_logins').value)||0,
     ...toggles,
   };
+  // Optional extra signals — the backend simply skips whichever of these
+  // aren't provided, so it's safe to always send what's in the form.
+  const cardBin = (document.getElementById('f_bin').value || '').trim();
+  const billingCountry = (document.getElementById('f_country').value || '').trim();
+  const postalCode = (document.getElementById('f_postal').value || '').trim();
+  const billingCity = (document.getElementById('f_city').value || '').trim();
+  if(cardBin) payload.card_bin = cardBin;
+  if(billingCountry) payload.billing_country = billingCountry;
+  if(postalCode) payload.postal_code = postalCode;
+  if(billingCity) payload.billing_city = billingCity;
+  return payload;
 }
 
 function mockScore(p){
@@ -840,6 +871,10 @@ function fillNormal(){
   document.getElementById('f_items').value = 3;
   document.getElementById('f_failed').value = 0;
   document.getElementById('f_logins').value = 1;
+  document.getElementById('f_bin').value = '';
+  document.getElementById('f_country').value = '';
+  document.getElementById('f_postal').value = '';
+  document.getElementById('f_city').value = '';
   document.querySelectorAll('#toggleRow .toggle').forEach(t=>{
     t.querySelector('input').checked = false;
     t.classList.remove('on');
