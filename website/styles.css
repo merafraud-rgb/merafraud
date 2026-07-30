@@ -46,6 +46,13 @@ header{
   background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
   clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
   filter: drop-shadow(0 0 14px rgba(236,72,153,0.65));
+  animation: logoPrism 9s linear infinite;
+  transform-origin:50% 50%;
+}
+@keyframes logoPrism{
+  0%{ transform:rotate(0deg) scale(1); }
+  50%{ transform:rotate(180deg) scale(1.08); }
+  100%{ transform:rotate(360deg) scale(1); }
 }
 .logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:24px; letter-spacing:-0.3px; white-space:nowrap; }
 .logo-text span{color:var(--pink-2);}
@@ -168,6 +175,7 @@ h1 em, h2 em{
 @media (prefers-reduced-motion: reduce){
   .reveal{ opacity:1; transform:none; transition:none; }
   .marquee-track{ animation:none; }
+  .logo-mark{ animation:none; }
 }
 .prose h2{ font-size:22px; margin:36px 0 14px; }
 .prose h3{ font-size:17px; margin:24px 0 10px; color:var(--text-hi); }
