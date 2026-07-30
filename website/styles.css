@@ -171,31 +171,63 @@ html,body{
   to{ transform:translateX(-50%); }
 }
 
-/* ---------- Motion: floating accent orb (decorative, mouse-reactive) ---------- */
-.floating-orb{
-  position:fixed; width:520px; height:520px; border-radius:50%; pointer-events:none; z-index:0;
-  background:
-    radial-gradient(circle at 32% 32%, rgba(236,72,153,0.42), transparent 58%),
-    radial-gradient(circle at 68% 68%, rgba(124,58,237,0.38), transparent 62%),
-    radial-gradient(circle at 50% 50%, rgba(34,211,238,0.16), transparent 70%);
-  filter: blur(6px);
-  animation:orbFloat 11s ease-in-out infinite;
-  transition: transform .5s cubic-bezier(.2,.7,.3,1);
-  will-change: transform;
-}
-@keyframes orbFloat{
-  0%,100%{ transform:translate(var(--mx,0px), var(--my,0px)) scale(1) rotate(0deg); }
-  50%{ transform:translate(calc(72px + var(--mx,0px)), calc(-96px + var(--my,0px))) scale(1.12) rotate(8deg); }
-}
+/* ---------- Motion: old floating orb — retired, replaced by the smart-cube below ---------- */
+.floating-orb{ display:none; }
 
-/* everything with real content sits above the decorative orb layer */
+/* ---------- Motion: "smart cube" decorative object (injected by animations.js) ---------- */
+.smart-cube-wrap{
+  position:fixed; z-index:0; pointer-events:none;
+  top:22%; right:6%;
+  width:120px; height:120px;
+  perspective:1000px;
+  opacity:0.85;
+}
+.smart-cube{
+  position:relative; width:100%; height:100%; transform-style:preserve-3d;
+  animation:smartCubeSpin 24s linear infinite;
+}
+@keyframes smartCubeSpin{
+  0%{ transform: rotateX(calc(-22deg + var(--cty,0deg))) rotateY(var(--ctx,0deg)); }
+  100%{ transform: rotateX(calc(-22deg + var(--cty,0deg))) rotateY(calc(360deg + var(--ctx,0deg))); }
+}
+.smart-cube .face{
+  position:absolute; inset:0; width:120px; height:120px;
+  background:
+    linear-gradient(rgba(255,255,255,0.18) 1px, transparent 1px) 0 0/33.34% 33.34%,
+    linear-gradient(90deg, rgba(255,255,255,0.18) 1px, transparent 1px) 0 0/33.34% 33.34%,
+    linear-gradient(135deg, rgba(124,58,237,0.46), rgba(236,72,153,0.38));
+  border:1px solid rgba(255,255,255,0.22);
+  box-shadow: inset 0 0 22px rgba(34,211,238,0.22);
+  border-radius:6px;
+}
+.smart-cube .face::after{
+  content:''; position:absolute; top:50%; left:50%; width:8px; height:8px; border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:var(--cyan); box-shadow:0 0 12px 3px rgba(34,211,238,0.7);
+  animation:smartCubePulse 3.2s ease-in-out infinite;
+}
+@keyframes smartCubePulse{
+  0%,100%{ opacity:0.35; transform:translate(-50%,-50%) scale(0.85); }
+  50%{ opacity:1; transform:translate(-50%,-50%) scale(1.15); }
+}
+.smart-cube .f-front{ transform: translateZ(60px); }
+.smart-cube .f-back{ transform: rotateY(180deg) translateZ(60px); }
+.smart-cube .f-right{ transform: rotateY(90deg) translateZ(60px); }
+.smart-cube .f-left{ transform: rotateY(-90deg) translateZ(60px); }
+.smart-cube .f-top{ transform: rotateX(90deg) translateZ(60px); }
+.smart-cube .f-bottom{ transform: rotateX(-90deg) translateZ(60px); }
+
+@media (max-width:1050px){ .smart-cube-wrap{ display:none; } }
+
+/* everything with real content sits above the decorative layer */
 header, footer, main, section, .wrap, .wrap-narrow{ position:relative; z-index:1; }
 
 @media (prefers-reduced-motion: reduce){
   html,body{ animation:none; }
   .reveal{ opacity:1; transform:none; transition:none; }
   .marquee-track{ animation:none; }
-  .floating-orb{ animation:none; transition:none; }
+  .smart-cube{ animation:none; transform:rotateX(-22deg) rotateY(24deg); }
+  .smart-cube .face::after{ animation:none; }
 }
 .prose h2{ font-size:22px; margin:36px 0 14px; }
 .prose h3{ font-size:17px; margin:24px 0 10px; color:var(--text-hi); }
