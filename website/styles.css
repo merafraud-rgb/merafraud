@@ -27,6 +27,7 @@ html,body{
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
   line-height:1.6;
+  overflow-x:hidden;
 }
 a{color:inherit;}
 .wrap{max-width:1080px; margin:0 auto; padding:0 28px;}
@@ -35,24 +36,29 @@ a{color:inherit;}
 /* ---------- Header / nav ---------- */
 header{
   display:flex; align-items:center;
-  padding:20px 0; border-bottom:1px solid rgba(255,255,255,0.08);
-  max-width:1080px; margin:0 auto; padding-left:28px; padding-right:28px;
-  gap:32px;
+  padding:18px 32px; border-bottom:1px solid rgba(255,255,255,0.08);
+  width:100%; margin:0;
+  gap:24px;
 }
-.logo{display:flex; align-items:center; gap:12px; text-decoration:none; margin-right:auto; padding-right:12px;}
+.logo{display:flex; align-items:center; gap:12px; text-decoration:none; margin-right:auto; flex-shrink:0;}
 .logo-mark{
-  width:32px; height:32px;
+  width:38px; height:38px; flex-shrink:0;
   background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
   clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-  filter: drop-shadow(0 0 10px rgba(236,72,153,0.5));
+  filter: drop-shadow(0 0 14px rgba(236,72,153,0.65));
 }
-.logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:21px; }
+.logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:24px; letter-spacing:-0.3px; white-space:nowrap; }
 .logo-text span{color:var(--pink-2);}
-.main-nav{ display:flex; align-items:center; gap:6px; margin-left:8px; flex-wrap:wrap; }
+.main-nav{
+  display:flex; align-items:center; gap:6px; flex-wrap:nowrap;
+  overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none;
+  mask-image:linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+}
+.main-nav::-webkit-scrollbar{ display:none; }
 .main-nav a{
   font-size:13px; font-weight:500; color:var(--text-lo); text-decoration:none; transition:all .15s ease;
   padding:9px 15px; border-radius:999px; background:rgba(255,255,255,0.035);
-  border:1px solid rgba(255,255,255,0.06); white-space:nowrap;
+  border:1px solid rgba(255,255,255,0.06); white-space:nowrap; flex-shrink:0;
 }
 .main-nav a:hover{ color:var(--text-hi); background:rgba(255,255,255,0.075); border-color:rgba(255,255,255,0.14); }
 .main-nav a.active{
@@ -63,11 +69,11 @@ header{
 }
 .nav-cta{
   text-decoration:none; font-size:13.5px; font-weight:600; color:#fff !important;
-  padding:10px 20px; border-radius:999px;
+  padding:10px 20px; border-radius:999px; flex-shrink:0;
   background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
 }
 .mobile-toggle{ display:none; }
-@media (max-width:900px){
+@media (max-width:720px){
   .main-nav{ display:none; }
   .mobile-toggle{ display:block; }
 }
@@ -131,11 +137,11 @@ h1 em, h2 em{
 /* ---------- Motion: living background ---------- */
 html,body{
   background-size: 200% 200%, 200% 200%, 200% 200%, auto;
-  animation: bgPan 26s ease-in-out infinite alternate;
+  animation: bgPan 22s ease-in-out infinite alternate;
 }
 @keyframes bgPan{
   0%{ background-position: 0% 0%, 100% 0%, 50% 100%, 0 0; }
-  100%{ background-position: 20% 15%, 80% 20%, 45% 85%, 0 0; }
+  100%{ background-position: 22% 18%, 78% 22%, 42% 82%, 0 0; }
 }
 
 /* ---------- Motion: scroll reveal ---------- */
@@ -167,19 +173,23 @@ html,body{
 
 /* ---------- Motion: floating accent orb (decorative, mouse-reactive) ---------- */
 .floating-orb{
-  position:fixed; width:380px; height:380px; border-radius:50%; pointer-events:none; z-index:-1;
+  position:fixed; width:520px; height:520px; border-radius:50%; pointer-events:none; z-index:0;
   background:
-    radial-gradient(circle at 35% 35%, rgba(236,72,153,0.24), transparent 60%),
-    radial-gradient(circle at 65% 65%, rgba(124,58,237,0.20), transparent 65%);
-  filter: blur(4px);
-  animation:orbFloat 16s ease-in-out infinite;
-  transition: transform .6s cubic-bezier(.2,.7,.3,1);
+    radial-gradient(circle at 32% 32%, rgba(236,72,153,0.42), transparent 58%),
+    radial-gradient(circle at 68% 68%, rgba(124,58,237,0.38), transparent 62%),
+    radial-gradient(circle at 50% 50%, rgba(34,211,238,0.16), transparent 70%);
+  filter: blur(6px);
+  animation:orbFloat 11s ease-in-out infinite;
+  transition: transform .5s cubic-bezier(.2,.7,.3,1);
   will-change: transform;
 }
 @keyframes orbFloat{
-  0%,100%{ transform:translate(var(--mx,0px), var(--my,0px)) scale(1); }
-  50%{ transform:translate(calc(46px + var(--mx,0px)), calc(-64px + var(--my,0px))) scale(1.08); }
+  0%,100%{ transform:translate(var(--mx,0px), var(--my,0px)) scale(1) rotate(0deg); }
+  50%{ transform:translate(calc(72px + var(--mx,0px)), calc(-96px + var(--my,0px))) scale(1.12) rotate(8deg); }
 }
+
+/* everything with real content sits above the decorative orb layer */
+header, footer, main, section, .wrap, .wrap-narrow{ position:relative; z-index:1; }
 
 @media (prefers-reduced-motion: reduce){
   html,body{ animation:none; }
