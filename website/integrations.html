@@ -31,6 +31,27 @@
   }
   .platform-chip:hover{ border-color:var(--pink-1); background:rgba(236,72,153,0.08); }
 
+  .platform-logo-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(112px,1fr));
+    gap:12px; margin-bottom:10px;
+  }
+  .platform-logo-card{
+    background:#faf8ff; border:1px solid rgba(20,10,40,0.07); border-radius:14px;
+    padding:18px 8px 14px; text-align:center; text-decoration:none; cursor:pointer;
+    transition:all .15s ease; position:relative; display:flex; flex-direction:column;
+    align-items:center; gap:10px; box-shadow:0 1px 3px rgba(20,10,40,0.06);
+  }
+  .platform-logo-card:hover{
+    transform:translateY(-3px); box-shadow:0 12px 26px -10px rgba(124,58,237,0.4);
+    border-color:rgba(124,58,237,0.3);
+  }
+  .platform-logo-card .mono{
+    width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14.5px; letter-spacing:-0.3px;
+  }
+  .platform-logo-card .pname{ font-size:12px; font-weight:600; color:#241b3a; line-height:1.25; }
+  .platform-logo-card .pdot{ position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; }
+
   .guide-panel{ display:none; margin:20px 0 60px; }
   .guide-panel.active{ display:block; }
   .guide-head{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
@@ -271,22 +292,82 @@
     <span class="guide-badge dev-needed" data-i18n="other_badge">A developer or our team can set this up</span>
     <div class="card">
       <p style="font-size:13.5px; margin-bottom:14px;" data-i18n="other_p">We don't have a ready-made, no-code guide for every platform yet — but MeraFraud works with <b>any</b> platform that can make a standard web request. Click a platform below to download a starter integration file for it:</p>
-      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-        <a href="downloads/platform-templates/magento2_observer.php" download class="platform-chip">Magento <span style="color:var(--safe);">●</span></a>
-        <a href="downloads/platform-templates/prestashop_module.php" download class="platform-chip">PrestaShop <span style="color:var(--safe);">●</span></a>
-        <a href="downloads/platform-templates/bigcommerce_webhook.py" download class="platform-chip">BigCommerce <span style="color:var(--safe);">●</span></a>
-        <a href="downloads/platform-templates/opencart_event.php" download class="platform-chip">OpenCart <span style="color:var(--review);">●</span></a>
-        <a href="downloads/platform-templates/whmcs_hook.php" download class="platform-chip">WHMCS <span style="color:var(--review);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">Ticimax <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">İkas <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">T-Soft <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">PlatinMarket <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">Ecwid <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">Shopware <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">Sylius <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">ThirtyBees <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">AbanteCart <span style="color:var(--block);">●</span></a>
-        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-chip">CS-Cart <span style="color:var(--block);">●</span></a>
+      <div class="platform-logo-grid">
+        <a href="downloads/platform-templates/magento2_observer.php" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--safe);"></span>
+          <div class="mono" style="background:#F26322;">M</div>
+          <div class="pname">Magento</div>
+        </a>
+        <a href="downloads/platform-templates/prestashop_module.php" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--safe);"></span>
+          <div class="mono" style="background:#DF0067;">PS</div>
+          <div class="pname">PrestaShop</div>
+        </a>
+        <a href="downloads/platform-templates/bigcommerce_webhook.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--safe);"></span>
+          <div class="mono" style="background:#1E1B29;">BC</div>
+          <div class="pname">BigCommerce</div>
+        </a>
+        <a href="downloads/platform-templates/opencart_event.php" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--review);"></span>
+          <div class="mono" style="background:#21B6E8;">OC</div>
+          <div class="pname">OpenCart</div>
+        </a>
+        <a href="downloads/platform-templates/whmcs_hook.php" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--review);"></span>
+          <div class="mono" style="background:#0C4B8E;">W</div>
+          <div class="pname">WHMCS</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#7c3aed;">T</div>
+          <div class="pname">Ticimax</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#111827;">İ</div>
+          <div class="pname">İkas</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#0E7490;">TS</div>
+          <div class="pname">T-Soft</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#57534E;">PM</div>
+          <div class="pname">PlatinMarket</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#4C81F1;">E</div>
+          <div class="pname">Ecwid</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#189EFF;">SW</div>
+          <div class="pname">Shopware</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#4338CA;">S</div>
+          <div class="pname">Sylius</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#3F9142;">3B</div>
+          <div class="pname">ThirtyBees</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#B45309;">AC</div>
+          <div class="pname">AbanteCart</div>
+        </a>
+        <a href="downloads/platform-templates/generic_webhook_receiver.py" download class="platform-logo-card">
+          <span class="pdot" style="background:var(--block);"></span>
+          <div class="mono" style="background:#E63946;">CS</div>
+          <div class="pname">CS-Cart</div>
+        </a>
       </div>
       <div style="font-size:11.5px; color:var(--text-lo); margin-bottom:20px; display:flex; gap:16px;">
         <span><span style="color:var(--safe);">●</span> <span data-i18n="legend_tested">Tested pattern, high confidence</span></span>
