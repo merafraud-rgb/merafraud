@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Status — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 20px; text-align:center; }
+  .hero h1{ font-size:clamp(30px,4.5vw,44px); margin:0 auto 14px; max-width:560px; }
+  .hero p.lede{ font-size:15.5px; max-width:520px; margin:0 auto; }
+
+  .banner{
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    padding:16px 24px; border-radius:16px; margin:36px 0 40px; font-size:14.5px; font-weight:600;
+  }
+  .banner .dot{ width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+  .banner.ok{ background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.3); color:var(--safe); }
+  .banner.ok .dot{ background:var(--safe); box-shadow:0 0 8px rgba(52,211,153,0.7); }
+  .banner.warn{ background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); color:var(--review); }
+  .banner.warn .dot{ background:var(--review); box-shadow:0 0 8px rgba(251,191,36,0.7); }
+
+  .svc-list{ margin:0 0 40px; }
+  .svc-row{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:20px 24px; border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .svc-row:first-child{ border-top:1px solid rgba(255,255,255,0.06); }
+  .svc-name{ font-size:14.5px; font-weight:600; color:var(--text-hi); }
+  .svc-desc{ font-size:12.5px; color:var(--text-lo); margin-top:3px; }
+  .svc-state{ display:flex; align-items:center; gap:8px; flex-shrink:0; font-size:13px; font-weight:600; }
+  .svc-state .dot{ width:9px; height:9px; border-radius:50%; }
+  .svc-state.operational{ color:var(--safe); }
+  .svc-state.operational .dot{ background:var(--safe); }
+  .svc-state.progress{ color:var(--review); }
+  .svc-state.progress .dot{ background:var(--review); }
+
+  .note-box{
+    padding:20px 24px; border-radius:16px; margin:0 0 60px;
+    background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.25);
+    font-size:13px; color:var(--text-lo); line-height:1.6;
+  }
+  .note-box a{ color:var(--cyan); }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
+  </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
+</header>
+
+<section class="wrap hero">
+  <span class="eyebrow" data-i18n="hero_eyebrow">System Status</span>
+  <h1 data-i18n="hero_h1">Is MeraFraud working right now?</h1>
+  <p class="lede" data-i18n="hero_lede">Current status of each part of the system, updated by our team.</p>
+</section>
+
+<section class="wrap-narrow">
+  <div class="banner warn">
+    <span class="dot"></span>
+    <span data-i18n="banner_text">Core systems operational — one service still rolling out</span>
+  </div>
+
+  <div class="card svc-list reveal" style="padding:0;">
+    <div class="svc-row">
+      <div><div class="svc-name" data-i18n="svc1_name">Scoring API</div><div class="svc-desc" data-i18n="svc1_desc">api.merafraud.com/predict — real-time risk scoring</div></div>
+      <div class="svc-state operational"><span class="dot"></span><span data-i18n="state_ok">Operational</span></div>
+    </div>
+    <div class="svc-row">
+      <div><div class="svc-name" data-i18n="svc2_name">Merchant Dashboard</div><div class="svc-desc" data-i18n="svc2_desc">Login, transaction feed, risk map, settings</div></div>
+      <div class="svc-state operational"><span class="dot"></span><span data-i18n="state_ok">Operational</span></div>
+    </div>
+    <div class="svc-row">
+      <div><div class="svc-name" data-i18n="svc3_name">Database</div><div class="svc-desc" data-i18n="svc3_desc">Merchant accounts &amp; transaction history (PostgreSQL)</div></div>
+      <div class="svc-state operational"><span class="dot"></span><span data-i18n="state_ok">Operational</span></div>
+    </div>
+    <div class="svc-row">
+      <div><div class="svc-name" data-i18n="svc4_name">Transactional Email</div><div class="svc-desc" data-i18n="svc4_desc">Signup confirmations, usage reports</div></div>
+      <div class="svc-state operational"><span class="dot"></span><span data-i18n="state_ok">Operational</span></div>
+    </div>
+    <div class="svc-row">
+      <div><div class="svc-name" data-i18n="svc5_name">Subscription Billing</div><div class="svc-desc" data-i18n="svc5_desc">iyzico payment integration</div></div>
+      <div class="svc-state progress"><span class="dot"></span><span data-i18n="state_progress">In progress</span></div>
+    </div>
+  </div>
+
+  <div class="note-box reveal" data-i18n="note_html">
+    This page is updated manually by our team, not by automated monitoring — we're a small team and haven't built historical uptime tracking or an incident log yet. If something looks wrong, tell us directly: <a href="support.html">contact support</a> or message us on WhatsApp.
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
+        <a href="changelog.html" data-i18n="footer_changelog">Changelog</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
+        <a href="insights.html" data-i18n="footer_insights">Insights</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="animations.js"></script>
+<script src="support.js"></script>
+<script>
+(function(){
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_integrations:"Connect Your Store",
+      nav_docs:"Docs", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"System Status", hero_h1:"Is MeraFraud working right now?",
+      hero_lede:"Current status of each part of the system, updated by our team.",
+      banner_text:"Core systems operational — one service still rolling out",
+      svc1_name:"Scoring API", svc1_desc:"api.merafraud.com/predict — real-time risk scoring",
+      svc2_name:"Merchant Dashboard", svc2_desc:"Login, transaction feed, risk map, settings",
+      svc3_name:"Database", svc3_desc:"Merchant accounts & transaction history (PostgreSQL)",
+      svc4_name:"Transactional Email", svc4_desc:"Signup confirmations, usage reports",
+      svc5_name:"Subscription Billing", svc5_desc:"iyzico payment integration",
+      state_ok:"Operational", state_progress:"In progress",
+      note_html:"This page is updated manually by our team, not by automated monitoring — we're a small team and haven't built historical uptime tracking or an incident log yet. If something looks wrong, tell us directly: <a href=\"support.html\">contact support</a> or message us on WhatsApp.",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_company:"Company", footer_changelog:"Changelog", footer_insights:"Insights",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_integrations:"Mağazanızı Bağlayın",
+      nav_docs:"Belgeler", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"Sistem Durumu", hero_h1:"MeraFraud şu anda çalışıyor mu?",
+      hero_lede:"Sistemin her bir parçasının, ekibimiz tarafından güncellenen güncel durumu.",
+      banner_text:"Ana sistemler çalışıyor — bir hizmet hâlâ devreye alınıyor",
+      svc1_name:"Puanlama API'si", svc1_desc:"api.merafraud.com/predict — gerçek zamanlı risk puanlama",
+      svc2_name:"Satıcı Paneli", svc2_desc:"Giriş, işlem akışı, risk haritası, ayarlar",
+      svc3_name:"Veritabanı", svc3_desc:"Satıcı hesapları ve işlem geçmişi (PostgreSQL)",
+      svc4_name:"İşlemsel E-posta", svc4_desc:"Kayıt onayları, kullanım raporları",
+      svc5_name:"Abonelik Faturalandırma", svc5_desc:"iyzico ödeme entegrasyonu",
+      state_ok:"Çalışıyor", state_progress:"Devam ediyor",
+      note_html:"Bu sayfa otomatik izleme ile değil, ekibimiz tarafından elle güncellenir — küçük bir ekibiz ve henüz geçmiş çalışma süresi takibi veya olay günlüğü oluşturmadık. Bir şey yanlış görünüyorsa doğrudan bize söyleyin: <a href=\"support.html\">destek ile iletişime geçin</a> veya WhatsApp'tan mesaj gönderin.",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_company:"Şirket", footer_changelog:"Değişiklik Günlüğü", footer_insights:"İçgörüler",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
+</body>
+</html>
