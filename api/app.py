@@ -12,6 +12,7 @@ Endpoints
   POST /api/predict/batch     -> score a list of transactions (CSV upload flow)
   GET  /api/stats             -> aggregate demo stats for the dashboard
   GET  /api/feature-importance -> global model explainability
+  POST /api/support/ticket    -> forward the website support form to the team inbox
 
 Run:
   pip install -r requirements.txt
@@ -427,6 +428,33 @@ def tenants_collection():
     if email:
         email_service.send_welcome_email(email, name)  # no-op if SMTP isn't configured
     return jsonify(tenant_store.public_view(tenant)), 201
+
+
+@app.route("/api/support/ticket", methods=["POST"])
+def support_ticket():
+    """Public, unauthenticated endpoint behind the website's support-ticket
+    form. Forwards the submission to the team inbox via Resend instead of
+    just faking a ticket ID client-side. Returns 503 (not an error the user
+    caused) if RESEND_API_KEY isn't configured, so the frontend can show a
+    clear "try WhatsApp instead" message rather than a fake success."""
+    payload = request.get_json(force=True, silent=True) or {}
+    name = (payload.get("name") or "").strip()
+    email = (payload.get("email") or "").strip()
+    message = (payload.get("message") or "").strip()
+    store_name = (payload.get("store_name") or "").strip()
+    issue_type = (payload.get("issue_type") or "").strip()
+
+    if not name or not email or not message:
+        return jsonify({"error": "'name', 'email', and 'message' fields are required"}), 400
+
+    if not email_service.is_configured():
+        return jsonify({"error": "Email delivery isn't configured on this server yet."}), 503
+
+    sent = email_service.send_support_ticket_email(name, email, store_name, issue_type, message)
+    if not sent:
+        return jsonify({"error": "Could not send the ticket right now. Please try WhatsApp instead."}), 502
+
+    return jsonify({"status": "sent"}), 201
 
 
 @app.route("/api/tenants/<tenant_id>/trial", methods=["PUT"])
