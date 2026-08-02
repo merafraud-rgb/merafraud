@@ -148,21 +148,21 @@
       <div class="field-row">
         <div class="field">
           <label data-i18n="f_name">Name</label>
-          <input type="text" required>
+          <input type="text" id="tName" required>
         </div>
         <div class="field">
           <label data-i18n="f_email">Email</label>
-          <input type="email" required>
+          <input type="email" id="tEmail" required>
         </div>
       </div>
       <div class="field-row">
         <div class="field">
           <label data-i18n="f_store">Store Name</label>
-          <input type="text">
+          <input type="text" id="tStore">
         </div>
         <div class="field">
           <label data-i18n="f_issuetype">Issue Type</label>
-          <select>
+          <select id="tIssue">
             <option data-i18n="opt_account">Account / API key</option>
             <option data-i18n="opt_billing">Billing / Invoice</option>
             <option data-i18n="opt_tech">Technical integration</option>
@@ -173,10 +173,10 @@
       </div>
       <div class="field">
         <label data-i18n="f_describe">Describe the issue</label>
-        <textarea required data-i18n-ph="f_describe_ph" placeholder="What happened, and what were you expecting?"></textarea>
+        <textarea required id="tMessage" data-i18n-ph="f_describe_ph" placeholder="What happened, and what were you expecting?"></textarea>
       </div>
       <button type="submit" class="btn-primary" id="ticketBtn" data-i18n="f_submit">Submit Ticket</button>
-      <p class="form-note" id="ticketNote" data-i18n="f_note">Demo only — this form isn't connected to a real helpdesk inbox yet.</p>
+      <p class="form-note" id="ticketNote" data-i18n="f_note">We typically reply within 1 business day (Priority plans: 4 business hours).</p>
     </form>
   </div>
 </section>
@@ -218,6 +218,7 @@
 </footer>
 
 <script>
+const API_BASE = "https://merafraud-apimerafraud-api-v2.onrender.com/api";
 var TICKET_DICT = {
   en: {
     faqs: [
@@ -229,7 +230,10 @@ var TICKET_DICT = {
       { q: "Is my transaction data shared with other merchants?", a: "No — see our Privacy Policy for full details on data handling and model training practices." },
     ],
     whatsapp_text: "Hi MeraFraud, I need help.",
-    ticket_created: "Ticket {id} created (demo). A real advisor would follow up by email shortly."
+    note_sending: "Sending…",
+    note_success: "Sent — we'll reply to your email directly.",
+    note_error_fields: "Please fill in your name, email, and a description.",
+    note_error_send: "Couldn't send that right now — please try WhatsApp instead."
   },
   tr: {
     faqs: [
@@ -241,7 +245,10 @@ var TICKET_DICT = {
       { q: "İşlem verilerim başka satıcılarla paylaşılıyor mu?", a: "Hayır — veri işleme ve model eğitimi uygulamaları hakkında tam bilgi için Gizlilik Politikamıza bakın." },
     ],
     whatsapp_text: "Merhaba MeraFraud, yardıma ihtiyacım var.",
-    ticket_created: "{id} numaralı talep oluşturuldu (demo). Gerçek bir danışman kısa süre içinde e-posta ile geri dönüş yapardı."
+    note_sending: "Gönderiliyor…",
+    note_success: "Gönderildi — e-postanıza doğrudan yanıt vereceğiz.",
+    note_error_fields: "Lütfen adınızı, e-postanızı ve bir açıklama girin.",
+    note_error_send: "Şu anda gönderilemedi — lütfen bunun yerine WhatsApp'ı deneyin."
   }
 };
 
@@ -265,13 +272,45 @@ function updateWhatsapp(){
   }).catch(() => {});
 }
 
-function handleTicket(e){
+async function handleTicket(e){
   e.preventDefault();
   var lang = window.mfLang || 'tr';
+  const d = TICKET_DICT[lang];
   const note = document.getElementById('ticketNote');
-  const ticketId = 'MF-' + Math.random().toString(36).slice(2,8).toUpperCase();
-  note.textContent = TICKET_DICT[lang].ticket_created.replace('{id}', ticketId);
-  note.style.color = 'var(--safe)';
+  const btn = document.getElementById('ticketBtn');
+
+  const name = document.getElementById('tName').value.trim();
+  const email = document.getElementById('tEmail').value.trim();
+  const message = document.getElementById('tMessage').value.trim();
+  const storeName = document.getElementById('tStore').value.trim();
+  const issueType = document.getElementById('tIssue').value;
+
+  if(!name || !email || !message){
+    note.textContent = d.note_error_fields;
+    note.style.color = 'var(--block)';
+    return;
+  }
+
+  btn.disabled = true;
+  note.textContent = d.note_sending;
+  note.style.color = 'var(--text-lo)';
+
+  try{
+    const res = await fetch(`${API_BASE}/support/ticket`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name, email, message, store_name: storeName, issue_type: issueType })
+    });
+    if(!res.ok) throw new Error('send failed');
+    note.textContent = d.note_success;
+    note.style.color = 'var(--safe)';
+    e.target.reset();
+  }catch(err){
+    note.textContent = d.note_error_send;
+    note.style.color = 'var(--block)';
+  }finally{
+    btn.disabled = false;
+  }
 }
 </script>
 <script src="support.js"></script>
@@ -293,7 +332,7 @@ function handleTicket(e){
       opt_account:"Account / API key", opt_billing:"Billing / Invoice", opt_tech:"Technical integration",
       opt_report:"Report / data export", opt_other:"Other",
       f_describe:"Describe the issue", f_describe_ph:"What happened, and what were you expecting?",
-      f_submit:"Submit Ticket", f_note:"Demo only — this form isn't connected to a real helpdesk inbox yet.",
+      f_submit:"Submit Ticket", f_note:"We typically reply within 1 business day (Priority plans: 4 business hours).",
       sla1_plan:"STARTER", sla1_time:"Self-serve", sla1_p:"Chat bot + documentation, no formal response-time commitment.",
       sla2_plan:"GROWTH", sla2_time:"Under 1 business day", sla2_p:"Email support, target first response within 1 business day.",
       sla3_plan:"SCALE", sla3_time:"Under 4 business hours", sla3_p:"Priority support via a dedicated channel, target first response within 4 business hours.",
@@ -319,7 +358,7 @@ function handleTicket(e){
       opt_account:"Hesap / API anahtarı", opt_billing:"Faturalandırma / Fatura", opt_tech:"Teknik entegrasyon",
       opt_report:"Rapor / veri dışa aktarma", opt_other:"Diğer",
       f_describe:"Sorunu açıklayın", f_describe_ph:"Ne oldu ve ne bekliyordunuz?",
-      f_submit:"Talebi Gönder", f_note:"Sadece demo — bu form henüz gerçek bir destek kutusuna bağlı değil.",
+      f_submit:"Talebi Gönder", f_note:"Genellikle 1 iş günü içinde yanıt veririz (Öncelikli planlar: 4 iş saati).",
       sla1_plan:"STARTER", sla1_time:"Kendi kendine", sla1_p:"Chat bot + dokümantasyon, resmi bir yanıt süresi taahhüdü yok.",
       sla2_plan:"GROWTH", sla2_time:"1 iş gününden kısa", sla2_p:"E-posta desteği, hedef ilk yanıt süresi 1 iş günü içinde.",
       sla3_plan:"SCALE", sla3_time:"4 iş saatinden kısa", sla3_p:"Özel bir kanal üzerinden öncelikli destek, hedef ilk yanıt süresi 4 iş saati içinde.",
