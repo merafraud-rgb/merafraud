@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insights — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 12px; text-align:center; }
+  .hero h1{ font-size:clamp(28px,4vw,40px); margin:0 auto 14px; max-width:720px; }
+  .hero p.lede{ font-size:15.5px; max-width:560px; margin:0 auto 14px; }
+  .meta{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-lo); }
+
+  .sig-callout{
+    display:flex; gap:12px; align-items:flex-start; padding:16px 18px; border-radius:12px; margin:18px 0 30px;
+    background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.3); font-size:12.5px; color:var(--text-lo);
+  }
+  .sig-callout b{ color:var(--text-hi); }
+
+  .sources{ font-size:12px; color:var(--text-lo); margin-top:36px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.08); }
+  .sources a{ color:var(--cyan); }
+  .sources li{ margin-bottom:6px; margin-left:18px; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
+  </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
+</header>
+
+<section class="wrap-narrow hero">
+  <span class="eyebrow" data-i18n="hero_eyebrow">Insights</span>
+  <h1 data-i18n="hero_h1">Common e-commerce fraud patterns in Turkey — and how to catch them</h1>
+  <p class="lede" data-i18n="hero_lede">A look at the fraud patterns Turkish online stores actually see, and which signals catch each one.</p>
+  <div class="meta" data-i18n="meta_line">Published July 31, 2026 · MeraFraud Team</div>
+</section>
+
+<section class="wrap-narrow prose" id="article" style="margin:30px 0 20px;"></section>
+
+<section class="wrap-narrow">
+  <ul class="sources" id="sourcesList"></ul>
+</section>
+
+<section class="wrap">
+  <div class="cta-band reveal" style="text-align:center; padding:56px 40px; border-radius:28px; margin:50px 0 40px; background:linear-gradient(135deg, rgba(124,58,237,0.25), rgba(236,72,153,0.2)); border:1px solid var(--card-border);">
+    <h2 style="font-size:clamp(22px,3vw,30px); margin-bottom:14px;" data-i18n="cta_h2">See these signals scored on your own store.</h2>
+    <a href="../dashboard/signup.html" class="btn-primary" data-i18n="cta_btn">Get Your API Key — Free</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
+        <a href="changelog.html" data-i18n="footer_changelog">Changelog</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
+        <a href="status.html" data-i18n="footer_status">Status</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="animations.js"></script>
+<script src="support.js"></script>
+<script>
+(function(){
+  var ARTICLE = {
+    en: `
+      <h2>Card testing: the small charge before the big one</h2>
+      <p>Fraudsters rarely use a stolen card for one large purchase. Most attacks start with one or more small test transactions to confirm a card is still active, before moving to bulk purchases of high-value items. Industry research cited by fraud-prevention analysts puts roughly a third of e-commerce merchants as facing active card-testing attempts at any given time.</p>
+      <div class="sig-callout">🔍 <span><b>Signals that catch it:</b> failed payment count, login attempts before purchase, and transaction velocity in the last 24 hours — all scored together rather than as isolated flags.</span></div>
+
+      <h2>Address mismatch, prepaid cards, and rushed shipping</h2>
+      <p>A mismatched billing and shipping address is a well-known fraud flag on its own, but it becomes far more predictive when combined with a prepaid card and express shipping. Someone using a stolen card doesn't know or particularly care about the real billing address, and wants the goods gone before a chargeback lands.</p>
+      <div class="sig-callout">🔍 <span><b>Signals that catch it:</b> billing/shipping mismatch, express shipping selection, and BIN-based card type — checked together in the same scoring pass.</span></div>
+
+      <h2>Reshipping and cargo fraud</h2>
+      <p>In reshipping schemes, goods bought with a stolen card are sent to a domestic address, then forwarded abroad by someone recruited through a fake job or romance scam — often without realizing they're part of a fraud chain. As Turkey's e-commerce sector keeps growing, the Ministry of Trade has separately warned shoppers about fake storefronts and counterfeit brand sites, a related but distinct scam pattern worth watching for on the buyer-protection side too.</p>
+      <div class="sig-callout">🔍 <span><b>Signals that catch it:</b> new shipping address, new device, and no purchase history, scored together rather than any single one on its own.</span></div>
+
+      <h2>AI is changing both sides of the fight</h2>
+      <p>Fraud tactics don't stay still. In a widely cited 2026 industry survey, 74% of respondents reported an increase in online fraud year over year, and 75% specifically pointed to more AI-driven attacks — generative tools now help fraudsters produce more convincing fake listings, reviews, and identities. Static rule sets lose effectiveness as tactics shift, which is part of why scoring models need to keep learning from real transaction data rather than shipping a fixed rulebook once and leaving it alone.</p>
+
+      <h2>What this means for a small merchant</h2>
+      <p>None of these patterns are decisive on their own — a mismatched address alone doesn't mean fraud, and a rushed shipping choice can just mean an impatient customer. The signal is in the combination, scored in real time, with a plain-language reason attached so a human can make the final call. That's the model MeraFraud is built around, rather than a single black-box score.</p>
+    `,
+    tr: `
+      <h2>Kart testi: büyük işlemden önceki küçük deneme</h2>
+      <p>Dolandırıcılar çalıntı bir kartı nadiren tek bir büyük alışveriş için kullanır. Çoğu saldırı, kartın hâlâ aktif olduğunu doğrulamak için bir veya birkaç küçük test işlemiyle başlar, ardından yüksek değerli ürünlerin toplu alımına geçilir. Dolandırıcılık önleme analistlerinin atıfta bulunduğu sektör araştırmaları, e-ticaret satıcılarının yaklaşık üçte birinin herhangi bir anda aktif kart testi girişimleriyle karşı karşıya olduğunu gösteriyor.</p>
+      <div class="sig-callout">🔍 <span><b>Yakalayan sinyaller:</b> başarısız ödeme sayısı, satın alma öncesi giriş denemeleri ve son 24 saatteki işlem hızı — tek tek değil, birlikte puanlanarak.</span></div>
+
+      <h2>Adres uyuşmazlığı, ön ödemeli kartlar ve acele kargo</h2>
+      <p>Fatura ve teslimat adresi uyuşmazlığı tek başına bilinen bir dolandırıcılık işaretidir, ancak ön ödemeli bir kart ve hızlı kargo ile birleştiğinde çok daha belirleyici hale gelir. Çalıntı kart kullanan biri gerçek fatura adresini bilmez ya da önemsemez ve chargeback gelmeden önce ürünün elden çıkmasını ister.</p>
+      <div class="sig-callout">🔍 <span><b>Yakalayan sinyaller:</b> fatura/teslimat adresi uyuşmazlığı, hızlı kargo seçimi ve BIN tabanlı kart türü — aynı puanlama adımında birlikte kontrol edilir.</span></div>
+
+      <h2>Yeniden gönderim (reshipping) ve kargo dolandırıcılığı</h2>
+      <p>Yeniden gönderim şemalarında, çalıntı bir kartla alınan ürünler yurt içi bir adrese gönderilir, ardından sahte bir iş teklifi veya romantik dolandırıcılık yoluyla işe alınan biri tarafından — çoğu zaman bir dolandırıcılık zincirinin parçası olduğunu fark etmeden — yurt dışına iletilir. Türkiye'nin e-ticaret sektörü büyümeye devam ederken, Ticaret Bakanlığı da tüketicileri sahte mağazalar ve taklit marka siteleri konusunda ayrıca uyarmıştı — alıcı tarafında dikkat edilmesi gereken, ilişkili ama farklı bir dolandırıcılık türü.</p>
+      <div class="sig-callout">🔍 <span><b>Yakalayan sinyaller:</b> yeni teslimat adresi, yeni cihaz ve satın alma geçmişi olmaması — tek başına değil, birlikte puanlanarak.</span></div>
+
+      <h2>Yapay zeka mücadelenin her iki tarafını da değiştiriyor</h2>
+      <p>Dolandırıcılık taktikleri sabit kalmıyor. Sıkça atıfta bulunulan 2026 sektör anketinde, katılımcıların %74'ü çevrimiçi dolandırıcılıkta yıldan yıla artış bildirdi ve %75'i özellikle daha fazla yapay zeka destekli saldırıya işaret etti — üretken araçlar artık dolandırıcıların daha ikna edici sahte ilanlar, yorumlar ve kimlikler üretmesine yardımcı oluyor. Taktikler değiştikçe sabit kural setleri etkisini kaybediyor; bu da puanlama modellerinin bir kez yazılıp bırakılan sabit bir kural kitabı yerine gerçek işlem verisinden öğrenmeye devam etmesi gerekmesinin nedenlerinden biri.</p>
+
+      <h2>Küçük bir satıcı için bunun anlamı</h2>
+      <p>Bu paternlerin hiçbiri tek başına belirleyici değildir — sadece adres uyuşmazlığı dolandırıcılık anlamına gelmez, acele bir kargo seçimi de sadece sabırsız bir müşteri anlamına gelebilir. Asıl sinyal, gerçek zamanlı puanlanan ve bir insanın nihai kararı verebilmesi için sade bir dille gerekçesi eklenen kombinasyondadır. MeraFraud'un kurulu olduğu model tek bir kara kutu puanı değil, tam olarak budur.</p>
+    `
+  };
+  var SOURCES = {
+    en: [
+      {t:"Card-testing attacks affecting roughly a third of merchants — Mastercard research, via Chargebacks911", u:"https://chargebacks911.com/ecommerce-fraud/"},
+      {t:"AVS mismatch + prepaid card fraud-probability signal — cside Blog", u:"https://cside.com/blog/types-of-credit-card-fraud"},
+      {t:"Reshipping / cargo fraud schemes — Chargebacks911, eCommerce Fraud Guide 2026", u:"https://chargebacks911.com/ecommerce-fraud/"},
+      {t:"Turkey e-commerce usage rate (TÜİK, 2024) and fake storefront warnings — Ticaret Bakanlığı", u:"https://ticaret.gov.tr/haberler/ticaret-bakanligi-sosyal-medya-ve-dijital-mecralardaki-dolandiricilik-girisimlerine-karsi-vatandaslari-uyariyor"},
+      {t:"2026 Fraud Industry Pulse Survey (74% YoY increase, 75% AI-driven) — Veriff", u:"https://www.merchantfraudjournal.com/ecommerce-fraud-trends/"}
+    ],
+    tr: [
+      {t:"Satıcıların yaklaşık üçte birini etkileyen kart testi saldırıları — Mastercard araştırması, Chargebacks911 aracılığıyla", u:"https://chargebacks911.com/ecommerce-fraud/"},
+      {t:"AVS uyuşmazlığı + ön ödemeli kart dolandırıcılık olasılığı sinyali — cside Blog", u:"https://cside.com/blog/types-of-credit-card-fraud"},
+      {t:"Yeniden gönderim / kargo dolandırıcılığı şemaları — Chargebacks911, eCommerce Fraud Guide 2026", u:"https://chargebacks911.com/ecommerce-fraud/"},
+      {t:"Türkiye e-ticaret kullanım oranı (TÜİK, 2024) ve sahte mağaza uyarıları — Ticaret Bakanlığı", u:"https://ticaret.gov.tr/haberler/ticaret-bakanligi-sosyal-medya-ve-dijital-mecralardaki-dolandiricilik-girisimlerine-karsi-vatandaslari-uyariyor"},
+      {t:"2026 Fraud Industry Pulse Survey (%74 yıldan yıla artış, %75 yapay zeka destekli) — Veriff", u:"https://www.merchantfraudjournal.com/ecommerce-fraud-trends/"}
+    ]
+  };
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_integrations:"Connect Your Store",
+      nav_docs:"Docs", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"Insights", hero_h1:"Common e-commerce fraud patterns in Turkey — and how to catch them",
+      hero_lede:"A look at the fraud patterns Turkish online stores actually see, and which signals catch each one.",
+      meta_line:"Published July 31, 2026 · MeraFraud Team",
+      cta_h2:"See these signals scored on your own store.", cta_btn:"Get Your API Key — Free",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_company:"Company", footer_changelog:"Changelog", footer_status:"Status",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_integrations:"Mağazanızı Bağlayın",
+      nav_docs:"Belgeler", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"İçgörüler", hero_h1:"Türkiye'de yaygın e-ticaret dolandırıcılık paternleri — ve nasıl yakalanır",
+      hero_lede:"Türk online mağazalarının gerçekten karşılaştığı dolandırıcılık paternlerine ve her birini hangi sinyallerin yakaladığına bir bakış.",
+      meta_line:"Yayınlanma tarihi: 31 Temmuz 2026 · MeraFraud Ekibi",
+      cta_h2:"Bu sinyallerin kendi mağazanızda nasıl puanlandığını görün.", cta_btn:"API Anahtarınızı Alın — Ücretsiz",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_company:"Şirket", footer_changelog:"Değişiklik Günlüğü", footer_status:"Durum",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function renderArticle(lang){
+    document.getElementById('article').innerHTML = ARTICLE[lang];
+    document.getElementById('sourcesList').innerHTML = SOURCES[lang].map(function(s){
+      return '<li><a href="' + s.u + '" target="_blank" rel="noopener">' + s.t + '</a></li>';
+    }).join('');
+  }
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+    renderArticle(lang);
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
+</body>
+</html>
