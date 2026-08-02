@@ -33,7 +33,8 @@ def is_configured() -> bool:
     return bool(os.environ.get("RESEND_API_KEY"))
 
 
-def send_email(to_email: str, subject: str, html_body: str, text_body: str | None = None) -> bool:
+def send_email(to_email: str, subject: str, html_body: str, text_body: str | None = None,
+               reply_to: str | None = None) -> bool:
     """Returns True if the email was sent, False if email isn't configured
     (caller should fall back to demo behavior) or sending failed."""
     api_key = os.environ.get("RESEND_API_KEY")
@@ -51,6 +52,8 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str | Non
     }
     if text_body:
         payload["text"] = text_body
+    if reply_to:
+        payload["reply_to"] = [reply_to]
 
     try:
         resp = requests.post(
@@ -88,6 +91,28 @@ def send_password_reset_email(to_email: str, reset_token: str, store_name: str) 
     """
     text = f"Reset your MeraFraud password with this code: {reset_token} (expires in 60 minutes)"
     return send_email(to_email, subject, html, text)
+
+
+def send_support_ticket_email(name: str, from_email: str, store_name: str, issue_type: str, message: str) -> bool:
+    """Forwards a website support-ticket submission to the team inbox, with
+    reply_to set to the customer's own address so replying to the email in
+    any normal mail client goes straight back to them — no ticketing system
+    needed yet for a team this size."""
+    inbox = os.environ.get("SUPPORT_INBOX_EMAIL", "hello@merafraud.com")
+    subject = f"[Support] {issue_type or 'General'} — {store_name or name}"
+    html = f"""
+    <div style="font-family:sans-serif; max-width:520px; margin:0 auto;">
+      <h2 style="color:#1c1044;">New support ticket</h2>
+      <p><b>From:</b> {name} &lt;{from_email}&gt;</p>
+      <p><b>Store:</b> {store_name or '—'}</p>
+      <p><b>Issue type:</b> {issue_type or '—'}</p>
+      <p><b>Message:</b></p>
+      <div style="background:#f4f4f8; padding:14px; border-radius:8px; white-space:pre-wrap;">{message}</div>
+      <p style="color:#888; font-size:12px; margin-top:24px;">Reply directly to this email to respond to {name}.</p>
+    </div>
+    """
+    text = f"From: {name} <{from_email}>\nStore: {store_name or '-'}\nIssue: {issue_type or '-'}\n\n{message}"
+    return send_email(inbox, subject, html, text, reply_to=from_email)
 
 
 def send_fraud_alert_email(to_email: str, store_name: str, risk_score: float, reasons: list[str], order_amount: float | None) -> bool:
