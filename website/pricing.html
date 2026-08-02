@@ -118,7 +118,7 @@
         <li data-i18n="feat_api">Real-time risk scoring API</li>
         <li data-i18n="feat_profiles">Lenient / Standard / Strict profiles</li>
         <li data-i18n="feat_dashboard">Live dashboard access</li>
-        <li data-i18n="feat_community">Community support</li>
+        <li data-i18n="feat_community_card">Community support (self-serve chat & docs)</li>
       </ul>
       <a href="checkout.html?plan=starter&mode=buy" class="btn-secondary" style="text-align:center;" data-i18n="buy_now">Buy Now</a>
     </div>
@@ -134,7 +134,7 @@
         <li data-i18n="feat_threshold">Custom threshold tuning</li>
         <li data-i18n="feat_map">Geographic risk map</li>
         <li data-i18n="feat_batch">Batch scoring endpoint</li>
-        <li data-i18n="feat_email">Email support</li>
+        <li data-i18n="feat_email_card">Email support — under 1 business day</li>
       </ul>
       <a href="checkout.html?plan=growth&mode=buy" class="btn-primary" style="text-align:center;" data-i18n="buy_now">Buy Now</a>
     </div>
@@ -149,7 +149,7 @@
         <li data-i18n="feat_retrain">Model retraining on your own data</li>
         <li data-i18n="feat_onboarding">Dedicated onboarding</li>
         <li data-i18n="feat_sla">SLA-backed uptime</li>
-        <li data-i18n="feat_priority">Priority support</li>
+        <li data-i18n="feat_priority_card">Priority support — under 4 business hours</li>
       </ul>
       <a href="checkout.html?plan=scale&mode=buy" class="btn-secondary" style="text-align:center;" data-i18n="buy_now">Buy Now</a>
     </div>
@@ -263,6 +263,10 @@
     <h3 data-i18n="faq5_q">Is my transaction data used to train models for other customers?</h3>
     <p data-i18n="faq5_a">See our <a href="privacy.html" style="color:var(--pink-2);" data-i18n="privacy_link">Privacy Policy</a> for details on data handling and model training practices.</p>
   </div>
+  <div class="faq-item">
+    <h3 data-i18n="faq6_q">What are your support response times?</h3>
+    <p data-i18n="faq6_a">Starter includes self-serve chat and documentation with no formal SLA. Growth includes email support with a target first response under 1 business day. Scale includes priority support with a target first response under 4 business hours via a dedicated channel. See our <a href="status.html" style="color:var(--pink-2);" data-i18n="status_link">status page</a> for current system status.</p>
+  </div>
 </section>
 
 <section class="wrap">
@@ -286,12 +290,15 @@
         <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
         <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
         <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
+        <a href="changelog.html" data-i18n="footer_changelog">Changelog</a>
+        <a href="status.html" data-i18n="footer_status">Status</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_company">Company</h4>
         <a href="about.html" data-i18n="nav_about">About</a>
         <a href="contact.html" data-i18n="nav_contact">Contact</a>
         <a href="support.html" data-i18n="nav_support">Support</a>
+        <a href="insights.html" data-i18n="footer_insights">Insights</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_legal">Legal</h4>
@@ -323,9 +330,12 @@
       feat_api:"Real-time risk scoring API", feat_profiles:"Lenient / Standard / Strict profiles",
       feat_dashboard:"Live dashboard access", feat_community:"Community support",
       feat_everything_starter:"Everything in Starter", feat_threshold:"Custom threshold tuning",
-      feat_map:"Geographic risk map", feat_batch:"Batch scoring endpoint", feat_email:"Email support",
+      feat_map:"Geographic risk map", feat_batch:"Batch scoring endpoint", feat_email:"Email",
       feat_everything_growth:"Everything in Growth", feat_retrain:"Model retraining on your own data",
-      feat_onboarding:"Dedicated onboarding", feat_sla:"SLA-backed uptime", feat_priority:"Priority support",
+      feat_onboarding:"Dedicated onboarding", feat_sla:"SLA-backed uptime", feat_priority:"Priority",
+      feat_community_card:"Community support (self-serve chat & docs)",
+      feat_email_card:"Email support — under 1 business day",
+      feat_priority_card:"Priority support — under 4 business hours",
       buy_now:"Buy Now", most_popular:"Most Popular",
       th_feature:"Feature", row_monthly_tx:"Monthly transactions included",
       row_profiles:"Preset risk profiles (Lenient/Standard/Strict)", row_support:"Support",
@@ -342,9 +352,13 @@
       faq4_a:"Yes. Payments are processed via a local Turkish payment provider, so Turkish-issued cards and TRY billing are fully supported.",
       faq5_q:"Is my transaction data used to train models for other customers?",
       faq5_a:"See our <a href=\"privacy.html\" style=\"color:var(--pink-2);\">Privacy Policy</a> for details on data handling and model training practices.",
+      faq6_q:"What are your support response times?",
+      faq6_a:"Starter includes self-serve chat and documentation with no formal SLA. Growth includes email support with a target first response under 1 business day. Scale includes priority support with a target first response under 4 business hours via a dedicated channel. See our <a href=\"status.html\" style=\"color:var(--pink-2);\">status page</a> for current system status.",
+      status_link:"status page",
       cta_h2:"Start scoring transactions in the next two minutes.", cta_btn:"Get Your API Key — Free",
       footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
       footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_changelog:"Changelog", footer_status:"Status", footer_insights:"Insights",
       footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
       footer_copy:"© 2026 MeraFraud. All rights reserved."
     },
@@ -361,9 +375,12 @@
       feat_api:"Gerçek zamanlı risk puanlama API'si", feat_profiles:"Esnek / Standart / Sıkı profiller",
       feat_dashboard:"Canlı panel erişimi", feat_community:"Topluluk desteği",
       feat_everything_starter:"Starter'daki her şey", feat_threshold:"Özel eşik ayarı",
-      feat_map:"Coğrafi risk haritası", feat_batch:"Toplu puanlama uç noktası", feat_email:"E-posta desteği",
+      feat_map:"Coğrafi risk haritası", feat_batch:"Toplu puanlama uç noktası", feat_email:"E-posta",
       feat_everything_growth:"Growth'taki her şey", feat_retrain:"Kendi verinizle model yeniden eğitimi",
-      feat_onboarding:"Özel katılım desteği", feat_sla:"SLA garantili çalışma süresi", feat_priority:"Öncelikli destek",
+      feat_onboarding:"Özel katılım desteği", feat_sla:"SLA garantili çalışma süresi", feat_priority:"Öncelikli",
+      feat_community_card:"Topluluk desteği (kendi kendine chat & dokümantasyon)",
+      feat_email_card:"E-posta desteği — 1 iş gününden kısa sürede",
+      feat_priority_card:"Öncelikli destek — 4 iş saatinden kısa sürede",
       buy_now:"Şimdi Satın Al", most_popular:"En Popüler",
       th_feature:"Özellik", row_monthly_tx:"Dahil aylık işlem sayısı",
       row_profiles:"Hazır risk profilleri (Esnek/Standart/Sıkı)", row_support:"Destek",
@@ -380,9 +397,13 @@
       faq4_a:"Evet. Ödemeler yerel bir Türk ödeme sağlayıcısı üzerinden işlenir, bu nedenle Türkiye'de düzenlenmiş kartlar ve TL faturalandırma tam olarak desteklenir.",
       faq5_q:"İşlem verilerim başka müşteriler için model eğitiminde kullanılıyor mu?",
       faq5_a:"Veri işleme ve model eğitimi uygulamaları hakkında ayrıntılar için <a href=\"privacy.html\" style=\"color:var(--pink-2);\">Gizlilik Politikamıza</a> bakın.",
+      faq6_q:"Destek yanıt sürelerimiz nedir?",
+      faq6_a:"Starter, resmi bir SLA olmadan kendi kendine chat ve dokümantasyon içerir. Growth, ilk yanıt hedefi 1 iş gününden kısa olan e-posta desteği içerir. Scale, özel bir kanal üzerinden ilk yanıt hedefi 4 iş saatinden kısa olan öncelikli destek içerir. Güncel sistem durumu için <a href=\"status.html\" style=\"color:var(--pink-2);\">durum sayfamıza</a> bakın.",
+      status_link:"durum sayfamıza",
       cta_h2:"Önümüzdeki iki dakika içinde işlem puanlamaya başlayın.", cta_btn:"API Anahtarınızı Alın — Ücretsiz",
       footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
       footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_changelog:"Değişiklik Günlüğü", footer_status:"Durum", footer_insights:"İçgörüler",
       footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
       footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
     }
