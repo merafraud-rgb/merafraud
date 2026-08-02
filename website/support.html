@@ -32,6 +32,15 @@
   .faq-a{ font-size:13.5px; color:var(--text-lo); max-height:0; overflow:hidden; transition:max-height .25s ease; }
   .faq-item.open .faq-a{ max-height:200px; padding-top:12px; }
 
+  .sla-band{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:0 0 56px; }
+  @media (max-width:800px){ .sla-band{ grid-template-columns:1fr; } }
+  .sla-card{ padding:20px 22px; }
+  .sla-card .plan{ font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--cyan); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+  .sla-card .time{ font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin-bottom:6px; }
+  .sla-card p{ font-size:12.5px; }
+  .sla-note{ font-size:12px; color:var(--text-lo); text-align:center; margin:-40px 0 60px; }
+  .sla-note a{ color:var(--pink-2); }
+
   .ticket-card{ padding:32px; margin:20px 0 70px; }
   .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:18px; }
   .field label{ font-size:13px; color:var(--text-lo); }
@@ -102,6 +111,25 @@
       <a href="#ticketForm" class="btn-secondary" style="display:inline-block;" data-i18n="ch3_btn">Open a Ticket</a>
     </div>
   </div>
+
+  <div class="sla-band">
+    <div class="card sla-card reveal reveal-1">
+      <div class="plan" data-i18n="sla1_plan">STARTER</div>
+      <div class="time" data-i18n="sla1_time">Self-serve</div>
+      <p data-i18n="sla1_p">Chat bot + documentation, no formal response-time commitment.</p>
+    </div>
+    <div class="card sla-card reveal reveal-2">
+      <div class="plan" data-i18n="sla2_plan">GROWTH</div>
+      <div class="time" data-i18n="sla2_time">Under 1 business day</div>
+      <p data-i18n="sla2_p">Email support, target first response within 1 business day.</p>
+    </div>
+    <div class="card sla-card reveal reveal-3">
+      <div class="plan" data-i18n="sla3_plan">SCALE</div>
+      <div class="time" data-i18n="sla3_time">Under 4 business hours</div>
+      <p data-i18n="sla3_p">Priority support via a dedicated channel, target first response within 4 business hours.</p>
+    </div>
+  </div>
+  <p class="sla-note" data-i18n="sla_note">Targets, not guaranteed SLAs, while we're a small team. Check <a href="status.html">current system status</a> or see <a href="changelog.html">what shipped recently</a>.</p>
 </section>
 
 <section class="wrap-narrow faq-section">
@@ -167,12 +195,15 @@
         <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
         <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
         <a href="../dashboard/signup.html" data-i18n="footer_get_key">Get API Key</a>
+        <a href="changelog.html" data-i18n="footer_changelog">Changelog</a>
+        <a href="status.html" data-i18n="footer_status">Status</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_company">Company</h4>
         <a href="about.html" data-i18n="nav_about">About</a>
         <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
         <a href="support.html" data-i18n="nav_support">Support</a>
+        <a href="insights.html" data-i18n="footer_insights">Insights</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer_legal">Legal</h4>
@@ -263,8 +294,13 @@ function handleTicket(e){
       opt_report:"Report / data export", opt_other:"Other",
       f_describe:"Describe the issue", f_describe_ph:"What happened, and what were you expecting?",
       f_submit:"Submit Ticket", f_note:"Demo only — this form isn't connected to a real helpdesk inbox yet.",
+      sla1_plan:"STARTER", sla1_time:"Self-serve", sla1_p:"Chat bot + documentation, no formal response-time commitment.",
+      sla2_plan:"GROWTH", sla2_time:"Under 1 business day", sla2_p:"Email support, target first response within 1 business day.",
+      sla3_plan:"SCALE", sla3_time:"Under 4 business hours", sla3_p:"Priority support via a dedicated channel, target first response within 4 business hours.",
+      sla_note:"Targets, not guaranteed SLAs, while we're a small team. Check <a href=\"status.html\">current system status</a> or see <a href=\"changelog.html\">what shipped recently</a>.",
       footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
       footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
+      footer_changelog:"Changelog", footer_status:"Status", footer_insights:"Insights",
       footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
       footer_copy:"© 2026 MeraFraud. All rights reserved."
     },
@@ -284,8 +320,13 @@ function handleTicket(e){
       opt_report:"Rapor / veri dışa aktarma", opt_other:"Diğer",
       f_describe:"Sorunu açıklayın", f_describe_ph:"Ne oldu ve ne bekliyordunuz?",
       f_submit:"Talebi Gönder", f_note:"Sadece demo — bu form henüz gerçek bir destek kutusuna bağlı değil.",
+      sla1_plan:"STARTER", sla1_time:"Kendi kendine", sla1_p:"Chat bot + dokümantasyon, resmi bir yanıt süresi taahhüdü yok.",
+      sla2_plan:"GROWTH", sla2_time:"1 iş gününden kısa", sla2_p:"E-posta desteği, hedef ilk yanıt süresi 1 iş günü içinde.",
+      sla3_plan:"SCALE", sla3_time:"4 iş saatinden kısa", sla3_p:"Özel bir kanal üzerinden öncelikli destek, hedef ilk yanıt süresi 4 iş saati içinde.",
+      sla_note:"Küçük bir ekip olduğumuz için bunlar hedef, garanti edilen SLA değil. <a href=\"status.html\">Güncel sistem durumuna</a> bakın ya da <a href=\"changelog.html\">son eklenenleri</a> görün.",
       footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
       footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
+      footer_changelog:"Değişiklik Günlüğü", footer_status:"Durum", footer_insights:"İçgörüler",
       footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
       footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
     }
