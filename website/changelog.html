@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changelog — MeraFraud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .hero{ padding:64px 0 20px; text-align:center; }
+  .hero h1{ font-size:clamp(30px,4.5vw,44px); margin:0 auto 14px; max-width:560px; }
+  .hero p.lede{ font-size:15.5px; max-width:520px; margin:0 auto; }
+
+  .log-group{ margin-bottom:44px; }
+  .log-date{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--cyan);
+    text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; padding-left:2px;
+  }
+  .log-entry{ display:flex; gap:16px; padding:20px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .log-entry:last-child{ border-bottom:none; }
+  .log-tag{
+    flex-shrink:0; width:88px; height:26px; border-radius:999px; font-size:10.5px; font-weight:600;
+    display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace;
+    text-transform:uppercase; letter-spacing:0.5px; margin-top:2px;
+  }
+  .log-tag.feature{ background:rgba(124,58,237,0.15); color:#c4b5fd; border:1px solid rgba(124,58,237,0.35); }
+  .log-tag.compliance{ background:rgba(52,211,153,0.12); color:var(--safe); border:1px solid rgba(52,211,153,0.3); }
+  .log-tag.infra{ background:rgba(34,211,238,0.1); color:var(--cyan); border:1px solid rgba(34,211,238,0.3); }
+  .log-tag.launch{ background:rgba(236,72,153,0.12); color:var(--pink-2); border:1px solid rgba(236,72,153,0.3); }
+  .log-body h3{ font-size:15.5px; margin-bottom:6px; }
+  .log-body p{ font-size:13.5px; }
+
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); margin-left:14px; }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-mark"></div>
+    <div class="logo-text">Mera<span>Fraud</span></div>
+  </a>
+  <nav class="main-nav">
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+    <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+    <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
+    <a href="support.html" data-i18n="nav_support">Support</a>
+    <a href="../dashboard/index.html" data-i18n="nav_dashboard">Dashboard</a>
+    <a href="../dashboard/signup.html" class="nav-cta" data-i18n="nav_cta">Get Started</a>
+  </nav>
+  <div class="lang-switch">
+    <button type="button" class="lang-btn" data-lang="tr">TR</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+  </div>
+</header>
+
+<section class="wrap hero">
+  <span class="eyebrow" data-i18n="hero_eyebrow">Changelog</span>
+  <h1 data-i18n="hero_h1">What's new in MeraFraud.</h1>
+  <p class="lede" data-i18n="hero_lede">A running log of what we ship — features, fixes, and compliance work. Updated as we build.</p>
+</section>
+
+<section class="wrap-narrow">
+  <div id="logList"></div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand">
+        <a href="index.html" class="logo"><div class="logo-mark"></div><div class="logo-text">Mera<span>Fraud</span></div></a>
+        <p data-i18n="footer_tagline">AI-powered fraud detection built for small and medium e-commerce businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_product">Product</h4>
+        <a href="pricing.html" data-i18n="nav_pricing">Pricing</a>
+        <a href="integrations.html" data-i18n="nav_integrations">Connect Your Store</a>
+        <a href="quickstart.html" data-i18n="nav_docs">Docs</a>
+        <a href="status.html" data-i18n="footer_status">Status</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="support.html" data-i18n="nav_support">Support</a>
+        <a href="insights.html" data-i18n="footer_insights">Insights</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="terms.html" data-i18n="footer_terms">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="footer_copy">© 2026 MeraFraud. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="animations.js"></script>
+<script src="support.js"></script>
+<script>
+(function(){
+  var LOG = {
+    en: [
+      { date:"July 31, 2026", items:[
+        {tag:"feature", tagLabel:"Feature", h:"Visual platform cards for integrations", p:"Redesigned the “Other Platforms” section with logo-style cards for all 15 supported platforms, including Turkey-specific ones like Ticimax, İkas, T-Soft, and PlatinMarket."}
+      ]},
+      { date:"July 30, 2026", items:[
+        {tag:"compliance", tagLabel:"Compliance", h:"KVKK-aligned privacy policy", p:"Rewrote our privacy policy to align with Turkish Law No. 6698 (KVKK) — explicit consent for model training, cross-border transfer disclosure, and the full Article 11 rights list."},
+        {tag:"feature", tagLabel:"Feature", h:"Full EN/TR bilingual site", p:"Every page across the marketing site and dashboard now supports English and Turkish, with a persistent language switcher."}
+      ]},
+      { date:"July 29, 2026", items:[
+        {tag:"feature", tagLabel:"Feature", h:"New fraud signals: BIN + postal code validation", p:"Added card BIN lookup and postal code validation as additional real-time scoring inputs, alongside existing behavioral signals."},
+        {tag:"infra", tagLabel:"Infra", p:"Signup confirmations and usage reports now send through a real email provider (Resend) instead of failing silently.", h:"Real transactional email"}
+      ]},
+      { date:"July 27, 2026", items:[
+        {tag:"infra", tagLabel:"Infra", h:"Persistent database (PostgreSQL)", p:"Migrated merchant accounts and transaction history from local JSON files to a managed Postgres database, so data survives restarts and deploys."}
+      ]},
+      { date:"July 24, 2026", items:[
+        {tag:"launch", tagLabel:"Launch", h:"MeraFraud goes live", p:"Real-time scoring API, merchant dashboard, and no-code WooCommerce / Shopify / Shopier integrations are live."}
+      ]}
+    ],
+    tr: [
+      { date:"31 Temmuz 2026", items:[
+        {tag:"feature", tagLabel:"Özellik", h:"Entegrasyonlar için görsel platform kartları", p:"“Diğer Platformlar” bölümünü, Ticimax, İkas, T-Soft ve PlatinMarket gibi Türkiye'ye özgü platformlar dahil desteklenen 15 platform için logo tarzı kartlarla yeniden tasarladık."}
+      ]},
+      { date:"30 Temmuz 2026", items:[
+        {tag:"compliance", tagLabel:"Uyumluluk", h:"KVKK uyumlu gizlilik politikası", p:"Gizlilik politikamızı 6698 sayılı KVKK'ya uygun şekilde yeniden yazdık — model eğitimi için açık rıza, yurt dışı veri aktarımı bildirimi ve tam 11. madde hakları listesi."},
+        {tag:"feature", tagLabel:"Özellik", h:"Tam EN/TR iki dilli site", p:"Pazarlama sitesi ve panel genelindeki her sayfa artık İngilizce ve Türkçe destekliyor, kalıcı bir dil değiştirici ile."}
+      ]},
+      { date:"29 Temmuz 2026", items:[
+        {tag:"feature", tagLabel:"Özellik", h:"Yeni dolandırıcılık sinyalleri: BIN + posta kodu doğrulama", p:"Mevcut davranışsal sinyallere ek olarak, kart BIN sorgulama ve posta kodu doğrulamasını gerçek zamanlı puanlama girdisi olarak ekledik."},
+        {tag:"infra", tagLabel:"Altyapı", h:"Gerçek işlemsel e-posta", p:"Kayıt onayları ve kullanım raporları artık sessizce başarısız olmak yerine gerçek bir e-posta sağlayıcısı (Resend) üzerinden gönderiliyor."}
+      ]},
+      { date:"27 Temmuz 2026", items:[
+        {tag:"infra", tagLabel:"Altyapı", h:"Kalıcı veritabanı (PostgreSQL)", p:"Satıcı hesaplarını ve işlem geçmişini yerel JSON dosyalarından yönetilen bir Postgres veritabanına taşıdık, böylece veriler yeniden başlatma ve dağıtımlarda korunuyor."}
+      ]},
+      { date:"24 Temmuz 2026", items:[
+        {tag:"launch", tagLabel:"Lansman", h:"MeraFraud yayında", p:"Gerçek zamanlı puanlama API'si, satıcı paneli ve kodsuz WooCommerce / Shopify / Shopier entegrasyonları yayında."}
+      ]}
+    ]
+  };
+  var DICT = {
+    en: {
+      nav_home:"Home", nav_about:"About", nav_pricing:"Pricing", nav_integrations:"Connect Your Store",
+      nav_docs:"Docs", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Get Started",
+      hero_eyebrow:"Changelog", hero_h1:"What's new in MeraFraud.",
+      hero_lede:"A running log of what we ship — features, fixes, and compliance work. Updated as we build.",
+      footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
+      footer_product:"Product", footer_company:"Company", footer_status:"Status", footer_insights:"Insights",
+      footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
+      footer_copy:"© 2026 MeraFraud. All rights reserved."
+    },
+    tr: {
+      nav_home:"Ana Sayfa", nav_about:"Hakkımızda", nav_pricing:"Fiyatlandırma", nav_integrations:"Mağazanızı Bağlayın",
+      nav_docs:"Belgeler", nav_support:"Destek", nav_dashboard:"Panel", nav_cta:"Başlayın",
+      hero_eyebrow:"Değişiklik Günlüğü", hero_h1:"MeraFraud'da yenilikler.",
+      hero_lede:"Neler eklediğimizin sürekli güncel kaydı — özellikler, düzeltmeler ve uyumluluk çalışmaları.",
+      footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
+      footer_product:"Ürün", footer_company:"Şirket", footer_status:"Durum", footer_insights:"İçgörüler",
+      footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
+      footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    }
+  };
+  function renderLog(lang){
+    var el = document.getElementById('logList');
+    el.innerHTML = LOG[lang].map(function(group){
+      var items = group.items.map(function(it){
+        return '<div class="log-entry"><span class="log-tag ' + it.tag + '">' + it.tagLabel + '</span>' +
+          '<div class="log-body"><h3>' + it.h + '</h3><p>' + it.p + '</p></div></div>';
+      }).join('');
+      return '<div class="log-group reveal"><div class="log-date">' + group.date + '</div>' + items + '</div>';
+    }).join('');
+  }
+  function apply(lang){
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v = DICT[lang][el.getAttribute('data-i18n')];
+      if(v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    window.mfLang = lang;
+    renderLog(lang);
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      localStorage.setItem('mf_lang', b.dataset.lang);
+      apply(b.dataset.lang);
+    });
+  });
+  apply(localStorage.getItem('mf_lang') || 'tr');
+})();
+</script>
+</body>
+</html>
