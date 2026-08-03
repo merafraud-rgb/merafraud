@@ -26,6 +26,8 @@ import random
 import os
 from pathlib import Path
 from functools import wraps
+from collections import defaultdict
+from threading import Lock
 
 from dotenv import load_dotenv
 load_dotenv()  # reads .env if present — see .env.example for what goes here
@@ -98,6 +100,37 @@ def require_api_key(f):
         g.tenant = tenant
         return f(*args, **kwargs)
     return wrapper
+
+
+# --- Lightweight rate limiting for public, unauthenticated endpoints ---
+# Signup (POST /api/tenants) and the support-ticket form are the only two
+# routes anyone on the internet can call with no API key, so they're the
+# only realistic spam/abuse vectors. This is an in-memory sliding window,
+# not Redis-backed -- fine here because the service runs as a single
+# gunicorn worker (WEB_CONCURRENCY=1, see logs). It resets on every
+# restart/redeploy, which is an acceptable tradeoff: abuse is bursty, not
+# something that needs to be remembered for weeks.
+_rate_limit_buckets = defaultdict(list)
+_rate_limit_lock = Lock()
+
+
+def check_rate_limit(bucket_name, max_requests=5, window_seconds=3600):
+    """Returns None if the request is allowed, or a Flask response tuple
+    (jsonify(...), 429) if the caller has exceeded max_requests within
+    window_seconds. Keyed by client IP -- reads X-Forwarded-For first
+    since Render sits in front of the app as a proxy."""
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0].strip()
+    now = time.time()
+    with _rate_limit_lock:
+        key = (bucket_name, ip)
+        bucket = _rate_limit_buckets[key]
+        cutoff = now - window_seconds
+        while bucket and bucket[0] < cutoff:
+            bucket.pop(0)
+        if len(bucket) >= max_requests:
+            return jsonify({"error": "Too many requests. Please try again later."}), 429
+        bucket.append(now)
+    return None
 
 
 ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY", "changeme_admin_key")
@@ -406,6 +439,10 @@ def tenants_collection():
             return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
         return jsonify(tenant_store.list_tenants())
 
+    limited = check_rate_limit("signup", max_requests=5, window_seconds=3600)
+    if limited:
+        return limited
+
     payload = request.get_json(force=True, silent=True) or {}
     name = payload.get("name", "").strip()
     if not name:
@@ -437,6 +474,10 @@ def support_ticket():
     just faking a ticket ID client-side. Returns 503 (not an error the user
     caused) if RESEND_API_KEY isn't configured, so the frontend can show a
     clear "try WhatsApp instead" message rather than a fake success."""
+    limited = check_rate_limit("support_ticket", max_requests=5, window_seconds=3600)
+    if limited:
+        return limited
+
     payload = request.get_json(force=True, silent=True) or {}
     name = (payload.get("name") or "").strip()
     email = (payload.get("email") or "").strip()
