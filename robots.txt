@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /website/checkout.html
+Disallow: /dashboard/
+Allow: /dashboard/signup.html
+
+Sitemap: https://merafraud.com/sitemap.xml
