@@ -41,6 +41,14 @@
     width:34px; height:34px;
     background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
     clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    animation: logoSpin 9s linear infinite;
+  }
+  @keyframes logoSpin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .logo-mark{ animation:none; }
   }
   .logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:22px; }
   .logo-text span{color:var(--pink-2);}
