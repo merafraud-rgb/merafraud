@@ -83,6 +83,25 @@
   .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
   .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
   .lang-btn:not(.active):hover{ color:var(--text-hi); }
+
+  .recommender{ padding:30px 32px; margin:40px 0 0; }
+  .rec-field{ display:flex; flex-direction:column; gap:7px; margin-bottom:16px; max-width:340px; }
+  .rec-field label{ font-size:13px; color:var(--text-lo); }
+  .rec-field input{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:12px 14px; color:var(--text-hi); font-family:'Space Grotesk'; font-size:14px;
+  }
+  .rec-field input:focus{ outline:none; border-color:var(--pink-1); }
+  .rec-checks{ display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+  .rec-check{ display:flex; align-items:flex-start; gap:9px; font-size:13px; color:var(--text-lo); cursor:pointer; }
+  .rec-check input{ margin-top:3px; flex-shrink:0; }
+  .rec-result{
+    margin-top:20px; padding:18px 20px; border-radius:14px;
+    background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.3);
+  }
+  .rec-badge{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--safe); font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+  .rec-result p{ font-size:13.5px; color:var(--text-lo); }
+  .plan.rec-highlight{ border-color:var(--safe); box-shadow:0 0 0 2px rgba(52,211,153,0.25); }
 </style>
 </head>
 <body>
@@ -115,6 +134,31 @@
   <span class="eyebrow" data-i18n="hero_eyebrow">Pricing</span>
   <h1 data-i18n="hero_h1">Simple pricing, no surprises.</h1>
   <p class="lede" data-i18n="hero_lede">Every plan includes the same real-time API and dashboard — the difference is monthly volume and how deep you can customize risk tuning.</p>
+</section>
+
+<section class="wrap-narrow">
+  <div class="card recommender reveal">
+    <div class="section-head" style="margin-bottom:18px;">
+      <span class="eyebrow" data-i18n="rec_eyebrow">Not sure which plan?</span>
+      <h2 style="font-size:20px;" data-i18n="rec_h2">Find your plan in 30 seconds</h2>
+    </div>
+    <div class="rec-field">
+      <label data-i18n="rec_volume_label">Approximately how many orders do you process per month?</label>
+      <input type="number" id="recVolume" min="0" placeholder="500">
+    </div>
+    <div class="rec-checks">
+      <label class="rec-check">
+        <input type="checkbox" id="recFeature1">
+        <span data-i18n="rec_feat1">I want custom risk threshold tuning, a geographic risk map, or the batch scoring endpoint</span>
+      </label>
+      <label class="rec-check">
+        <input type="checkbox" id="recFeature2">
+        <span data-i18n="rec_feat2">I need a guaranteed uptime SLA, dedicated onboarding, or model retraining on my own data</span>
+      </label>
+    </div>
+    <button type="button" class="btn-primary" onclick="calculatePlan()" data-i18n="rec_btn">See my recommended plan</button>
+    <div id="recResult" class="rec-result" style="display:none;"></div>
+  </div>
 </section>
 
 <section class="wrap">
@@ -366,6 +410,15 @@
       faq6_q:"What are your support response times?",
       faq6_a:"Starter includes self-serve chat and documentation with no formal SLA. Growth includes email support with a target first response under 1 business day. Scale includes priority support with a target first response under 4 business hours via a dedicated channel. See our <a href=\"status.html\" style=\"color:var(--pink-2);\">status page</a> for current system status.",
       status_link:"status page",
+      rec_eyebrow:"Not sure which plan?", rec_h2:"Find your plan in 30 seconds",
+      rec_volume_label:"Approximately how many orders do you process per month?",
+      rec_feat1:"I want custom risk threshold tuning, a geographic risk map, or the batch scoring endpoint",
+      rec_feat2:"I need a guaranteed uptime SLA, dedicated onboarding, or model retraining on my own data",
+      rec_btn:"See my recommended plan",
+      rec_result_starter:"Starter covers your volume and needs.",
+      rec_result_growth:"Growth covers your volume and needs.",
+      rec_result_scale:"Scale covers your volume and needs.",
+      rec_recommended:"Recommended: ", rec_cta:"Start Free Trial",
       cta_h2:"Start scoring transactions in the next two minutes.", cta_btn:"Get Your API Key — Free",
       footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
       footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
@@ -411,6 +464,15 @@
       faq6_q:"Destek yanıt sürelerimiz nedir?",
       faq6_a:"Starter, resmi bir SLA olmadan kendi kendine chat ve dokümantasyon içerir. Growth, ilk yanıt hedefi 1 iş gününden kısa olan e-posta desteği içerir. Scale, özel bir kanal üzerinden ilk yanıt hedefi 4 iş saatinden kısa olan öncelikli destek içerir. Güncel sistem durumu için <a href=\"status.html\" style=\"color:var(--pink-2);\">durum sayfamıza</a> bakın.",
       status_link:"durum sayfamıza",
+      rec_eyebrow:"Hangi plan uygun, emin değil misiniz?", rec_h2:"Planınızı 30 saniyede bulun",
+      rec_volume_label:"Aylık yaklaşık kaç sipariş işliyorsunuz?",
+      rec_feat1:"Özel risk eşiği ayarı, coğrafi risk haritası veya toplu puanlama uç noktası istiyorum",
+      rec_feat2:"Garantili çalışma süresi SLA'sı, özel katılım desteği veya kendi verimle model yeniden eğitimine ihtiyacım var",
+      rec_btn:"Önerilen planımı gör",
+      rec_result_starter:"Starter, hacminize ve ihtiyaçlarınıza uygun.",
+      rec_result_growth:"Growth, hacminize ve ihtiyaçlarınıza uygun.",
+      rec_result_scale:"Scale, hacminize ve ihtiyaçlarınıza uygun.",
+      rec_recommended:"Önerilen: ", rec_cta:"Ücretsiz Deneyin",
       cta_h2:"Önümüzdeki iki dakika içinde işlem puanlamaya başlayın.", cta_btn:"API Anahtarınızı Alın — Ücretsiz",
       footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
       footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
@@ -437,6 +499,49 @@
     });
   });
   apply(localStorage.getItem('mf_lang') || 'tr');
+
+  // Plan recommender — grounded in the actual published plan caps/features
+  // above (1k/25k/150k tx per month; threshold tuning+map+batch start at
+  // Growth; retraining+onboarding+SLA are Scale-only). No fabricated logic,
+  // just those same numbers read back to the visitor.
+  var PLAN_INFO = {
+    starter: { price: '€19/mo', url: 'checkout.html?plan=starter&mode=trial' },
+    growth:  { price: '€49/mo', url: 'checkout.html?plan=growth&mode=trial' },
+    scale:   { price: '€199/mo', url: 'checkout.html?plan=scale&mode=trial' }
+  };
+  window.calculatePlan = function(){
+    var lang = window.mfLang || 'tr';
+    var d = DICT[lang];
+    var volume = parseInt(document.getElementById('recVolume').value, 10) || 0;
+    var wantsGrowthFeatures = document.getElementById('recFeature1').checked;
+    var wantsScaleFeatures = document.getElementById('recFeature2').checked;
+
+    var tier = 'starter';
+    if(volume > 1000) tier = 'growth';
+    if(volume > 25000) tier = 'scale';
+    if(wantsGrowthFeatures && tier === 'starter') tier = 'growth';
+    if(wantsScaleFeatures) tier = 'scale';
+
+    var planNames = { starter: 'Starter', growth: 'Growth', scale: 'Scale' };
+    var resultKeys = { starter: 'rec_result_starter', growth: 'rec_result_growth', scale: 'rec_result_scale' };
+    var info = PLAN_INFO[tier];
+
+    var resultEl = document.getElementById('recResult');
+    resultEl.style.display = 'block';
+    resultEl.innerHTML =
+      '<div class="rec-badge">' + d.rec_recommended + planNames[tier] + ' — ' + info.price + '</div>' +
+      '<p>' + d[resultKeys[tier]] + '</p>' +
+      '<a href="' + info.url + '" class="btn-primary" style="display:inline-block; margin-top:12px;">' + d.rec_cta + '</a>';
+
+    document.querySelectorAll('.plan').forEach(function(el){ el.classList.remove('rec-highlight'); });
+    var order = { starter: 0, growth: 1, scale: 2 };
+    var cards = document.querySelectorAll('.plan');
+    var matchedCard = cards[order[tier]];
+    if(matchedCard){
+      matchedCard.classList.add('rec-highlight');
+      matchedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 })();
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f180a3e856a249fa825d541f97a5e57c"}'></script><!-- End Cloudflare Web Analytics -->
