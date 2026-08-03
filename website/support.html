@@ -299,7 +299,7 @@ async function handleTicket(e){
     const res = await fetch(`${API_BASE}/support/ticket`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name, email, message, store_name: storeName, issue_type: issueType })
+      body: JSON.stringify({ name, email, message, store_name: storeName, issue_type: issueType, lang: lang })
     });
     if(!res.ok) throw new Error('send failed');
     note.textContent = d.note_success;
