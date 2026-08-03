@@ -115,6 +115,40 @@ def send_support_ticket_email(name: str, from_email: str, store_name: str, issue
     return send_email(inbox, subject, html, text, reply_to=from_email)
 
 
+def send_ticket_confirmation_email(to_email: str, name: str, lang: str = "tr") -> bool:
+    """Sent back to the customer right after they submit a support ticket, so
+    they know it actually went through instead of wondering whether the form
+    worked and re-submitting. Reply-to is the team inbox so if they hit
+    reply here (instead of waiting), it still reaches us. Doesn't promise a
+    specific SLA number here beyond the general targets already published on
+    the support page, so this stays accurate even if those targets change."""
+    if lang == "en":
+        subject = "We received your support ticket"
+        html = f"""
+        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
+          <h2 style="color:#1c1044;">We've got your message</h2>
+          <p>Hi {name},</p>
+          <p>Thanks for reaching out — your support ticket has been received, and a real person on our team will reply directly to this email address.</p>
+          <p>Typical reply times: within 1 business day (Growth plan) or within 4 business hours (Scale plan). Starter plan tickets are handled as capacity allows.</p>
+          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
+        </div>
+        """
+        text = f"Hi {name}, your support ticket has been received. A real person on our team will reply directly to this email address."
+    else:
+        subject = "Destek talebiniz alındı"
+        html = f"""
+        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
+          <h2 style="color:#1c1044;">Mesajınızı aldık</h2>
+          <p>Merhaba {name},</p>
+          <p>Bize ulaştığınız için teşekkürler — destek talebiniz alındı, ekibimizden gerçek biri bu e-posta adresine doğrudan yanıt verecek.</p>
+          <p>Ortalama yanıt süreleri: Growth planında 1 iş günü içinde, Scale planında 4 iş saati içinde. Starter plan talepleri kapasiteye göre değerlendirilir.</p>
+          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
+        </div>
+        """
+        text = f"Merhaba {name}, destek talebiniz alındı. Ekibimizden gerçek biri bu e-posta adresine doğrudan yanıt verecek."
+    return send_email(to_email, subject, html, text, reply_to="hello@merafraud.com")
+
+
 def send_fraud_alert_email(to_email: str, store_name: str, risk_score: float, reasons: list[str], order_amount: float | None) -> bool:
     """Notifies a merchant immediately when a transaction is auto-blocked —
     so they're not relying on manually checking the dashboard."""
