@@ -443,6 +443,7 @@ def support_ticket():
     message = (payload.get("message") or "").strip()
     store_name = (payload.get("store_name") or "").strip()
     issue_type = (payload.get("issue_type") or "").strip()
+    lang = (payload.get("lang") or "tr").strip()
 
     if not name or not email or not message:
         return jsonify({"error": "'name', 'email', and 'message' fields are required"}), 400
@@ -453,6 +454,11 @@ def support_ticket():
     sent = email_service.send_support_ticket_email(name, email, store_name, issue_type, message)
     if not sent:
         return jsonify({"error": "Could not send the ticket right now. Please try WhatsApp instead."}), 502
+
+    # Best-effort confirmation back to the customer -- if this leg fails
+    # (e.g. their address bounces) the ticket itself is already safely in
+    # the team inbox above, so we don't fail the whole request over it.
+    email_service.send_ticket_confirmation_email(email, name, lang)
 
     return jsonify({"status": "sent"}), 201
 
