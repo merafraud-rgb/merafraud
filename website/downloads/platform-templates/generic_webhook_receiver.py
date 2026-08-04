@@ -20,6 +20,10 @@ HOW TO USE THIS:
      it sends (this file already logs it — see the console output).
   4. Update `map_platform_fields()` below to match your platform's actual
      field names once you see the real payload shape.
+  5. (Optional but recommended) If your platform lets you attach a custom
+     header or a secret query param to its webhook config, set
+     WEBHOOK_SHARED_SECRET below and configure the same value on the
+     platform side — see verify_webhook_request().
 
 This is intentionally the "figure it out with real data" template —
 which is safer than guessing wrong field names for a platform I can't
@@ -27,6 +31,10 @@ test against.
 """
 
 import os
+import hmac
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+
 import requests
 from flask import Flask, request, jsonify
 
@@ -35,7 +43,47 @@ app = Flask(__name__)
 MERAFRAUD_API_BASE = os.environ.get("MERAFRAUD_API_BASE", "https://your-merafraud-api.onrender.com/api")
 MERAFRAUD_API_KEY = os.environ.get("MERAFRAUD_API_KEY", "sk_live_REPLACE_ME")
 
+# Optional. If your platform can send a custom header or query param with
+# every webhook call, set this and check for it below — cheap protection
+# against random POSTs to a guessable public URL. Leave blank to skip.
+WEBHOOK_SHARED_SECRET = os.environ.get("WEBHOOK_SHARED_SECRET", "")
+
 FREE_EMAIL_DOMAINS = {"gmail.com", "yahoo.com", "hotmail.com", "outlook.com"}
+
+# Common field names platforms use for an order's creation timestamp —
+# tried in order, first match wins. This can't know YOUR platform's exact
+# field name, but trying common conventions beats a hardcoded fake hour.
+_COMMON_DATE_KEYS = ("date_created", "created_at", "order_date", "date_add", "date_added", "orderDate")
+# A few common date formats seen across platforms (ISO 8601 variants +
+# RFC 2822, which BigCommerce/older PHP platforms tend to use).
+_COMMON_DATE_FORMATS = ("%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S")
+
+
+def _guess_order_datetime(raw_order: dict):
+    """Best-effort: look for a recognizable order-timestamp field under a
+    few common names/formats. Returns None if nothing matches — callers
+    should fall back to the current time rather than guess."""
+    for key in _COMMON_DATE_KEYS:
+        value = raw_order.get(key)
+        if not value or not isinstance(value, str):
+            continue
+        try:
+            return parsedate_to_datetime(value)
+        except (TypeError, ValueError):
+            pass
+        for fmt in _COMMON_DATE_FORMATS:
+            try:
+                return datetime.strptime(value, fmt)
+            except ValueError:
+                continue
+    return None
+
+
+def verify_webhook_request(req) -> bool:
+    if not WEBHOOK_SHARED_SECRET:
+        return True  # not configured — nothing to check
+    incoming = req.headers.get("X-Webhook-Secret") or req.args.get("secret") or ""
+    return hmac.compare_digest(incoming, WEBHOOK_SHARED_SECRET)
 
 
 def map_platform_fields(raw_order: dict) -> dict:
@@ -49,19 +97,28 @@ def map_platform_fields(raw_order: dict) -> dict:
     email = raw_order.get("customer", {}).get("email") or raw_order.get("email", "")
     email_domain = email.split("@")[-1].lower() if "@" in email else ""
 
+    order_dt = _guess_order_datetime(raw_order)
+    hour_of_day = order_dt.hour if order_dt else datetime.now(timezone.utc).hour
+
     return {
         "transaction_amount": float(raw_order.get("total") or raw_order.get("order_total") or 0),
-        "amount_ratio_to_avg": 1.2,      # TODO: platform-specific — usually not in the webhook payload itself
-        "account_age_days": 180,          # TODO
-        "customer_ltv": 0,                 # TODO
-        "time_since_last_tx_min": 999,
+        # These four genuinely require querying YOUR platform's customer/order
+        # history — there's no universal field for them in a webhook payload,
+        # and no safe way to guess them generically. Once you've customized
+        # the fields above and confirmed the integration works, come back and
+        # wire these to your platform's own order-history API/database if you
+        # want the model to use real values instead of these neutral defaults.
+        "amount_ratio_to_avg": 1.0,
+        "account_age_days": 0,
+        "customer_ltv": 0,
+        "time_since_last_tx_min": 999999,
         "num_tx_last_24h": 0,
-        "hour_of_day": 12,                 # TODO: parse a real order timestamp field if present
+        "hour_of_day": hour_of_day,
         "num_items_in_cart": int(raw_order.get("item_count") or len(raw_order.get("items", [])) or 1),
         "num_failed_payments_7d": 0,
         "login_attempts_before_purchase": 1,
-        "billing_shipping_mismatch": 0,   # TODO: compare billing vs shipping address fields
-        "ip_billing_country_mismatch": 0,
+        "billing_shipping_mismatch": 0,   # TODO: compare billing vs shipping address fields once you see the real payload
+        "ip_billing_country_mismatch": 0,  # send customer_ip + billing_country below and MeraFraud computes this itself
         "new_device": 0,
         "new_payment_method": 0,
         "free_email_domain": int(email_domain in FREE_EMAIL_DOMAINS),
@@ -73,6 +130,9 @@ def map_platform_fields(raw_order: dict) -> dict:
 
 @app.route("/webhooks/generic/order-created", methods=["POST"])
 def generic_order_webhook():
+    if not verify_webhook_request(request):
+        return jsonify({"error": "invalid webhook signature"}), 401
+
     raw_order = request.get_json(force=True, silent=True) or {}
 
     # Log the raw payload so you can see your platform's real field names —
