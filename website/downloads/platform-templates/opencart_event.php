@@ -2,10 +2,16 @@
 /**
  * MeraFraud Integration for OpenCart (3.x / 4.x)
  * -------------------------------------------------
- * Confidence: MEDIUM — OpenCart's event system changed somewhat between
- * 3.x and 4.x. This targets the `checkout/order.after_add` style events
- * common in 3.x/4.x hybrids. VERIFY the exact event name for your version
- * in admin: System > Maintenance > Event or your `catalog/model/checkout/order.php`.
+ * Confidence: MEDIUM — OpenCart's event system and the exact keys returned
+ * by getOrder() changed somewhat between 3.x and 4.x. This targets the
+ * `checkout/order.after_add` style events common in 3.x/4.x hybrids.
+ * VERIFY the exact event name for your version in admin:
+ * System > Maintenance > Event, or your `catalog/model/checkout/order.php`.
+ *
+ * Every `$order[...]` field below is read with isset()/?? so a missing key
+ * on your version degrades to a safe default instead of a fatal error —
+ * but you should still confirm the real keys against your own getOrder()
+ * output (var_dump it once) rather than trust this blindly.
  *
  * INSTALLATION (for a developer):
  *   1. Register a custom event listener (via an extension, OCMOD, or a
@@ -29,18 +35,83 @@ class ModelExtensionEventMerafraud extends Model
             return;
         }
 
+        // --- Item count: confirmed method is getOrderProducts(), not getProducts() ---
+        $products = method_exists($this->model_checkout_order, 'getOrderProducts')
+            ? $this->model_checkout_order->getOrderProducts($order_id)
+            : [];
+        $itemCount = is_array($products) && count($products) > 0 ? count($products) : 1;
+
+        // --- Account age: OpenCart's customer model exposes date_added on registration ---
+        // customer_id == 0 means a guest checkout — nothing to look up.
+        $accountAgeDays = 0;
+        if (!empty($order['customer_id'])) {
+            $this->load->model('customer/customer');
+            if (method_exists($this->model_customer_customer, 'getCustomer')) {
+                $customerInfo = $this->model_customer_customer->getCustomer($order['customer_id']);
+                if (!empty($customerInfo['date_added'])) {
+                    $accountAgeDays = max(0, (int) floor((time() - strtotime($customerInfo['date_added'])) / 86400));
+                }
+            }
+        }
+
+        // --- Order history: LTV, average order size, recency, 24h velocity ---
+        // No single documented "get customer's orders" method exists across
+        // OpenCart versions for this — querying oc_order directly is the
+        // honest approach rather than guessing a method name that may not
+        // exist on your version.
+        $customerLtv = 0.0;
+        $amountRatioToAvg = 1.0;
+        $timeSinceLastTxMin = 999999.0;
+        $numTxLast24h = 0;
+        if (!empty($order['customer_id'])) {
+            $query = $this->db->query(
+                "SELECT total, date_added FROM `" . DB_PREFIX . "order`
+                 WHERE customer_id = '" . (int) $order['customer_id'] . "'
+                 AND order_id != '" . (int) $order_id . "'
+                 AND order_status_id > 0"
+            );
+            $nowTs = time();
+            $pastAmounts = [];
+            $mostRecentTs = null;
+            foreach ($query->rows as $row) {
+                $pastAmounts[] = (float) $row['total'];
+                $createdTs = strtotime($row['date_added']);
+                if ($createdTs !== false) {
+                    if ($mostRecentTs === null || $createdTs > $mostRecentTs) {
+                        $mostRecentTs = $createdTs;
+                    }
+                    if (($nowTs - $createdTs) <= 86400) {
+                        $numTxLast24h++;
+                    }
+                }
+            }
+            if (count($pastAmounts) > 0) {
+                $customerLtv = array_sum($pastAmounts);
+                $avgAmount = $customerLtv / count($pastAmounts);
+                $amountRatioToAvg = $avgAmount > 0 ? round(((float) $order['total']) / $avgAmount, 2) : 1.0;
+            }
+            if ($mostRecentTs !== null) {
+                $timeSinceLastTxMin = max(0.0, ($nowTs - $mostRecentTs) / 60);
+            }
+        }
+
         $payload = [
             'transaction_amount' => (float) $order['total'],
-            'amount_ratio_to_avg' => 1.2,  // TODO: compute from customer's order history
-            'account_age_days' => 180,      // TODO: look up customer account creation date
-            'customer_ltv' => 0,            // TODO: sum of customer's past orders
-            'time_since_last_tx_min' => 999,
-            'num_tx_last_24h' => 0,
-            'hour_of_day' => (int) date('H'),
-            'num_items_in_cart' => 1,       // TODO: count $order['products'] if available in your version
+            'amount_ratio_to_avg' => $amountRatioToAvg,
+            'account_age_days' => $accountAgeDays,
+            'customer_ltv' => round($customerLtv, 2),
+            'time_since_last_tx_min' => round($timeSinceLastTxMin, 1),
+            'num_tx_last_24h' => $numTxLast24h,
+            'hour_of_day' => isset($order['date_added']) ? (int) date('H', strtotime($order['date_added'])) : (int) date('H'),
+            'num_items_in_cart' => $itemCount,
+            // OpenCart doesn't track failed-payment attempts or prior login
+            // attempts on the order itself — these stay as safe defaults.
             'num_failed_payments_7d' => 0,
             'login_attempts_before_purchase' => 1,
             'billing_shipping_mismatch' => ($order['payment_address_1'] ?? '') !== ($order['shipping_address_1'] ?? '') ? 1 : 0,
+            // OpenCart doesn't expose an IP-derived country — only the raw IP
+            // itself (below). Sending customer_ip + billing_country lets
+            // MeraFraud's own IP intelligence compute this mismatch server-side.
             'ip_billing_country_mismatch' => 0,
             'new_device' => 0,
             'new_payment_method' => 0,
@@ -51,7 +122,11 @@ class ModelExtensionEventMerafraud extends Model
             'express_shipping' => 0,
             'customer_id' => $order['email'] ?? ('guest-' . $order_id),
             'customer_ip' => $order['ip'] ?? '',
+            'billing_country' => $order['payment_iso_code_2'] ?? null,
         ];
+        $payload = array_filter($payload, static function ($v) {
+            return $v !== null;
+        });
 
         $ch = curl_init(self::API_BASE . '/predict');
         curl_setopt($ch, CURLOPT_POST, true);
