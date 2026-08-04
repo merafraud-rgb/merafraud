@@ -56,7 +56,7 @@ header{
 .main-nav{ display:flex; align-items:center; gap:28px; }
 .main-nav a{
   font-size:14px; font-weight:500; color:var(--text-lo); text-decoration:none; transition:color .15s;
-  position:relative; padding-bottom:4px;
+  position:relative; padding-bottom:4px; white-space:nowrap;
 }
 .main-nav a:hover{ color:var(--text-hi); }
 .main-nav a.active{ color:var(--text-hi); font-weight:600; }
