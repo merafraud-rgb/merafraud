@@ -90,6 +90,19 @@
     display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-lo);
     font-family:'JetBrains Mono', monospace; padding:7px 14px; border:1px solid var(--card-border); border-radius:999px;
   }
+  /* #statusText starts as short placeholder text ("Connecting to API…") and is
+     later replaced with a much longer string once the health check resolves
+     ("API connected · trained on 60,000 records"). Without a width cap, that
+     content-length jump can push the header past its available width and
+     trigger flex-wrap onto a second line, shoving the entire page below it
+     down — a real, measured layout shift (Cloudflare Web Analytics flagged
+     this exact section for "Poor" CLS). Capping the width and truncating
+     with an ellipsis means the pill's box size never changes, so this can
+     no longer shift anything below it, however long the final text is. */
+  #statusText{
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px; display:inline-block;
+  }
+  @media (max-width:700px){ #statusText{ max-width:140px; } }
   .website-link-btn{
     text-decoration:none; color:var(--text-hi); font-size:13.5px; font-weight:600;
     padding:9px 18px; border-radius:999px; margin-right:6px;
