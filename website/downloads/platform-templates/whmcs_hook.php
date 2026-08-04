@@ -2,9 +2,10 @@
 /**
  * MeraFraud Integration for WHMCS
  * -------------------------------------
- * Confidence: MEDIUM — WHMCS's hook system is stable, but exact data
- * available in `$vars` for a given hook point can vary slightly by
- * WHMCS version. Test against your specific version before relying on it.
+ * Confidence: MEDIUM — WHMCS's hook system and `tblorders`/`tblclients`
+ * schema are stable, but exact data available in `$vars` for a given hook
+ * point can vary slightly by WHMCS version. Test against your specific
+ * version before relying on it.
  *
  * INSTALLATION:
  *   Save this file as: whmcs-root/includes/hooks/merafraud.php
@@ -32,22 +33,64 @@ add_hook('OrderPaid', 1, function ($vars) {
     $apiBase = 'https://your-merafraud-api.onrender.com/api'; // ⚠ replace with your real deploy URL
     $apiKey = 'sk_live_REPLACE_ME';
 
-    $accountAgeDays = (int) ((time() - strtotime($client->datecreated)) / 86400);
+    $accountAgeDays = (int) max(0, floor((time() - strtotime($client->datecreated)) / 86400));
     $freeEmailDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
     $emailDomain = strtolower(substr(strrchr($client->email, '@'), 1));
 
+    // --- Order history: LTV, average order size, recency, 24h velocity ---
+    $pastOrders = Capsule::table('tblorders')
+        ->where('userid', $client->id)
+        ->where('id', '!=', $orderId)
+        ->get(['amount', 'date']);
+    $nowTs = time();
+    $pastAmounts = [];
+    $mostRecentTs = null;
+    $numTxLast24h = 0;
+    foreach ($pastOrders as $pastOrder) {
+        $pastAmounts[] = (float) $pastOrder->amount;
+        $createdTs = strtotime($pastOrder->date);
+        if ($createdTs !== false) {
+            if ($mostRecentTs === null || $createdTs > $mostRecentTs) {
+                $mostRecentTs = $createdTs;
+            }
+            if (($nowTs - $createdTs) <= 86400) {
+                $numTxLast24h++;
+            }
+        }
+    }
+    $customerLtv = array_sum($pastAmounts);
+    $amountRatioToAvg = 1.0;
+    if (count($pastAmounts) > 0) {
+        $avgAmount = $customerLtv / count($pastAmounts);
+        $amountRatioToAvg = $avgAmount > 0 ? round(((float) $order->amount) / $avgAmount, 2) : 1.0;
+    }
+    $timeSinceLastTxMin = $mostRecentTs !== null ? max(0.0, ($nowTs - $mostRecentTs) / 60) : 999999.0;
+
+    // --- Recent cancelled/refunded invoices (closest WHMCS equivalent to
+    // "failed payments" — WHMCS doesn't log failed payment *attempts* on
+    // an invoice, only its final status, so this is a proxy, not a literal
+    // failed-attempt count) ---
+    $recentTroubleInvoices = Capsule::table('tblinvoices')
+        ->where('userid', $client->id)
+        ->whereIn('status', ['Cancelled', 'Refunded'])
+        ->where('date', '>=', date('Y-m-d', strtotime('-7 days')))
+        ->count();
+
     $payload = [
         'transaction_amount' => (float) $order->amount,
-        'amount_ratio_to_avg' => 1.2, // TODO: compute from client's past orders (tblorders where userid = client->id)
+        'amount_ratio_to_avg' => $amountRatioToAvg,
         'account_age_days' => $accountAgeDays,
-        'customer_ltv' => 0,           // TODO: sum of client's past paid invoices
-        'time_since_last_tx_min' => 999,
-        'num_tx_last_24h' => 0,        // TODO: count recent tblorders for this client
-        'hour_of_day' => (int) date('H'),
-        'num_items_in_cart' => 1,      // WHMCS orders are usually single-service; adjust if you sell bundles
-        'num_failed_payments_7d' => 0, // TODO: query tblinvoices for recent failed payments
+        'customer_ltv' => round($customerLtv, 2),
+        'time_since_last_tx_min' => round($timeSinceLastTxMin, 1),
+        'num_tx_last_24h' => $numTxLast24h,
+        'hour_of_day' => (int) date('H', strtotime($order->date)),
+        'num_items_in_cart' => 1, // WHMCS orders are usually single-service; adjust if you sell bundles
+        'num_failed_payments_7d' => $recentTroubleInvoices, // see note above — proxy, not exact
         'login_attempts_before_purchase' => 1,
         'billing_shipping_mismatch' => 0, // WHMCS is mostly digital services — often not applicable
+        // WHMCS doesn't expose an IP-derived country — only the raw IP
+        // itself (below). Sending customer_ip + billing_country lets
+        // MeraFraud's own IP intelligence compute this mismatch server-side.
         'ip_billing_country_mismatch' => 0,
         'new_device' => 0,
         'new_payment_method' => 0,
@@ -55,7 +98,11 @@ add_hook('OrderPaid', 1, function ($vars) {
         'express_shipping' => 0,
         'customer_id' => $client->email,
         'customer_ip' => $order->ipaddress ?? '',
+        'billing_country' => $client->country ?? null, // tblclients.country is already ISO-2
     ];
+    $payload = array_filter($payload, function ($v) {
+        return $v !== null;
+    });
 
     $ch = curl_init($apiBase . '/predict');
     curl_setopt($ch, CURLOPT_POST, true);
@@ -75,9 +122,13 @@ add_hook('OrderPaid', 1, function ($vars) {
     }
 
     if ($result['risk_level'] === 'block') {
-        // Suspend the order/service pending manual review instead of auto-provisioning
+        // Suspend the order pending manual review instead of auto-provisioning.
+        // 'Fraud' must exactly match a configured Order Status title in
+        // Configuration > System Settings > Order Statuses — WHMCS ships
+        // with 'Fraud' as a default status, but confirm it exists on your
+        // install (or create it) before relying on this in production.
         logActivity('MeraFraud: Order #' . $orderId . ' flagged HIGH RISK — ' . implode('; ', $result['reasons']));
-        // TODO: call localAPI('UpdateOrderStatus', ['orderid' => $orderId, 'status' => 'Fraud']);
+        localAPI('UpdateOrderStatus', ['orderid' => $orderId, 'orderstatus' => 'Fraud']);
     } elseif ($result['risk_level'] === 'review') {
         logActivity('MeraFraud: Order #' . $orderId . ' flagged for review — ' . implode('; ', $result['reasons']));
     }
