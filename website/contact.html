@@ -107,19 +107,19 @@
       <form id="contactForm" onsubmit="handleSubmit(event)">
         <div class="field">
           <label data-i18n="f_name">Name</label>
-          <input type="text" required>
+          <input type="text" id="cName" required>
         </div>
         <div class="field">
           <label data-i18n="f_email">Work Email</label>
-          <input type="email" required>
+          <input type="email" id="cEmail" required>
         </div>
         <div class="field">
           <label data-i18n="f_company">Store / Company Name</label>
-          <input type="text">
+          <input type="text" id="cCompany">
         </div>
         <div class="field">
           <label data-i18n="f_need">What do you need?</label>
-          <select>
+          <select id="cNeed">
             <option data-i18n="opt_general">General question</option>
             <option data-i18n="opt_pricing">Pricing / Scale plan</option>
             <option data-i18n="opt_tech">Technical integration help</option>
@@ -129,10 +129,10 @@
         </div>
         <div class="field">
           <label data-i18n="f_message">Message</label>
-          <textarea required data-i18n-ph="f_message_ph" placeholder="Tell us a bit about your store and what you're looking for…"></textarea>
+          <textarea required id="cMessage" data-i18n-ph="f_message_ph" placeholder="Tell us a bit about your store and what you're looking for…"></textarea>
         </div>
-        <button type="submit" class="btn-primary" data-i18n="f_submit">Send Message</button>
-        <p class="form-note" id="formNote" data-i18n="f_note">This form doesn't send anywhere yet in this MVP — wire it to an email service (e.g. Formspree, Resend) before going live.</p>
+        <button type="submit" class="btn-primary" id="contactBtn" data-i18n="f_submit">Send Message</button>
+        <p class="form-note" id="formNote" data-i18n="f_note">We typically respond within one business day.</p>
       </form>
     </div>
   </div>
@@ -172,13 +172,64 @@
 </footer>
 
 <script>
-function handleSubmit(e){
+const API_BASE = "https://merafraud-apimerafraud-api-v2.onrender.com/api";
+
+const CONTACT_NOTES = {
+  en: {
+    default: "We typically respond within one business day.",
+    sending: "Sending…",
+    success: "Sent — we'll reply directly to your email.",
+    errorFields: "Please fill in your name, email, and a message.",
+    errorSend: "Couldn't send right now — please try again, or email hello@merafraud.com directly."
+  },
+  tr: {
+    default: "Genellikle bir iş günü içinde yanıt veriyoruz.",
+    sending: "Gönderiliyor…",
+    success: "Gönderildi — e-postanıza doğrudan yanıt vereceğiz.",
+    errorFields: "Lütfen adınızı, e-postanızı ve bir mesaj girin.",
+    errorSend: "Şu anda gönderilemedi — lütfen tekrar deneyin ya da hello@merafraud.com adresine doğrudan yazın."
+  }
+};
+
+async function handleSubmit(e){
   e.preventDefault();
+  const lang = window.mfLang || 'tr';
+  const n = CONTACT_NOTES[lang];
   const note = document.getElementById('formNote');
-  note.textContent = (window.mfLang === 'tr')
-    ? "Teşekkürler! (Sadece demo — bu form henüz bir gelen kutusuna bağlı değil.)"
-    : "Thanks! (Demo only — this form isn't connected to an inbox yet.)";
-  note.style.color = 'var(--safe)';
+  const btn = document.getElementById('contactBtn');
+
+  const name = document.getElementById('cName').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  const message = document.getElementById('cMessage').value.trim();
+  const company = document.getElementById('cCompany').value.trim();
+  const need = document.getElementById('cNeed').value;
+
+  if(!name || !email || !message){
+    note.textContent = n.errorFields;
+    note.style.color = 'var(--block)';
+    return;
+  }
+
+  btn.disabled = true;
+  note.textContent = n.sending;
+  note.style.color = 'var(--text-lo)';
+
+  try{
+    const res = await fetch(`${API_BASE}/support/ticket`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name, email, message, store_name: company, issue_type: need, lang })
+    });
+    if(!res.ok) throw new Error('send failed');
+    note.textContent = n.success;
+    note.style.color = 'var(--safe)';
+    e.target.reset();
+  }catch(err){
+    note.textContent = n.errorSend;
+    note.style.color = 'var(--block)';
+  }finally{
+    btn.disabled = false;
+  }
 }
 </script>
 <script src="animations.js"></script>
@@ -198,7 +249,7 @@ function handleSubmit(e){
       opt_partner:"Partnership", opt_other:"Other", f_message:"Message",
       f_message_ph:"Tell us a bit about your store and what you're looking for…",
       f_submit:"Send Message",
-      f_note:"This form doesn't send anywhere yet in this MVP — wire it to an email service (e.g. Formspree, Resend) before going live.",
+      f_note:"We typically respond within one business day.",
       footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
       footer_product:"Product", footer_get_key:"Get API Key", footer_company:"Company",
       footer_legal:"Legal", footer_privacy:"Privacy Policy", footer_terms:"Terms of Service",
@@ -216,7 +267,7 @@ function handleSubmit(e){
       opt_partner:"İş ortaklığı", opt_other:"Diğer", f_message:"Mesaj",
       f_message_ph:"Mağazanız ve aradığınız çözüm hakkında biraz bilgi verin…",
       f_submit:"Mesaj Gönder",
-      f_note:"Bu form şu an hiçbir yere gönderilmiyor (MVP aşaması) — canlıya almadan önce bir e-posta servisine (ör. Formspree, Resend) bağlanmalı.",
+      f_note:"Genellikle bir iş günü içinde yanıt veriyoruz.",
       footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
       footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
       footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
