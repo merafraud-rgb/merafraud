@@ -52,9 +52,17 @@
   }
   .logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:22px; }
   .logo-text span{color:var(--pink-2);}
-  .back-link{ font-size:13px; color:var(--text-lo); text-decoration:none; }
-  .back-link:hover{ color:var(--pink-2); }
-  .header-links{ display:flex; align-items:center; gap:16px; }
+  .back-link{
+    text-decoration:none; color:var(--text-hi); font-size:13.5px; font-weight:600;
+    padding:9px 18px; border-radius:999px;
+    background:rgba(255,255,255,0.05); border:1.5px solid var(--card-border);
+    transition:all .2s ease; display:inline-flex; align-items:center; gap:6px;
+  }
+  .back-link:hover{
+    border-color:var(--pink-1); background:linear-gradient(135deg,rgba(124,58,237,0.25),rgba(236,72,153,0.2));
+    box-shadow:0 4px 18px -4px rgba(236,72,153,0.5); transform:translateY(-1px); color:var(--text-hi);
+  }
+  .header-links{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
 
   h1{ font-family:'Fraunces', serif; font-weight:600; font-size:28px; margin-bottom:8px; }
   .lede{ color:var(--text-lo); font-size:14.5px; margin-bottom:32px; }
