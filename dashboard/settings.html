@@ -152,6 +152,9 @@
       <div class="lang-switch">
         <button type="button" class="lang-btn" data-lang="tr">TR</button>
         <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="de">DE</button>
+      <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      <button type="button" class="lang-btn" data-lang="es">ES</button>
       </div>
     </div>
   </header>
@@ -212,9 +215,11 @@
     <div class="panel">
       <h2 id="storeName">—</h2>
       <div class="sub" data-i18n="signed_in_sub">Signed in with your API key on this device</div>
+      <div class="demo-note" id="trialBanner" style="display:none;"></div>
       <div class="account-row"><span class="label" data-i18n="row_store_name">Store name</span><span class="value" id="rowName">—</span></div>
       <div class="account-row"><span class="label" data-i18n="email_label">Email</span><span class="value" id="rowEmail">—</span></div>
       <div class="account-row"><span class="label" data-i18n="row_api_key">API key</span><span class="value" id="rowKey">—</span></div>
+      <div class="account-row"><span class="label" data-i18n="row_api_key_test">Test key</span><span class="value" id="rowKeyTest">—</span></div>
       <div class="account-row"><span class="label" data-i18n="row_member_since">Member since</span><span class="value" id="rowSince">—</span></div>
       <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
         <button class="btn-secondary" onclick="logout()" data-i18n="logout_btn">Switch account / Log out</button>
@@ -271,6 +276,87 @@
       </div>
       <div class="error-msg" id="saveError"></div>
     </div>
+
+    <div class="panel">
+      <h2 data-i18n="webhook_h2">Notifications</h2>
+      <div class="sub" data-i18n="webhook_sub">Get a Slack or Discord message the instant an order is blocked, in addition to email. Paste an incoming-webhook URL from either.</div>
+      <div class="field"><label data-i18n="webhook_url_label">Webhook URL</label><input type="text" id="webhookUrlInput" placeholder="https://hooks.slack.com/services/..."></div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn-primary" onclick="saveWebhook()" data-i18n="save_changes">Save Changes</button>
+        <span class="save-note" id="webhookNote" data-i18n="saved_note">✓ Saved</span>
+      </div>
+      <div class="error-msg" id="webhookError"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="rules_h2">Custom Rules</h2>
+      <div class="sub" data-i18n="rules_sub">Add your own IF-THEN rules on top of the ML model. Rules can only escalate risk — they can flag or block, never approve a risky transaction.</div>
+
+      <div id="rulesList"></div>
+      <div class="sub" id="noRulesMsg" data-i18n="no_rules_msg" style="display:none;">No custom rules yet.</div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
+        <div class="field">
+          <label data-i18n="rule_field_label">Field</label>
+          <select id="ruleField" style="background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px; padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:12px;"></select>
+        </div>
+        <div class="field">
+          <label data-i18n="rule_operator_label">Operator</label>
+          <select id="ruleOperator" style="background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px; padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;">
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+            <option value=">=">&gt;=</option>
+            <option value="<=">&lt;=</option>
+            <option value="==">==</option>
+            <option value="!=">!=</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-i18n="rule_value_label">Value</label>
+          <input type="number" id="ruleValue" step="any" placeholder="500">
+        </div>
+        <div class="field">
+          <label data-i18n="rule_action_label">Action</label>
+          <select id="ruleAction" style="background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px; padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;">
+            <option value="review" data-i18n="action_review">Flag for review</option>
+            <option value="block" data-i18n="action_block">Block</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addRule()" style="margin-top:6px;" data-i18n="add_rule_btn">+ Add Rule</button>
+      <div class="error-msg" id="ruleError"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="network_h2">Fraud Network</h2>
+      <div class="sub" data-i18n="network_sub">Report confirmed fraud to warn other MeraFraud merchants — and get warned when they report the same customer.</div>
+      <div class="account-row"><span class="label" data-i18n="network_size_label">Identifiers flagged network-wide</span><span class="value" id="networkSize">—</span></div>
+
+      <div class="field"><label data-i18n="network_ip_label">IP address (optional)</label><input type="text" id="reportIp" placeholder="203.0.113.5"></div>
+      <div class="field"><label data-i18n="network_email_label">Email (optional)</label><input type="email" id="reportEmail" placeholder="fraudster@example.com"></div>
+      <div class="field"><label data-i18n="network_device_label">Device ID (optional)</label><input type="text" id="reportDevice" placeholder="device-abc123"></div>
+      <button class="btn-danger" onclick="reportFraud()" data-i18n="report_fraud_btn">🚩 Report as Confirmed Fraud</button>
+      <div class="error-msg" id="reportError"></div>
+      <span class="save-note" id="reportNote" data-i18n="network_report_success">✓ Reported</span>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="outcome_h2">Order Outcome Tracking</h2>
+      <div class="sub" data-i18n="outcome_sub">Tell MeraFraud what happened to an order so future scores for that customer account for their real pattern (serial cancellations, etc.).</div>
+      <div class="field"><label data-i18n="outcome_customer_label">Customer ID (the email/ID sent as customer_id at checkout)</label><input type="text" id="outcomeCustomer" placeholder="customer@email.com"></div>
+      <div class="field"><label data-i18n="outcome_order_label">Order ID (optional)</label><input type="text" id="outcomeOrder" placeholder="#1042"></div>
+      <div class="field">
+        <label data-i18n="outcome_type_label">Outcome</label>
+        <select id="outcomeType" style="background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px; padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;">
+          <option value="placed" data-i18n="outcome_placed">Placed</option>
+          <option value="fulfilled" data-i18n="outcome_fulfilled">Fulfilled</option>
+          <option value="cancelled" data-i18n="outcome_cancelled">Cancelled</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="submitOutcome()" data-i18n="outcome_submit_btn">Submit</button>
+      <div class="error-msg" id="outcomeError"></div>
+      <span class="save-note" id="outcomeNote" data-i18n="outcome_success">✓ Recorded</span>
+    </div>
   </div>
 </div>
 
@@ -292,7 +378,7 @@ var DICT = {
     send_reset:"Send Reset Link", reset_token_label:"Reset Token", reset_token_ph:"Paste the token above",
     new_password_label:"New Password", f_pass_ph:"At least 6 characters", set_new_password:"Set New Password",
     signed_in_sub:"Signed in with your API key on this device",
-    row_store_name:"Store name", row_api_key:"API key", row_member_since:"Member since",
+    row_store_name:"Store name", row_api_key:"API key", row_api_key_test:"Test key", row_member_since:"Member since",
     logout_btn:"Switch account / Log out", regen_btn:"🔄 Regenerate API Key",
     usage_h2:"Usage this session", usage_sub:"Live counters from your account",
     usage_total:"Total calls", usage_approved:"Approved", usage_reviewed:"Reviewed", usage_blocked:"Blocked",
@@ -307,13 +393,39 @@ var DICT = {
     err_both_fields:"Enter both email and password.",
     err_account_email:"Enter your account email.",
     err_token_pass:"Paste the token and choose a password of at least 6 characters.",
-    confirm_regen:"This will immediately invalidate your CURRENT API key. Anywhere you've already installed it (Shopify Flow, WooCommerce plugin, your own server) will stop working until you update it with the new key.\n\nContinue?",
-    regen_success:"✓ New key generated. <b>Update it everywhere you use MeraFraud</b> — your old key no longer works.",
+    confirm_regen:"This will immediately invalidate BOTH your current live key and your test key. Anywhere you've already installed the live key (Shopify Flow, WooCommerce plugin, your own server) will stop working until you update it with the new one.\n\nContinue?",
+    regen_success:"✓ New keys generated (live + test). <b>Update them everywhere you use MeraFraud</b> — your old keys no longer work.",
     export_fail:"Couldn't export report: ",
     demo_mode_prefix:"⚠ <b>Demo mode:</b> no real email was sent (SMTP not configured). For this demo, here's your token directly:",
     demo_mode_expires:"Expires in ",
     demo_mode_minutes:" minutes.",
     real_email_suffix:" Check your inbox (and spam folder) for the code, then paste it below.",
+    trial_days_left_prefix:"⏳ Free trial: ", trial_days_left_suffix:" day(s) left.",
+    trial_no_end_msg:"⏳ You're on a free trial.",
+    subscription_inactive_msg:"⚠ Your subscription is not active — API requests are currently blocked. Contact us to upgrade.",
+    rules_h2:"Custom Rules",
+    rules_sub:"Add your own IF-THEN rules on top of the ML model. Rules can only escalate risk — they can flag or block, never approve a risky transaction.",
+    no_rules_msg:"No custom rules yet.",
+    rule_field_label:"Field", rule_operator_label:"Operator", rule_value_label:"Value", rule_action_label:"Action",
+    action_review:"Flag for review", action_block:"Block", add_rule_btn:"+ Add Rule",
+    err_rule_value:"Enter a numeric value for the rule.",
+    webhook_h2:"Notifications",
+    webhook_sub:"Get a Slack or Discord message the instant an order is blocked, in addition to email. Paste an incoming-webhook URL from either.",
+    webhook_url_label:"Webhook URL",
+    err_webhook_url:"That doesn't look like a valid http(s) URL.",
+    network_h2:"Fraud Network",
+    network_sub:"Report confirmed fraud to warn other MeraFraud merchants — and get warned when they report the same customer.",
+    network_size_label:"Identifiers flagged network-wide",
+    network_ip_label:"IP address (optional)", network_email_label:"Email (optional)", network_device_label:"Device ID (optional)",
+    report_fraud_btn:"🚩 Report as Confirmed Fraud", network_report_success:"✓ Reported",
+    err_report_empty:"Enter at least one of: IP, email, or device ID.",
+    outcome_h2:"Order Outcome Tracking",
+    outcome_sub:"Tell MeraFraud what happened to an order so future scores for that customer account for their real pattern (serial cancellations, etc.).",
+    outcome_customer_label:"Customer ID (the email/ID sent as customer_id at checkout)",
+    outcome_order_label:"Order ID (optional)", outcome_type_label:"Outcome",
+    outcome_placed:"Placed", outcome_fulfilled:"Fulfilled", outcome_cancelled:"Cancelled",
+    outcome_submit_btn:"Submit", outcome_success:"✓ Recorded",
+    err_outcome_customer:"Enter the customer ID used at checkout.",
     date_locale:"en-GB"
   },
   tr: {
@@ -330,7 +442,7 @@ var DICT = {
     send_reset:"Sıfırlama Bağlantısı Gönder", reset_token_label:"Sıfırlama Kodu", reset_token_ph:"Yukarıdaki kodu yapıştırın",
     new_password_label:"Yeni Şifre", f_pass_ph:"En az 6 karakter", set_new_password:"Yeni Şifreyi Kaydet",
     signed_in_sub:"Bu cihazda API anahtarınızla giriş yaptınız",
-    row_store_name:"Mağaza adı", row_api_key:"API anahtarı", row_member_since:"Üyelik tarihi",
+    row_store_name:"Mağaza adı", row_api_key:"API anahtarı", row_api_key_test:"Test anahtarı", row_member_since:"Üyelik tarihi",
     logout_btn:"Hesap değiştir / Çıkış yap", regen_btn:"🔄 API Anahtarını Yenile",
     usage_h2:"Bu oturumdaki kullanım", usage_sub:"Hesabınızdan canlı sayaçlar",
     usage_total:"Toplam çağrı", usage_approved:"Onaylandı", usage_reviewed:"İncelendi", usage_blocked:"Engellendi",
@@ -345,14 +457,232 @@ var DICT = {
     err_both_fields:"Hem e-posta hem şifre girin.",
     err_account_email:"Hesap e-postanızı girin.",
     err_token_pass:"Kodu yapıştırın ve en az 6 karakter uzunluğunda bir şifre seçin.",
-    confirm_regen:"Bu, MEVCUT API anahtarınızı hemen geçersiz kılar. Onu kurduğunuz her yer (Shopify Flow, WooCommerce eklentisi, kendi sunucunuz) yeni anahtarla güncelleyene kadar çalışmayı durdurur.\n\nDevam edilsin mi?",
-    regen_success:"✓ Yeni anahtar oluşturuldu. <b>MeraFraud'u kullandığınız her yerde güncelleyin</b> — eski anahtarınız artık çalışmıyor.",
+    confirm_regen:"Bu, hem MEVCUT canlı anahtarınızı hem de test anahtarınızı hemen geçersiz kılar. Canlı anahtarı kurduğunuz her yer (Shopify Flow, WooCommerce eklentisi, kendi sunucunuz) yenisiyle güncelleyene kadar çalışmayı durdurur.\n\nDevam edilsin mi?",
+    regen_success:"✓ Yeni anahtarlar oluşturuldu (canlı + test). <b>MeraFraud'u kullandığınız her yerde güncelleyin</b> — eski anahtarlarınız artık çalışmıyor.",
     export_fail:"Rapor dışa aktarılamadı: ",
     demo_mode_prefix:"⚠ <b>Demo modu:</b> gerçek bir e-posta gönderilmedi (SMTP yapılandırılmadı). Bu demo için kodunuz doğrudan burada:",
     demo_mode_expires:"Şu sürede sona erer: ",
     demo_mode_minutes:" dakika.",
     real_email_suffix:" Kodu gelen kutunuzda (ve spam klasöründe) kontrol edin, ardından aşağıya yapıştırın.",
+    trial_days_left_prefix:"⏳ Ücretsiz deneme: ", trial_days_left_suffix:" gün kaldı.",
+    trial_no_end_msg:"⏳ Ücretsiz deneme sürümündesiniz.",
+    subscription_inactive_msg:"⚠ Aboneliğiniz aktif değil — API istekleri şu anda engelleniyor. Yükseltmek için bizimle iletişime geçin.",
+    rules_h2:"Özel Kurallar",
+    rules_sub:"ML modelinin üzerine kendi IF-THEN kurallarınızı ekleyin. Kurallar riski yalnızca yükseltebilir — inceleme veya engelleme yapabilir, riskli bir işlemi asla onaya çeviremez.",
+    no_rules_msg:"Henüz özel kural yok.",
+    rule_field_label:"Alan", rule_operator_label:"Operatör", rule_value_label:"Değer", rule_action_label:"Eylem",
+    action_review:"İncelemeye işaretle", action_block:"Engelle", add_rule_btn:"+ Kural Ekle",
+    err_rule_value:"Kural için sayısal bir değer girin.",
+    webhook_h2:"Bildirimler",
+    webhook_sub:"Bir sipariş engellendiği anda e-postaya ek olarak Slack veya Discord mesajı alın. İkisinden birinin incoming-webhook URL'sini yapıştırın.",
+    webhook_url_label:"Webhook URL",
+    err_webhook_url:"Bu geçerli bir http(s) URL'sine benzemiyor.",
+    network_h2:"Dolandırıcılık Ağı",
+    network_sub:"Diğer MeraFraud mağazalarını uyarmak için doğrulanmış dolandırıcılığı bildirin — onlar bildirdiğinde siz de uyarılırsınız.",
+    network_size_label:"Ağ genelinde işaretlenen tanımlayıcı sayısı",
+    network_ip_label:"IP adresi (opsiyonel)", network_email_label:"E-posta (opsiyonel)", network_device_label:"Cihaz ID (opsiyonel)",
+    report_fraud_btn:"🚩 Doğrulanmış Dolandırıcılık Olarak Bildir", network_report_success:"✓ Bildirildi",
+    err_report_empty:"En az birini girin: IP, e-posta veya cihaz ID.",
+    outcome_h2:"Sipariş Sonucu Takibi",
+    outcome_sub:"Bir siparişe ne olduğunu MeraFraud'a bildirin, böylece o müşteri için gelecekteki skorlar gerçek davranış örüntüsünü (art arda iptal gibi) hesaba katar.",
+    outcome_customer_label:"Müşteri ID (checkout'ta customer_id olarak gönderilen e-posta/ID)",
+    outcome_order_label:"Sipariş ID (opsiyonel)", outcome_type_label:"Sonuç",
+    outcome_placed:"Verildi", outcome_fulfilled:"Tamamlandı", outcome_cancelled:"İptal edildi",
+    outcome_submit_btn:"Gönder", outcome_success:"✓ Kaydedildi",
+    err_outcome_customer:"Checkout'ta kullanılan müşteri ID'sini girin.",
     date_locale:"tr-TR"
+  },
+  de: {
+    back_dashboard:"← Zurück zum Dashboard",
+    h1:"Kontoeinstellungen", lede:"Verwalten Sie Ihre Risikoschwellenwerte und sehen Sie Ihr Konto auf einen Blick.",
+    tab_key:"API-Schlüssel einfügen", tab_login:"Anmelden", tab_forgot:"Passwort vergessen",
+    key_h2:"Mit Ihrem API-Schlüssel anmelden",
+    key_sub:"Fügen Sie den Schlüssel ein, den Sie bei der Registrierung erhalten haben — er bleibt nur in diesem Browser und wird nirgendwo außer an MeraFrauds eigene API gesendet.",
+    api_key_label:"API-Schlüssel", load_account:"Mein Konto laden",
+    login_h2:"Mit E-Mail anmelden",
+    login_sub:"API-Schlüssel verloren? Beim Anmelden wird er für Sie abgerufen — Sie müssen ihn nicht separat merken.",
+    email_label:"E-Mail", password_label:"Passwort", your_password_ph:"Ihr Passwort",
+    forgot_h2:"Passwort zurücksetzen", forgot_sub:"Geben Sie die E-Mail ein, mit der Sie sich registriert haben.",
+    send_reset:"Reset-Link senden", reset_token_label:"Reset-Token", reset_token_ph:"Obigen Token einfügen",
+    new_password_label:"Neues Passwort", f_pass_ph:"Mindestens 6 Zeichen", set_new_password:"Neues Passwort festlegen",
+    signed_in_sub:"Auf diesem Gerät mit Ihrem API-Schlüssel angemeldet",
+    row_store_name:"Shopname", row_api_key:"API-Schlüssel", row_api_key_test:"Test-Schlüssel", row_member_since:"Mitglied seit",
+    logout_btn:"Konto wechseln / Abmelden", regen_btn:"🔄 API-Schlüssel erneuern",
+    usage_h2:"Nutzung in dieser Sitzung", usage_sub:"Live-Zähler aus Ihrem Konto",
+    usage_total:"Gesamtaufrufe", usage_approved:"Genehmigt", usage_reviewed:"Geprüft", usage_blocked:"Blockiert",
+    export_btn:"📄 Transaktionsbericht exportieren (CSV)",
+    thresholds_h2:"Risikoschwellenwerte",
+    thresholds_sub:"Ziehen Sie, um zu ändern, wie empfindlich MeraFraud für Ihren Shop ist. Wird sofort bei Ihrem nächsten API-Aufruf wirksam.",
+    review_threshold:"Prüfungsschwelle", review_desc:"Werte über diesem Wert werden zur manuellen Prüfung markiert",
+    block_threshold:"Blockierschwelle", block_desc:"Werte über diesem Wert werden automatisch blockiert",
+    risk_score_label:"Risikowert", save_changes:"Änderungen speichern", saved_note:"✓ Gespeichert",
+    err_paste_key:"Bitte fügen Sie Ihren API-Schlüssel ein.",
+    err_verify_key:"Dieser Schlüssel konnte nicht überprüft werden. Prüfen Sie, ob er korrekt ist und die API läuft.",
+    err_both_fields:"Geben Sie E-Mail und Passwort ein.",
+    err_account_email:"Geben Sie Ihre Konto-E-Mail ein.",
+    err_token_pass:"Fügen Sie den Token ein und wählen Sie ein Passwort mit mindestens 6 Zeichen.",
+    confirm_regen:"Dadurch werden SOWOHL Ihr aktueller Live-Schlüssel als auch Ihr Test-Schlüssel sofort ungültig. Überall dort, wo Sie den Live-Schlüssel bereits eingerichtet haben (Shopify Flow, WooCommerce-Plugin, Ihr eigener Server), funktioniert er nicht mehr, bis Sie ihn mit dem neuen aktualisieren.\n\nFortfahren?",
+    regen_success:"✓ Neue Schlüssel generiert (Live + Test). <b>Aktualisieren Sie sie überall, wo Sie MeraFraud verwenden</b> — Ihre alten Schlüssel funktionieren nicht mehr.",
+    export_fail:"Bericht konnte nicht exportiert werden: ",
+    demo_mode_prefix:"⚠ <b>Demo-Modus:</b> Es wurde keine echte E-Mail gesendet (SMTP nicht konfiguriert). Für diese Demo hier Ihr Token direkt:",
+    demo_mode_expires:"Läuft ab in ",
+    demo_mode_minutes:" Minuten.",
+    real_email_suffix:" Prüfen Sie Ihren Posteingang (und Spam-Ordner) auf den Code und fügen Sie ihn unten ein.",
+    trial_days_left_prefix:"⏳ Kostenlose Testphase: ", trial_days_left_suffix:" Tag(e) verbleibend.",
+    trial_no_end_msg:"⏳ Sie befinden sich in der kostenlosen Testphase.",
+    subscription_inactive_msg:"⚠ Ihr Abonnement ist nicht aktiv — API-Anfragen sind derzeit blockiert. Kontaktieren Sie uns für ein Upgrade.",
+    rules_h2:"Benutzerdefinierte Regeln",
+    rules_sub:"Fügen Sie Ihre eigenen WENN-DANN-Regeln zusätzlich zum ML-Modell hinzu. Regeln können das Risiko nur erhöhen — sie können markieren oder blockieren, aber niemals eine riskante Transaktion genehmigen.",
+    no_rules_msg:"Noch keine benutzerdefinierten Regeln.",
+    rule_field_label:"Feld", rule_operator_label:"Operator", rule_value_label:"Wert", rule_action_label:"Aktion",
+    action_review:"Zur Prüfung markieren", action_block:"Blockieren", add_rule_btn:"+ Regel hinzufügen",
+    err_rule_value:"Geben Sie einen numerischen Wert für die Regel ein.",
+    webhook_h2:"Benachrichtigungen",
+    webhook_sub:"Erhalten Sie zusätzlich zur E-Mail sofort eine Slack- oder Discord-Nachricht, wenn eine Bestellung blockiert wird. Fügen Sie eine Incoming-Webhook-URL von einem der beiden ein.",
+    webhook_url_label:"Webhook-URL",
+    err_webhook_url:"Das sieht nicht wie eine gültige http(s)-URL aus.",
+    network_h2:"Betrugsnetzwerk",
+    network_sub:"Melden Sie bestätigten Betrug, um andere MeraFraud-Händler zu warnen — und werden Sie gewarnt, wenn diese denselben Kunden melden.",
+    network_size_label:"Netzwerkweit markierte Kennungen",
+    network_ip_label:"IP-Adresse (optional)", network_email_label:"E-Mail (optional)", network_device_label:"Geräte-ID (optional)",
+    report_fraud_btn:"🚩 Als bestätigten Betrug melden", network_report_success:"✓ Gemeldet",
+    err_report_empty:"Geben Sie mindestens eines an: IP, E-Mail oder Geräte-ID.",
+    outcome_h2:"Bestellergebnis-Verfolgung",
+    outcome_sub:"Teilen Sie MeraFraud mit, was mit einer Bestellung passiert ist, damit zukünftige Bewertungen für dieses Kundenkonto sein tatsächliches Muster (wiederholte Stornierungen usw.) berücksichtigen.",
+    outcome_customer_label:"Kunden-ID (die E-Mail/ID, die beim Checkout als customer_id gesendet wurde)",
+    outcome_order_label:"Bestell-ID (optional)", outcome_type_label:"Ergebnis",
+    outcome_placed:"Aufgegeben", outcome_fulfilled:"Erfüllt", outcome_cancelled:"Storniert",
+    outcome_submit_btn:"Absenden", outcome_success:"✓ Erfasst",
+    err_outcome_customer:"Geben Sie die beim Checkout verwendete Kunden-ID ein.",
+    date_locale:"de-DE"
+  },
+  fr: {
+    back_dashboard:"← Retour au tableau de bord",
+    h1:"Paramètres du compte", lede:"Gérez vos seuils de risque et consultez votre compte en un coup d'œil.",
+    tab_key:"Coller la clé API", tab_login:"Se connecter", tab_forgot:"Mot de passe oublié",
+    key_h2:"Connectez-vous avec votre clé API",
+    key_sub:"Collez la clé obtenue à l'inscription — elle reste uniquement dans ce navigateur, jamais envoyée ailleurs qu'à l'API de MeraFraud.",
+    api_key_label:"Clé API", load_account:"Charger mon compte",
+    login_h2:"Connexion par e-mail",
+    login_sub:"Clé API perdue ? La connexion la récupère pour vous — inutile de la mémoriser séparément.",
+    email_label:"E-mail", password_label:"Mot de passe", your_password_ph:"Votre mot de passe",
+    forgot_h2:"Réinitialiser votre mot de passe", forgot_sub:"Saisissez l'e-mail utilisé lors de l'inscription.",
+    send_reset:"Envoyer le lien de réinitialisation", reset_token_label:"Jeton de réinitialisation", reset_token_ph:"Collez le jeton ci-dessus",
+    new_password_label:"Nouveau mot de passe", f_pass_ph:"Au moins 6 caractères", set_new_password:"Définir le nouveau mot de passe",
+    signed_in_sub:"Connecté avec votre clé API sur cet appareil",
+    row_store_name:"Nom de la boutique", row_api_key:"Clé API", row_api_key_test:"Clé de test", row_member_since:"Membre depuis",
+    logout_btn:"Changer de compte / Se déconnecter", regen_btn:"🔄 Régénérer la clé API",
+    usage_h2:"Utilisation de cette session", usage_sub:"Compteurs en direct de votre compte",
+    usage_total:"Appels totaux", usage_approved:"Approuvées", usage_reviewed:"Examinées", usage_blocked:"Bloquées",
+    export_btn:"📄 Exporter le rapport de transactions (CSV)",
+    thresholds_h2:"Seuils de risque",
+    thresholds_sub:"Faites glisser pour modifier la sensibilité de MeraFraud pour votre boutique. Prend effet immédiatement lors de votre prochain appel API.",
+    review_threshold:"Seuil d'examen", review_desc:"Les scores au-dessus de ce seuil sont signalés pour examen manuel",
+    block_threshold:"Seuil de blocage", block_desc:"Les scores au-dessus de ce seuil sont bloqués automatiquement",
+    risk_score_label:"Score de risque", save_changes:"Enregistrer les modifications", saved_note:"✓ Enregistré",
+    err_paste_key:"Veuillez coller votre clé API.",
+    err_verify_key:"Impossible de vérifier cette clé. Vérifiez qu'elle est correcte et que l'API fonctionne.",
+    err_both_fields:"Saisissez l'e-mail et le mot de passe.",
+    err_account_email:"Saisissez l'e-mail de votre compte.",
+    err_token_pass:"Collez le jeton et choisissez un mot de passe d'au moins 6 caractères.",
+    confirm_regen:"Cela invalidera immédiatement À LA FOIS votre clé live actuelle et votre clé de test. Partout où vous avez déjà installé la clé live (Shopify Flow, extension WooCommerce, votre propre serveur), elle cessera de fonctionner jusqu'à ce que vous la mettiez à jour avec la nouvelle.\n\nContinuer ?",
+    regen_success:"✓ Nouvelles clés générées (live + test). <b>Mettez-les à jour partout où vous utilisez MeraFraud</b> — vos anciennes clés ne fonctionnent plus.",
+    export_fail:"Impossible d'exporter le rapport : ",
+    demo_mode_prefix:"⚠ <b>Mode démo :</b> aucun e-mail réel n'a été envoyé (SMTP non configuré). Pour cette démo, voici votre jeton directement :",
+    demo_mode_expires:"Expire dans ",
+    demo_mode_minutes:" minutes.",
+    real_email_suffix:" Vérifiez votre boîte de réception (et le dossier spam) pour le code, puis collez-le ci-dessous.",
+    trial_days_left_prefix:"⏳ Essai gratuit : ", trial_days_left_suffix:" jour(s) restant(s).",
+    trial_no_end_msg:"⏳ Vous êtes en essai gratuit.",
+    subscription_inactive_msg:"⚠ Votre abonnement n'est pas actif — les requêtes API sont actuellement bloquées. Contactez-nous pour mettre à niveau.",
+    rules_h2:"Règles personnalisées",
+    rules_sub:"Ajoutez vos propres règles SI-ALORS en plus du modèle de ML. Les règles ne peuvent qu'augmenter le risque — elles peuvent signaler ou bloquer, jamais approuver une transaction risquée.",
+    no_rules_msg:"Aucune règle personnalisée pour le moment.",
+    rule_field_label:"Champ", rule_operator_label:"Opérateur", rule_value_label:"Valeur", rule_action_label:"Action",
+    action_review:"Signaler pour examen", action_block:"Bloquer", add_rule_btn:"+ Ajouter une règle",
+    err_rule_value:"Saisissez une valeur numérique pour la règle.",
+    webhook_h2:"Notifications",
+    webhook_sub:"Recevez un message Slack ou Discord dès qu'une commande est bloquée, en plus de l'e-mail. Collez une URL de webhook entrant de l'un ou l'autre.",
+    webhook_url_label:"URL du webhook",
+    err_webhook_url:"Cela ne ressemble pas à une URL http(s) valide.",
+    network_h2:"Réseau anti-fraude",
+    network_sub:"Signalez une fraude confirmée pour avertir les autres marchands MeraFraud — et soyez averti lorsqu'ils signalent le même client.",
+    network_size_label:"Identifiants signalés à l'échelle du réseau",
+    network_ip_label:"Adresse IP (facultatif)", network_email_label:"E-mail (facultatif)", network_device_label:"ID de l'appareil (facultatif)",
+    report_fraud_btn:"🚩 Signaler comme fraude confirmée", network_report_success:"✓ Signalé",
+    err_report_empty:"Saisissez au moins l'un des éléments suivants : IP, e-mail ou ID de l'appareil.",
+    outcome_h2:"Suivi du résultat des commandes",
+    outcome_sub:"Indiquez à MeraFraud ce qui est arrivé à une commande afin que les futurs scores de ce compte client tiennent compte de son schéma réel (annulations en série, etc.).",
+    outcome_customer_label:"ID client (l'e-mail/ID envoyé comme customer_id au checkout)",
+    outcome_order_label:"ID de commande (facultatif)", outcome_type_label:"Résultat",
+    outcome_placed:"Passée", outcome_fulfilled:"Honorée", outcome_cancelled:"Annulée",
+    outcome_submit_btn:"Envoyer", outcome_success:"✓ Enregistré",
+    err_outcome_customer:"Saisissez l'ID client utilisé au checkout.",
+    date_locale:"fr-FR"
+  },
+  es: {
+    back_dashboard:"← Volver al panel",
+    h1:"Configuración de la cuenta", lede:"Gestiona tus umbrales de riesgo y ve tu cuenta de un vistazo.",
+    tab_key:"Pegar clave API", tab_login:"Iniciar sesión", tab_forgot:"Olvidé mi contraseña",
+    key_h2:"Inicia sesión con tu clave API",
+    key_sub:"Pega la clave que obtuviste al registrarte — permanece solo en este navegador, nunca se envía a ningún lugar excepto a la propia API de MeraFraud.",
+    api_key_label:"Clave API", load_account:"Cargar mi cuenta",
+    login_h2:"Iniciar sesión con correo electrónico",
+    login_sub:"¿Perdiste tu clave API? Iniciar sesión la recupera por ti — no necesitas memorizarla por separado.",
+    email_label:"Correo electrónico", password_label:"Contraseña", your_password_ph:"Tu contraseña",
+    forgot_h2:"Restablece tu contraseña", forgot_sub:"Introduce el correo con el que te registraste.",
+    send_reset:"Enviar enlace de restablecimiento", reset_token_label:"Token de restablecimiento", reset_token_ph:"Pega el token de arriba",
+    new_password_label:"Nueva contraseña", f_pass_ph:"Al menos 6 caracteres", set_new_password:"Establecer nueva contraseña",
+    signed_in_sub:"Sesión iniciada con tu clave API en este dispositivo",
+    row_store_name:"Nombre de la tienda", row_api_key:"Clave API", row_api_key_test:"Clave de prueba", row_member_since:"Miembro desde",
+    logout_btn:"Cambiar de cuenta / Cerrar sesión", regen_btn:"🔄 Regenerar clave API",
+    usage_h2:"Uso en esta sesión", usage_sub:"Contadores en vivo de tu cuenta",
+    usage_total:"Llamadas totales", usage_approved:"Aprobadas", usage_reviewed:"Revisadas", usage_blocked:"Bloqueadas",
+    export_btn:"📄 Exportar informe de transacciones (CSV)",
+    thresholds_h2:"Umbrales de riesgo",
+    thresholds_sub:"Arrastra para cambiar la sensibilidad de MeraFraud para tu tienda. Surte efecto de inmediato en tu próxima llamada a la API.",
+    review_threshold:"Umbral de revisión", review_desc:"Las puntuaciones por encima de este valor se marcan para revisión manual",
+    block_threshold:"Umbral de bloqueo", block_desc:"Las puntuaciones por encima de este valor se bloquean automáticamente",
+    risk_score_label:"Puntuación de riesgo", save_changes:"Guardar cambios", saved_note:"✓ Guardado",
+    err_paste_key:"Por favor, pega tu clave API.",
+    err_verify_key:"No se pudo verificar esa clave. Comprueba que sea correcta y que la API esté en funcionamiento.",
+    err_both_fields:"Introduce el correo electrónico y la contraseña.",
+    err_account_email:"Introduce el correo electrónico de tu cuenta.",
+    err_token_pass:"Pega el token y elige una contraseña de al menos 6 caracteres.",
+    confirm_regen:"Esto invalidará inmediatamente TANTO tu clave live actual como tu clave de prueba. En cualquier lugar donde ya hayas instalado la clave live (Shopify Flow, plugin de WooCommerce, tu propio servidor), dejará de funcionar hasta que la actualices con la nueva.\n\n¿Continuar?",
+    regen_success:"✓ Nuevas claves generadas (live + prueba). <b>Actualízalas en todos los lugares donde uses MeraFraud</b> — tus claves antiguas ya no funcionan.",
+    export_fail:"No se pudo exportar el informe: ",
+    demo_mode_prefix:"⚠ <b>Modo demo:</b> no se envió ningún correo real (SMTP no configurado). Para esta demo, aquí tienes tu token directamente:",
+    demo_mode_expires:"Caduca en ",
+    demo_mode_minutes:" minutos.",
+    real_email_suffix:" Revisa tu bandeja de entrada (y la carpeta de spam) para ver el código, y luego pégalo abajo.",
+    trial_days_left_prefix:"⏳ Prueba gratuita: ", trial_days_left_suffix:" día(s) restante(s).",
+    trial_no_end_msg:"⏳ Estás en periodo de prueba gratuita.",
+    subscription_inactive_msg:"⚠ Tu suscripción no está activa — las solicitudes a la API están actualmente bloqueadas. Contáctanos para actualizar tu plan.",
+    rules_h2:"Reglas personalizadas",
+    rules_sub:"Añade tus propias reglas SI-ENTONCES además del modelo de ML. Las reglas solo pueden aumentar el riesgo — pueden marcar o bloquear, pero nunca aprobar una transacción riesgosa.",
+    no_rules_msg:"Aún no hay reglas personalizadas.",
+    rule_field_label:"Campo", rule_operator_label:"Operador", rule_value_label:"Valor", rule_action_label:"Acción",
+    action_review:"Marcar para revisión", action_block:"Bloquear", add_rule_btn:"+ Añadir regla",
+    err_rule_value:"Introduce un valor numérico para la regla.",
+    webhook_h2:"Notificaciones",
+    webhook_sub:"Recibe un mensaje de Slack o Discord en el instante en que se bloquea un pedido, además del correo electrónico. Pega una URL de webhook entrante de cualquiera de los dos.",
+    webhook_url_label:"URL del webhook",
+    err_webhook_url:"Eso no parece una URL http(s) válida.",
+    network_h2:"Red antifraude",
+    network_sub:"Reporta fraude confirmado para advertir a otros comerciantes de MeraFraud — y recibe una advertencia cuando ellos reporten al mismo cliente.",
+    network_size_label:"Identificadores marcados en toda la red",
+    network_ip_label:"Dirección IP (opcional)", network_email_label:"Correo electrónico (opcional)", network_device_label:"ID del dispositivo (opcional)",
+    report_fraud_btn:"🚩 Reportar como fraude confirmado", network_report_success:"✓ Reportado",
+    err_report_empty:"Introduce al menos uno de estos: IP, correo electrónico o ID del dispositivo.",
+    outcome_h2:"Seguimiento del resultado del pedido",
+    outcome_sub:"Indica a MeraFraud qué pasó con un pedido para que las futuras puntuaciones de esa cuenta de cliente tengan en cuenta su patrón real (cancelaciones en serie, etc.).",
+    outcome_customer_label:"ID de cliente (el correo/ID enviado como customer_id en el checkout)",
+    outcome_order_label:"ID de pedido (opcional)", outcome_type_label:"Resultado",
+    outcome_placed:"Realizado", outcome_fulfilled:"Completado", outcome_cancelled:"Cancelado",
+    outcome_submit_btn:"Enviar", outcome_success:"✓ Registrado",
+    err_outcome_customer:"Introduce el ID de cliente usado en el checkout.",
+    date_locale:"es-ES"
   }
 };
 
@@ -415,6 +745,7 @@ function renderAccount(t){
   document.getElementById('rowName').textContent = t.name;
   document.getElementById('rowEmail').textContent = t.email || '—';
   document.getElementById('rowKey').textContent = t.api_key;
+  document.getElementById('rowKeyTest').textContent = t.api_key_test || '—';
   const locale = DICT[window.mfLang || 'tr'].date_locale;
   document.getElementById('rowSince').textContent = new Date(t.created_at).toLocaleDateString(locale, { year:'numeric', month:'short', day:'numeric' });
 
@@ -426,6 +757,231 @@ function renderAccount(t){
   document.getElementById('reviewSlider').value = t.thresholds.review;
   document.getElementById('blockSlider').value = t.thresholds.block;
   onSliderChange();
+
+  document.getElementById('webhookUrlInput').value = t.webhook_url || '';
+
+  renderTrialBanner(t);
+  loadRules();
+  loadNetworkStats();
+}
+
+async function saveWebhook(){
+  const d = DICT[window.mfLang || 'tr'];
+  const url = document.getElementById('webhookUrlInput').value.trim();
+  const errorEl = document.getElementById('webhookError');
+  errorEl.classList.remove('show');
+  document.getElementById('webhookNote').classList.remove('show');
+
+  if(url && !/^https?:\/\//.test(url)){
+    errorEl.textContent = d.err_webhook_url;
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const res = await fetch(`${API_BASE}/tenants/webhook`, {
+      method: 'PUT', headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({ webhook_url: url || null })
+    });
+    const dResp = await res.json();
+    if(!res.ok) throw new Error(dResp.error || 'Save failed');
+    document.getElementById('webhookNote').classList.add('show');
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+function renderTrialBanner(t){
+  const d = DICT[window.mfLang || 'tr'];
+  const el = document.getElementById('trialBanner');
+  const status = t.subscription_status || 'trial';
+
+  if(status === 'active'){
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = 'block';
+
+  if(status === 'expired' || status === 'cancelled'){
+    el.style.color = 'var(--block)';
+    el.style.background = 'rgba(251,69,112,0.08)';
+    el.style.borderColor = 'rgba(251,69,112,0.35)';
+    el.innerHTML = d.subscription_inactive_msg;
+    return;
+  }
+
+  // status === 'trial'
+  el.style.color = 'var(--review)';
+  el.style.background = 'rgba(251,191,36,0.08)';
+  el.style.borderColor = 'rgba(251,191,36,0.3)';
+  if(t.trial_ends_at){
+    const end = new Date(t.trial_ends_at);
+    const daysLeft = Math.max(0, Math.ceil((end - new Date()) / 86400000));
+    el.innerHTML = d.trial_days_left_prefix + daysLeft + d.trial_days_left_suffix;
+  } else {
+    el.innerHTML = d.trial_no_end_msg;
+  }
+}
+
+// --- Custom Rules ---
+const RULE_FIELDS = [
+  "transaction_amount","amount_ratio_to_avg","account_age_days","customer_ltv",
+  "time_since_last_tx_min","num_tx_last_24h","hour_of_day","num_items_in_cart",
+  "num_failed_payments_7d","login_attempts_before_purchase","billing_shipping_mismatch",
+  "ip_billing_country_mismatch","new_device","new_payment_method","free_email_domain",
+  "express_shipping"
+];
+(function populateRuleFields(){
+  const sel = document.getElementById('ruleField');
+  RULE_FIELDS.forEach(function(f){
+    const opt = document.createElement('option');
+    opt.value = f; opt.textContent = f;
+    sel.appendChild(opt);
+  });
+})();
+
+async function loadRules(){
+  try{
+    const res = await fetch(`${API_BASE}/rules`, { headers: authHeaders() });
+    if(!res.ok) return;
+    const rules = await res.json();
+    renderRules(rules);
+  }catch(e){ /* non-critical panel, fail silently */ }
+}
+
+function renderRules(rules){
+  const list = document.getElementById('rulesList');
+  const empty = document.getElementById('noRulesMsg');
+  list.innerHTML = '';
+  if(!rules.length){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  rules.forEach(function(r){
+    const row = document.createElement('div');
+    row.className = 'account-row';
+    const label = document.createElement('span');
+    label.className = 'value';
+    label.textContent = `${r.field} ${r.operator} ${r.value} → ${r.action}`;
+    const btn = document.createElement('button');
+    btn.className = 'btn-secondary';
+    btn.style.cssText = 'padding:4px 10px; font-size:11px;';
+    btn.textContent = '✕';
+    btn.onclick = function(){ deleteRule(r.id); };
+    row.appendChild(label);
+    row.appendChild(btn);
+    list.appendChild(row);
+  });
+}
+
+async function addRule(){
+  const d = DICT[window.mfLang || 'tr'];
+  const field = document.getElementById('ruleField').value;
+  const operator = document.getElementById('ruleOperator').value;
+  const value = document.getElementById('ruleValue').value;
+  const action = document.getElementById('ruleAction').value;
+  const errorEl = document.getElementById('ruleError');
+  errorEl.classList.remove('show');
+  if(value === ''){ errorEl.textContent = d.err_rule_value; errorEl.classList.add('show'); return; }
+
+  try{
+    const res = await fetch(`${API_BASE}/rules`, {
+      method: 'POST', headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({ field, operator, value: parseFloat(value), action })
+    });
+    const dResp = await res.json();
+    if(!res.ok) throw new Error(dResp.error || 'Failed');
+    document.getElementById('ruleValue').value = '';
+    loadRules();
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+async function deleteRule(id){
+  try{
+    await fetch(`${API_BASE}/rules/${id}`, { method: 'DELETE', headers: authHeaders() });
+    loadRules();
+  }catch(e){ /* ignore */ }
+}
+
+// --- Fraud Network ---
+async function loadNetworkStats(){
+  try{
+    const res = await fetch(`${API_BASE}/network/stats`);
+    if(!res.ok) return;
+    const s = await res.json();
+    const total = (s.total_reported_ips || 0) + (s.total_reported_emails || 0) + (s.total_reported_devices || 0);
+    document.getElementById('networkSize').textContent = total;
+  }catch(e){ /* ignore */ }
+}
+
+async function reportFraud(){
+  const d = DICT[window.mfLang || 'tr'];
+  const ip = document.getElementById('reportIp').value.trim();
+  const email = document.getElementById('reportEmail').value.trim();
+  const device_id = document.getElementById('reportDevice').value.trim();
+  const errorEl = document.getElementById('reportError');
+  errorEl.classList.remove('show');
+  document.getElementById('reportNote').classList.remove('show');
+
+  if(!ip && !email && !device_id){
+    errorEl.textContent = d.err_report_empty;
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const body = {};
+    if(ip) body.ip = ip;
+    if(email) body.email = email;
+    if(device_id) body.device_id = device_id;
+    const res = await fetch(`${API_BASE}/blacklist/report`, {
+      method: 'POST', headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify(body)
+    });
+    const dResp = await res.json();
+    if(!res.ok) throw new Error(dResp.error || 'Failed');
+    document.getElementById('reportNote').classList.add('show');
+    document.getElementById('reportIp').value = '';
+    document.getElementById('reportEmail').value = '';
+    document.getElementById('reportDevice').value = '';
+    loadNetworkStats();
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+// --- Order Outcome Tracking ---
+async function submitOutcome(){
+  const d = DICT[window.mfLang || 'tr'];
+  const customer_id = document.getElementById('outcomeCustomer').value.trim();
+  const order_id = document.getElementById('outcomeOrder').value.trim();
+  const outcome = document.getElementById('outcomeType').value;
+  const errorEl = document.getElementById('outcomeError');
+  errorEl.classList.remove('show');
+  document.getElementById('outcomeNote').classList.remove('show');
+
+  if(!customer_id){
+    errorEl.textContent = d.err_outcome_customer;
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const body = { customer_id, outcome };
+    if(order_id) body.order_id = order_id;
+    const res = await fetch(`${API_BASE}/orders/outcome`, {
+      method: 'POST', headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify(body)
+    });
+    const dResp = await res.json();
+    if(!res.ok) throw new Error(dResp.error || 'Failed');
+    document.getElementById('outcomeNote').classList.add('show');
+    document.getElementById('outcomeCustomer').value = '';
+    document.getElementById('outcomeOrder').value = '';
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
 }
 
 function onSliderChange(){

@@ -28,6 +28,7 @@ from pathlib import Path
 from functools import wraps
 from collections import defaultdict
 from threading import Lock
+from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 load_dotenv()  # reads .env if present — see .env.example for what goes here
@@ -97,9 +98,60 @@ def require_api_key(f):
         tenant = tenant_store.get_tenant_by_key(api_key)
         if not tenant:
             return jsonify({"error": "Invalid API key"}), 403
+
+        blocked = _check_subscription_gate(tenant)
+        if blocked:
+            return blocked
+
+        # sk_test_... keys authenticate identically to sk_live_... keys but
+        # are flagged here so predict()/predict_batch() can mark the
+        # response and skip billing-relevant usage counters + merchant
+        # alerts for test traffic (see g.api_mode below).
+        g.api_mode = tenant.pop("_matched_key_mode", "live")
         g.tenant = tenant
         return f(*args, **kwargs)
     return wrapper
+
+
+def _check_subscription_gate(tenant: dict):
+    """Returns a (jsonify(...), 402) tuple if this tenant's access should be
+    blocked, or None if the request may proceed. This is the actual
+    enforcement behind trial_ends_at / subscription_status — without this,
+    a tenant's key kept working forever after their trial lapsed, with
+    trial_ends_at tracked in the database but never checked anywhere."""
+    status = tenant.get("subscription_status", "trial")
+    upgrade_url = "https://merafraud.com/website/pricing.html"
+
+    if status == "active":
+        return None
+
+    if status in ("expired", "cancelled"):
+        return jsonify({
+            "error": "This account's subscription is not active.",
+            "reason": status,
+            "upgrade_url": upgrade_url,
+        }), 402
+
+    # status == "trial"
+    trial_ends_at = tenant.get("trial_ends_at")
+    if not trial_ends_at:
+        return None  # trial with no end date (e.g. legacy rows) — treat as unrestricted
+    try:
+        ends = datetime.fromisoformat(trial_ends_at)
+    except ValueError:
+        return None
+    if ends.tzinfo is None:
+        ends = ends.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) >= ends:
+        # Flip the stored status so /api/tenants/me and the admin panel show
+        # "expired" instead of a trial that quietly stopped working.
+        tenant_store.set_subscription_status(tenant["id"], "expired")
+        return jsonify({
+            "error": "Your free trial has ended.",
+            "reason": "trial_expired",
+            "upgrade_url": upgrade_url,
+        }), 402
+    return None
 
 
 # --- Lightweight rate limiting for public, unauthenticated endpoints ---
@@ -300,14 +352,22 @@ def predict():
     level, rule_reasons = custom_rules.evaluate_rules(g.tenant["id"], row, level)
     reasons = rule_reasons + reasons
 
-    tenant_store.record_usage(g.tenant["id"], level)
-    transaction_log.log_transaction(g.tenant["id"], row, score, level, customer_id)
+    # Test-mode calls (sk_test_... key) score exactly like live calls, but
+    # don't count toward billing/usage counters and never page the merchant
+    # — otherwise every integration test would inflate real usage stats and
+    # fire real block alerts for fake data.
+    if g.api_mode == "live":
+        tenant_store.record_usage(g.tenant["id"], level)
+        transaction_log.log_transaction(g.tenant["id"], row, score, level, customer_id)
 
-    # Auto-notify the merchant by email on a block, if they have email configured
-    if level == "block" and g.tenant.get("email"):
-        email_service.send_fraud_alert_email(
-            g.tenant["email"], g.tenant["name"], score, reasons[:3], row.get("transaction_amount")
-        )
+        if level == "block" and g.tenant.get("email"):
+            email_service.send_fraud_alert_email(
+                g.tenant["email"], g.tenant["name"], score, reasons[:3], row.get("transaction_amount")
+            )
+        if level == "block" and g.tenant.get("webhook_url"):
+            email_service.send_webhook_alert(
+                g.tenant["webhook_url"], g.tenant["name"], score, reasons[:3], row.get("transaction_amount")
+            )
 
     response = {
         "risk_score": round(score, 4),
@@ -315,6 +375,7 @@ def predict():
         "reasons": reasons,
         "thresholds": thresholds,
         "tenant": g.tenant["name"],
+        "mode": g.api_mode,           # "live" or "test"
         "scored_at": time.time(),
     }
     if customer_risk is not None:
@@ -351,7 +412,8 @@ def predict_batch():
     results = []
     for i, (row, score) in enumerate(zip(rows, scores)):
         level = risk_level(float(score), thresholds)
-        tenant_store.record_usage(g.tenant["id"], level)
+        if g.api_mode == "live":
+            tenant_store.record_usage(g.tenant["id"], level)
         results.append({
             "index": i,
             "risk_score": round(float(score), 4),
@@ -359,7 +421,7 @@ def predict_batch():
             "reasons": top_reasons(row),
         })
 
-    return jsonify({"results": results, "errors": errors, "count": len(results)})
+    return jsonify({"results": results, "errors": errors, "count": len(results), "mode": g.api_mode})
 
 
 @app.route("/api/feature-importance", methods=["GET"])
@@ -519,6 +581,27 @@ def set_tenant_trial(tenant_id):
         return jsonify({"error": "'days' must be a positive integer"}), 400
 
     updated = tenant_store.set_trial_end(tenant_id, days)
+    if not updated:
+        return jsonify({"error": "Tenant not found"}), 404
+    return jsonify(tenant_store.public_view(updated))
+
+
+@app.route("/api/tenants/<tenant_id>/subscription", methods=["PUT"])
+def set_tenant_subscription(tenant_id):
+    """Admin-only: manually mark a tenant active/cancelled/expired/trial.
+    This is the stand-in for real billing enforcement until a payment
+    gateway is live — e.g. confirm a bank transfer, then PUT status=active
+    so that tenant is never gated by the trial-expiry check."""
+    admin_key = request.headers.get("X-Admin-Key")
+    if not admin_key or admin_key != ADMIN_API_KEY:
+        return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
+
+    payload = request.get_json(force=True, silent=True) or {}
+    status = payload.get("status")
+    if status not in ("trial", "active", "expired", "cancelled"):
+        return jsonify({"error": "'status' must be one of: trial, active, expired, cancelled"}), 400
+
+    updated = tenant_store.set_subscription_status(tenant_id, status)
     if not updated:
         return jsonify({"error": "Tenant not found"}), 404
     return jsonify(tenant_store.public_view(updated))
@@ -737,6 +820,19 @@ def update_my_thresholds():
         return jsonify({"error": "must satisfy 0 <= review < block <= 1"}), 400
     updated = tenant_store.update_thresholds(g.tenant["id"], {"block": block, "review": review})
     return jsonify(updated)
+
+
+@app.route("/api/tenants/webhook", methods=["PUT"])
+@require_api_key
+def update_my_webhook():
+    """Sets or clears the calling tenant's Slack/Discord/generic incoming-
+    webhook URL. Send {"webhook_url": null} (or omit it) to disable."""
+    payload = request.get_json(force=True, silent=True) or {}
+    webhook_url = payload.get("webhook_url")
+    if webhook_url and not (webhook_url.startswith("http://") or webhook_url.startswith("https://")):
+        return jsonify({"error": "'webhook_url' must be a valid http(s) URL, or null/empty to disable"}), 400
+    updated = tenant_store.update_webhook(g.tenant["id"], webhook_url)
+    return jsonify(tenant_store.public_view(updated))
 
 
 # ---------------------------------------------------------------------------

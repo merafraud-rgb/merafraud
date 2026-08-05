@@ -85,6 +85,9 @@
   <div class="lang-switch">
     <button type="button" class="lang-btn" data-lang="tr">TR</button>
     <button type="button" class="lang-btn" data-lang="en">EN</button>
+  <button type="button" class="lang-btn" data-lang="de">DE</button>
+  <button type="button" class="lang-btn" data-lang="fr">FR</button>
+  <button type="button" class="lang-btn" data-lang="es">ES</button>
   </div>
 </header>
 
@@ -198,6 +201,18 @@ Body:
 <pre class="code-block">&lt;img src="merafraud-trust-badge.svg" alt="Protected by MeraFraud" width="240" height="64"&gt;</pre>
         </div>
       </div>
+
+      <div class="q-step">
+        <div class="q-num"></div>
+        <div style="flex:1;">
+          <h3 data-i18n="qs7_h">Full API reference</h3>
+          <p data-i18n="qs7_p">Every endpoint — scoring, custom rules, the fraud network, account management — in machine-readable form for your IDE, Postman, or codegen tool.</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+            <a href="openapi.yaml" download class="badge-preview" style="display:inline-block; padding:10px 16px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); text-decoration:none; color:inherit; font-size:13.5px;" data-i18n="qs7_openapi">⬇ Download openapi.yaml</a>
+            <a href="postman_collection.json" download class="badge-preview" style="display:inline-block; padding:10px 16px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); text-decoration:none; color:inherit; font-size:13.5px;" data-i18n="qs7_postman">⬇ Download Postman collection</a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="callout" data-i18n="callout_help">
@@ -270,6 +285,10 @@ Body:
       qs5_p2:"<code>outcome</code> is one of <code>placed</code>, <code>cancelled</code>, <code>fulfilled</code>.",
       qs6_h:"Show customers you're protected",
       qs6_p:"Add the MeraFraud trust badge to your checkout page footer — a small, honest signal that reduces cart-abandonment hesitation.",
+      qs7_h:"Full API reference",
+      qs7_p:"Every endpoint — scoring, custom rules, the fraud network, account management — in machine-readable form for your IDE, Postman, or codegen tool.",
+      qs7_openapi:"⬇ Download openapi.yaml",
+      qs7_postman:"⬇ Download Postman collection",
       callout_help:"💡 Prefer a no-code setup instead? Check the <a href=\"integrations.html\" style=\"color:var(--cyan);\">Connect Your Store</a> guides for WooCommerce, Shopify, and Shopier. Stuck on something? Email <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--cyan);\">hello@merafraud.com</a>.",
       footer_tagline:"AI-powered fraud detection built for small and medium e-commerce businesses.",
       footer_product:"Product", footer_company:"Company",
@@ -303,11 +322,126 @@ Body:
       qs5_p2:"<code>outcome</code>, <code>placed</code>, <code>cancelled</code>, <code>fulfilled</code> değerlerinden biridir.",
       qs6_h:"Müşterilere korunduğunuzu gösterin",
       qs6_p:"MeraFraud güven rozetini ödeme sayfanızın altına ekleyin — sepet terk oranını azaltan küçük, dürüst bir sinyal.",
+      qs7_h:"Tam API referansı",
+      qs7_p:"Skorlama, özel kurallar, dolandırıcılık ağı, hesap yönetimi dahil tüm uç noktalar — IDE'niz, Postman veya kod üretim aracınız için makine-okunur biçimde.",
+      qs7_openapi:"⬇ openapi.yaml indir",
+      qs7_postman:"⬇ Postman koleksiyonunu indir",
       callout_help:"💡 Kodsuz bir kurulumu mu tercih edersiniz? WooCommerce, Shopify ve Shopier için <a href=\"integrations.html\" style=\"color:var(--cyan);\">Mağazanızı Bağlayın</a> rehberlerine bakın. Bir yerde takıldınız mı? <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--cyan);\">hello@merafraud.com</a> adresine yazın.",
       footer_tagline:"Küçük ve orta ölçekli e-ticaret işletmeleri için yapay zeka destekli dolandırıcılık tespiti.",
       footer_product:"Ürün", footer_company:"Şirket",
       footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
       footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    },
+    de: {
+      nav_home:"Startseite", nav_about:"Über uns", nav_pricing:"Preise", nav_contact:"Kontakt",
+      nav_integrations:"Shop verbinden", nav_docs:"Dokumentation", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Loslegen",
+      hero_eyebrow:"Entwicklerdokumentation", hero_h1:"In etwa 5 Minuten integriert.",
+      hero_lede:"MeraFraud bewertet das Betrugsrisiko einer Transaktion in Echtzeit und liefert eine Entscheidung: freigeben, prüfen oder blockieren. Diese Seite enthält alles, was ein Entwickler zur Anbindung braucht.",
+      qs1_h:"Holen Sie sich Ihren API-Schlüssel",
+      qs1_p:"Melden Sie sich unter <code>merafraud.com/dashboard/signup.html</code> mit Ihrem Shopnamen und Ihrer E-Mail an. Sie erhalten sofort einen API-Schlüssel (beginnt mit <code>sk_live_...</code>). Halten Sie ihn geheim — behandeln Sie ihn wie ein Passwort.",
+      qs2_h:"Stellen Sie Ihre erste Anfrage",
+      qs2_p:"Rufen Sie diesen Endpunkt unmittelbar vor der Zahlungsannahme auf (z. B. wenn der Kunde auf „Bestellung aufgeben“ klickt):",
+      qs2_p2:"Alle 16 oben genannten Felder sind erforderlich — es sind die Signale, mit denen das ML-Modell trainiert wurde. Falls Ihre Plattform eines noch nicht erfasst, senden Sie einen sinnvollen Standardwert; die Genauigkeit verbessert sich, je mehr echte Daten Sie im Lauf der Zeit hinzufügen.",
+      qs3_h:"Lesen Sie die Antwort",
+      qs3_p:"<code>approve</code> → Bestellung durchlassen. <code>review</code> → durchlassen, aber zur menschlichen Überprüfung kennzeichnen. <code>block</code> → Zahlung nicht verarbeiten.",
+      qs4_h:"Optionale Felder, die es schlauer machen",
+      qs4_p:"Keines davon ist erforderlich, aber jedes, das Sie hinzufügen, schaltet ein zusätzliches Betrugserkennungssignal frei:",
+      th_field:"Feld", th_unlocks:"Was es freischaltet",
+      opt_customer_id:"Verfolgt wiederholtes Stornierungsverhalten pro Kunde über die Zeit",
+      opt_customer_ip:"Erkennt Proxy-/VPN-/Rechenzentrums-IPs und IP-vs-Rechnungsland-Abweichungen",
+      opt_customer_phone:"Kennzeichnet fehlerhaft formatierte/gefälscht wirkende Telefonnummern",
+      opt_card_bin:"Nur die ersten 6–8 Ziffern der Karte (nie die vollständige Nummer) — kennzeichnet Karten-Land-vs-Rechnungsland-Abweichungen",
+      opt_billing_country:"ISO-2-Buchstaben-Code (z. B. „TR“, „DE“) — erforderlich, damit die BIN- und Postleitzahl-Prüfungen funktionieren",
+      opt_postal_code:"Kennzeichnet Postleitzahlen, die im angegebenen Land nicht existieren",
+      opt_billing_city:"Kennzeichnet eine Postleitzahl, die nicht zur angegebenen Stadt passt",
+      qs5_h:"Teilen Sie MeraFraud mit, was tatsächlich passiert ist",
+      qs5_p:"Optional, aber empfohlen: Wenn eine Bestellung storniert, erfüllt oder aufgegeben wird, melden Sie dies, damit zukünftige Bewertungen für denselben Kunden intelligenter werden.",
+      qs5_p2:"<code>outcome</code> ist eines von <code>placed</code>, <code>cancelled</code>, <code>fulfilled</code>.",
+      qs6_h:"Zeigen Sie Kunden, dass Sie geschützt sind",
+      qs6_p:"Fügen Sie das MeraFraud-Vertrauenssiegel in die Fußzeile Ihrer Checkout-Seite ein — ein kleines, ehrliches Signal, das die Zurückhaltung beim Kaufabbruch verringert.",
+      qs7_h:"Vollständige API-Referenz",
+      qs7_p:"Jeder Endpunkt — Scoring, individuelle Regeln, das Betrugsnetzwerk, Kontoverwaltung — in maschinenlesbarer Form für Ihre IDE, Postman oder Ihr Codegen-Tool.",
+      qs7_openapi:"⬇ openapi.yaml herunterladen",
+      qs7_postman:"⬇ Postman-Sammlung herunterladen",
+      callout_help:"💡 Bevorzugen Sie eine No-Code-Einrichtung? Sehen Sie sich die <a href=\"integrations.html\" style=\"color:var(--cyan);\">Shop verbinden</a>-Anleitungen für WooCommerce, Shopify und Shopier an. Kommen Sie nicht weiter? Schreiben Sie an <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--cyan);\">hello@merafraud.com</a>.",
+      footer_tagline:"KI-gestützte Betrugserkennung für kleine und mittlere E-Commerce-Unternehmen.",
+      footer_product:"Produkt", footer_company:"Unternehmen",
+      footer_legal:"Rechtliches", footer_privacy:"Datenschutzerklärung", footer_terms:"Nutzungsbedingungen",
+      footer_copy:"© 2026 MeraFraud. Alle Rechte vorbehalten."
+    },
+    fr: {
+      nav_home:"Accueil", nav_about:"À propos", nav_pricing:"Tarifs", nav_contact:"Contact",
+      nav_integrations:"Connecter votre boutique", nav_docs:"Documentation", nav_support:"Support", nav_dashboard:"Tableau de bord", nav_cta:"Commencer",
+      hero_eyebrow:"Documentation développeur", hero_h1:"Intégré en environ 5 minutes.",
+      hero_lede:"MeraFraud note le risque de fraude d'une transaction en temps réel et renvoie une décision : approuver, examiner ou bloquer. Cette page contient tout ce dont un développeur a besoin pour l'intégrer.",
+      qs1_h:"Obtenez votre clé API",
+      qs1_p:"Inscrivez-vous sur <code>merafraud.com/dashboard/signup.html</code> avec le nom de votre boutique et votre e-mail. Vous obtenez immédiatement une clé API (commence par <code>sk_live_...</code>). Gardez-la secrète — traitez-la comme un mot de passe.",
+      qs2_h:"Effectuez votre première requête",
+      qs2_p:"Appelez ce point d'accès juste avant d'accepter un paiement (par ex. quand le client clique sur « Passer la commande ») :",
+      qs2_p2:"Les 16 champs ci-dessus sont tous requis — ce sont les signaux sur lesquels le modèle ML a été entraîné. Si votre plateforme n'en suit pas encore un, envoyez une valeur par défaut raisonnable ; la précision s'améliore à mesure que vous ajoutez de vraies données.",
+      qs3_h:"Lisez la réponse",
+      qs3_p:"<code>approve</code> → laissez passer la commande. <code>review</code> → laissez-la passer mais signalez-la pour une vérification humaine. <code>block</code> → ne traitez pas le paiement.",
+      qs4_h:"Champs optionnels qui la rendent plus intelligente",
+      qs4_p:"Aucun de ces champs n'est requis, mais chacun que vous ajoutez active un signal supplémentaire de détection de fraude :",
+      th_field:"Champ", th_unlocks:"Ce qu'il débloque",
+      opt_customer_id:"Suit le comportement d'annulations répétées par client au fil du temps",
+      opt_customer_ip:"Détecte les IP proxy/VPN/datacenter et les incohérences IP-pays de facturation",
+      opt_customer_phone:"Signale les numéros de téléphone mal formés ou d'apparence fausse",
+      opt_card_bin:"Seulement les 6 à 8 premiers chiffres de la carte (jamais le numéro complet) — signale les incohérences pays de la carte / pays de facturation",
+      opt_billing_country:"Code ISO à 2 lettres (par ex. « TR », « DE ») — requis pour que les vérifications BIN et postales fonctionnent",
+      opt_postal_code:"Signale les codes postaux qui n'existent pas dans le pays indiqué",
+      opt_billing_city:"Signale un code postal qui ne correspond pas à la ville indiquée",
+      qs5_h:"Dites à MeraFraud ce qui s'est réellement passé",
+      qs5_p:"Facultatif mais recommandé : lorsqu'une commande est annulée, honorée ou passée, signalez-le afin que les futurs scores pour ce même client soient plus intelligents.",
+      qs5_p2:"<code>outcome</code> est l'une des valeurs <code>placed</code>, <code>cancelled</code>, <code>fulfilled</code>.",
+      qs6_h:"Montrez à vos clients que vous êtes protégé",
+      qs6_p:"Ajoutez le badge de confiance MeraFraud au pied de votre page de paiement — un petit signal honnête qui réduit l'hésitation liée à l'abandon de panier.",
+      qs7_h:"Référence API complète",
+      qs7_p:"Chaque point d'accès — notation, règles personnalisées, réseau anti-fraude, gestion de compte — sous forme lisible par machine pour votre IDE, Postman ou outil de génération de code.",
+      qs7_openapi:"⬇ Télécharger openapi.yaml",
+      qs7_postman:"⬇ Télécharger la collection Postman",
+      callout_help:"💡 Vous préférez une configuration sans code ? Consultez les guides <a href=\"integrations.html\" style=\"color:var(--cyan);\">Connecter votre boutique</a> pour WooCommerce, Shopify et Shopier. Vous êtes bloqué ? Écrivez à <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--cyan);\">hello@merafraud.com</a>.",
+      footer_tagline:"Détection de fraude propulsée par l'IA, conçue pour les petites et moyennes entreprises e-commerce.",
+      footer_product:"Produit", footer_company:"Entreprise",
+      footer_legal:"Mentions légales", footer_privacy:"Politique de confidentialité", footer_terms:"Conditions d'utilisation",
+      footer_copy:"© 2026 MeraFraud. Tous droits réservés."
+    },
+    es: {
+      nav_home:"Inicio", nav_about:"Nosotros", nav_pricing:"Precios", nav_contact:"Contacto",
+      nav_integrations:"Conecta tu tienda", nav_docs:"Documentación", nav_support:"Soporte", nav_dashboard:"Panel", nav_cta:"Empezar",
+      hero_eyebrow:"Documentación para desarrolladores", hero_h1:"Intégrate en unos 5 minutos.",
+      hero_lede:"MeraFraud puntúa el riesgo de fraude de una transacción en tiempo real y devuelve una decisión: aprobar, revisar o bloquear. Esta página tiene todo lo que un desarrollador necesita para integrarlo.",
+      qs1_h:"Obtén tu clave API",
+      qs1_p:"Regístrate en <code>merafraud.com/dashboard/signup.html</code> con el nombre de tu tienda y tu correo. Obtendrás una clave API al instante (empieza con <code>sk_live_...</code>). Mantenla en secreto — trátala como una contraseña.",
+      qs2_h:"Haz tu primera solicitud",
+      qs2_p:"Llama a este endpoint justo antes de aceptar un pago (p. ej. cuando el cliente hace clic en \"Realizar pedido\"):",
+      qs2_p2:"Los 16 campos anteriores son obligatorios — son las señales con las que se entrenó el modelo de ML. Si tu plataforma aún no rastrea alguno, envía un valor predeterminado razonable; la precisión mejora a medida que añades más datos reales con el tiempo.",
+      qs3_h:"Lee la respuesta",
+      qs3_p:"<code>approve</code> → deja pasar el pedido. <code>review</code> → déjalo pasar pero márcalo para revisión humana. <code>block</code> → no proceses el pago.",
+      qs4_h:"Campos opcionales que lo hacen más inteligente",
+      qs4_p:"Ninguno de estos es obligatorio, pero cada uno que añadas activa una señal extra de detección de fraude:",
+      th_field:"Campo", th_unlocks:"Qué desbloquea",
+      opt_customer_id:"Rastrea el comportamiento de cancelaciones repetidas por cliente a lo largo del tiempo",
+      opt_customer_ip:"Detecta IPs de proxy/VPN/centro de datos y discrepancias IP-vs-país de facturación",
+      opt_customer_phone:"Marca números de teléfono mal formados o de aspecto falso",
+      opt_card_bin:"Solo los primeros 6–8 dígitos de la tarjeta (nunca el número completo) — marca discrepancias entre el país de la tarjeta y el de facturación",
+      opt_billing_country:"Código ISO de 2 letras (p. ej. \"TR\", \"DE\") — necesario para que funcionen las comprobaciones de BIN y código postal",
+      opt_postal_code:"Marca códigos postales que no existen en el país indicado",
+      opt_billing_city:"Marca un código postal que no coincide con la ciudad indicada",
+      qs5_h:"Dile a MeraFraud lo que realmente pasó",
+      qs5_p:"Opcional pero recomendado: cuando un pedido se cancela, se completa o se realiza, repórtalo para que las futuras puntuaciones de ese mismo cliente sean más inteligentes.",
+      qs5_p2:"<code>outcome</code> es uno de <code>placed</code>, <code>cancelled</code>, <code>fulfilled</code>.",
+      qs6_h:"Muestra a tus clientes que estás protegido",
+      qs6_p:"Añade el sello de confianza de MeraFraud al pie de tu página de pago — una señal pequeña y honesta que reduce la duda que lleva al abandono del carrito.",
+      qs7_h:"Referencia completa de la API",
+      qs7_p:"Cada endpoint — puntuación, reglas personalizadas, red antifraude, gestión de cuenta — en formato legible por máquina para tu IDE, Postman o herramienta de generación de código.",
+      qs7_openapi:"⬇ Descargar openapi.yaml",
+      qs7_postman:"⬇ Descargar colección de Postman",
+      callout_help:"💡 ¿Prefieres una configuración sin código? Consulta las guías <a href=\"integrations.html\" style=\"color:var(--cyan);\">Conecta tu tienda</a> para WooCommerce, Shopify y Shopier. ¿Atascado en algo? Escribe a <a href=\"mailto:hello@merafraud.com\" style=\"color:var(--cyan);\">hello@merafraud.com</a>.",
+      footer_tagline:"Detección de fraude impulsada por IA, creada para pequeñas y medianas empresas de e-commerce.",
+      footer_product:"Producto", footer_company:"Empresa",
+      footer_legal:"Legal", footer_privacy:"Política de privacidad", footer_terms:"Términos de servicio",
+      footer_copy:"© 2026 MeraFraud. Todos los derechos reservados."
     }
   };
   function apply(lang){

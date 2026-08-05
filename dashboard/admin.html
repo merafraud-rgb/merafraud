@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — MeraFraud</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="../website/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0620; --purple-1:#4c1d95; --purple-2:#7c3aed; --pink-1:#ec4899; --pink-2:#f472b6;
+    --cyan:#22d3ee; --text-hi:#f5f3ff; --text-lo:#b8aee0; --safe:#34d399; --review:#fbbf24; --block:#fb4570;
+    --card-bg:rgba(255,255,255,0.045); --card-border:rgba(255,255,255,0.09); --radius:18px;
+    font-family:'Space Grotesk', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background:
+      radial-gradient(circle at 12% -10%, rgba(124,58,237,0.55), transparent 40%),
+      radial-gradient(circle at 90% 8%, rgba(236,72,153,0.35), transparent 45%),
+      var(--bg-deep);
+    color:var(--text-hi); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 24px 80px;}
+  header{ display:flex; align-items:center; justify-content:space-between; padding:28px 0 20px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:32px; }
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-mark{
+    width:34px; height:34px;
+    background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  }
+  .logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:22px; }
+  .logo-text span{color:var(--pink-2);}
+  .badge-internal{ font-size:11px; color:var(--review); background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); padding:4px 10px; border-radius:999px; }
+  .back-link{ font-size:13px; color:var(--text-lo); text-decoration:none; }
+  .back-link:hover{ color:var(--pink-2); }
+
+  h1{ font-family:'Fraunces', serif; font-weight:600; font-size:26px; margin-bottom:6px; }
+  .lede{ color:var(--text-lo); font-size:13.5px; margin-bottom:28px; }
+
+  .panel{ background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius); padding:24px; margin-bottom:20px; }
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+  .field label{ font-size:12.5px; color:var(--text-lo); }
+  .field input{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px; width:100%; max-width:420px;
+  }
+  .field input:focus{ outline:none; border-color:var(--pink-1); }
+  .btn-primary{
+    padding:11px 20px; border:none; border-radius:10px; font-family:'Space Grotesk'; font-weight:600;
+    font-size:13px; color:#fff; cursor:pointer; background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+  }
+  .btn-secondary{
+    padding:7px 12px; border-radius:8px; font-size:11.5px; background:transparent;
+    border:1px solid var(--card-border); color:var(--text-hi); cursor:pointer; white-space:nowrap;
+  }
+  .btn-secondary:hover{ border-color:var(--pink-1); }
+  .btn-danger{
+    padding:7px 12px; border-radius:8px; font-size:11.5px; cursor:pointer;
+    background:rgba(251,69,112,0.1); border:1px solid rgba(251,69,112,0.35); color:var(--block); white-space:nowrap;
+  }
+  .error-msg{ color:var(--block); font-size:13px; margin-top:10px; display:none; }
+  .error-msg.show{ display:block; }
+
+  .summary-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:24px; }
+  .summary-card{ text-align:center; padding:16px 8px; background:rgba(0,0,0,0.2); border-radius:12px; }
+  .summary-card .n{ font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600; }
+  .summary-card .l{ font-size:10.5px; color:var(--text-lo); margin-top:4px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  th{ text-align:left; color:var(--text-lo); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.03em; padding:8px 10px; border-bottom:1px solid var(--card-border); }
+  td{ padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); vertical-align:middle; }
+  tr:hover td{ background:rgba(255,255,255,0.02); }
+  .mono{ font-family:'JetBrains Mono',monospace; font-size:11.5px; }
+  .status-pill{ font-size:10.5px; font-weight:600; padding:3px 9px; border-radius:999px; display:inline-block; }
+  .status-trial{ background:rgba(251,191,36,0.12); color:var(--review); border:1px solid rgba(251,191,36,0.3); }
+  .status-active{ background:rgba(52,211,153,0.12); color:var(--safe); border:1px solid rgba(52,211,153,0.3); }
+  .status-expired,.status-cancelled{ background:rgba(251,69,112,0.12); color:var(--block); border:1px solid rgba(251,69,112,0.3); }
+  .actions{ display:flex; gap:6px; flex-wrap:wrap; }
+  #loadedState{ display:none; }
+  .empty-note{ font-size:13px; color:var(--text-lo); padding:20px 0; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="../website/index.html" class="logo">
+      <div class="logo-mark"></div>
+      <div class="logo-text">Mera<span>Fraud</span></div>
+    </a>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <span class="badge-internal">🔒 Internal — Admin Only</span>
+      <a class="back-link" href="index.html">← Panele dön</a>
+    </div>
+  </header>
+
+  <h1>Yönetim Paneli</h1>
+  <p class="lede">Tüm tenant'ları görüntüle, deneme sürelerini uzat, abonelik durumunu değiştir. Bu sayfa sitede hiçbir yerden linklenmez ve arama motorlarından gizlenir — sadece bu URL'yi bilen erişebilir.</p>
+
+  <div class="panel" id="keyPanel">
+    <div class="field">
+      <label>X-Admin-Key</label>
+      <input type="password" id="adminKeyInput" placeholder="Render'da ayarladığınız ADMIN_API_KEY">
+    </div>
+    <button class="btn-primary" onclick="loadTenants()">Yükle</button>
+    <div class="error-msg" id="loadError"></div>
+  </div>
+
+  <div id="loadedState">
+    <div class="summary-grid">
+      <div class="summary-card"><div class="n" id="sTotal">0</div><div class="l">Toplam tenant</div></div>
+      <div class="summary-card"><div class="n" id="sTrial">0</div><div class="l">Denemede</div></div>
+      <div class="summary-card"><div class="n" id="sActive">0</div><div class="l">Aktif (ödeyen)</div></div>
+      <div class="summary-card"><div class="n" id="sExpired">0</div><div class="l">Süresi dolmuş/iptal</div></div>
+    </div>
+
+    <div class="panel" style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Mağaza</th><th>E-posta</th><th>Durum</th><th>Deneme bitişi</th>
+            <th>Kullanım (toplam/engellenen)</th><th>Kayıt tarihi</th><th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody id="tenantsBody"></tbody>
+      </table>
+      <div class="empty-note" id="emptyNote" style="display:none;">Henüz tenant yok.</div>
+    </div>
+    <button class="btn-secondary" onclick="loadTenants()">↻ Yenile</button>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://merafraud-apimerafraud-api-v2.onrender.com/api";
+
+function adminHeaders(){
+  return { "X-Admin-Key": localStorage.getItem('merafraud_admin_key') || '' };
+}
+
+function statusLabel(status){
+  const map = { trial:"Denemede", active:"Aktif", expired:"Süresi doldu", cancelled:"İptal edildi" };
+  return map[status] || status;
+}
+
+function daysLeft(trialEndsAt){
+  if(!trialEndsAt) return "—";
+  const diff = Math.ceil((new Date(trialEndsAt) - new Date()) / 86400000);
+  if(diff < 0) return "süresi doldu";
+  return diff + " gün";
+}
+
+async function loadTenants(){
+  const key = document.getElementById('adminKeyInput').value.trim();
+  const errorEl = document.getElementById('loadError');
+  errorEl.classList.remove('show');
+  if(key) localStorage.setItem('merafraud_admin_key', key);
+
+  try{
+    const res = await fetch(`${API_BASE}/tenants`, { headers: adminHeaders() });
+    if(!res.ok){
+      const d = await res.json().catch(()=>({}));
+      throw new Error(d.error || 'Yüklenemedi — admin key doğru mu?');
+    }
+    const tenants = await res.json();
+    renderTenants(tenants);
+    document.getElementById('loadedState').style.display = 'block';
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+function renderTenants(tenants){
+  const body = document.getElementById('tenantsBody');
+  const empty = document.getElementById('emptyNote');
+  body.innerHTML = '';
+
+  if(!tenants.length){
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+  }
+
+  let counts = { trial:0, active:0, expired:0, cancelled:0 };
+  tenants.forEach(function(t){
+    const status = t.subscription_status || 'trial';
+    counts[status] = (counts[status] || 0) + 1;
+
+    const tr = document.createElement('tr');
+
+    const created = t.created_at ? new Date(t.created_at).toLocaleDateString('tr-TR', {year:'numeric', month:'short', day:'numeric'}) : '—';
+
+    tr.innerHTML = `
+      <td>${t.name || '—'}</td>
+      <td class="mono">${t.email || '—'}</td>
+      <td><span class="status-pill status-${status}">${statusLabel(status)}</span></td>
+      <td class="mono">${status === 'trial' ? daysLeft(t.trial_ends_at) : '—'}</td>
+      <td class="mono">${(t.usage && t.usage.total_calls) || 0} / ${(t.usage && t.usage.blocked) || 0}</td>
+      <td class="mono">${created}</td>
+    `;
+
+    const actionsTd = document.createElement('td');
+    actionsTd.className = 'actions';
+
+    const extendBtn = document.createElement('button');
+    extendBtn.className = 'btn-secondary';
+    extendBtn.textContent = '+ Süre uzat';
+    extendBtn.onclick = function(){ extendTrial(t.id); };
+    actionsTd.appendChild(extendBtn);
+
+    if(status !== 'active'){
+      const activeBtn = document.createElement('button');
+      activeBtn.className = 'btn-secondary';
+      activeBtn.textContent = 'Aktif yap';
+      activeBtn.onclick = function(){ setStatus(t.id, 'active'); };
+      actionsTd.appendChild(activeBtn);
+    }
+    if(status !== 'cancelled'){
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'btn-danger';
+      cancelBtn.textContent = 'İptal et';
+      cancelBtn.onclick = function(){ setStatus(t.id, 'cancelled'); };
+      actionsTd.appendChild(cancelBtn);
+    }
+
+    tr.appendChild(actionsTd);
+    body.appendChild(tr);
+  });
+
+  document.getElementById('sTotal').textContent = tenants.length;
+  document.getElementById('sTrial').textContent = counts.trial;
+  document.getElementById('sActive').textContent = counts.active;
+  document.getElementById('sExpired').textContent = counts.expired + counts.cancelled;
+}
+
+async function extendTrial(tenantId){
+  const days = prompt('Kaç gün eklensin (bugünden itibaren)?', '30');
+  if(!days || isNaN(parseInt(days))) return;
+  try{
+    const res = await fetch(`${API_BASE}/tenants/${tenantId}/trial`, {
+      method: 'PUT', headers: { ...adminHeaders(), 'Content-Type':'application/json' },
+      body: JSON.stringify({ days: parseInt(days) })
+    });
+    if(!res.ok){ const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Başarısız'); }
+    loadTenants();
+  }catch(e){ alert(e.message); }
+}
+
+async function setStatus(tenantId, status){
+  if(!confirm(`Bu tenant'ı "${statusLabel(status)}" durumuna geçirmek istediğinize emin misiniz?`)) return;
+  try{
+    const res = await fetch(`${API_BASE}/tenants/${tenantId}/subscription`, {
+      method: 'PUT', headers: { ...adminHeaders(), 'Content-Type':'application/json' },
+      body: JSON.stringify({ status })
+    });
+    if(!res.ok){ const d = await res.json().catch(()=>({})); throw new Error(d.error || 'Başarısız'); }
+    loadTenants();
+  }catch(e){ alert(e.message); }
+}
+
+(function init(){
+  const stored = localStorage.getItem('merafraud_admin_key');
+  if(stored){
+    document.getElementById('adminKeyInput').value = stored;
+    loadTenants();
+  }
+})();
+</script>
+</body>
+</html>

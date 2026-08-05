@@ -73,6 +73,9 @@
   <div class="lang-switch">
     <button type="button" class="lang-btn" data-lang="tr">TR</button>
     <button type="button" class="lang-btn" data-lang="en">EN</button>
+  <button type="button" class="lang-btn" data-lang="de">DE</button>
+  <button type="button" class="lang-btn" data-lang="fr">FR</button>
+  <button type="button" class="lang-btn" data-lang="es">ES</button>
   </div>
 </header>
 
@@ -188,6 +191,27 @@ const CONTACT_NOTES = {
     success: "Gönderildi — e-postanıza doğrudan yanıt vereceğiz.",
     errorFields: "Lütfen adınızı, e-postanızı ve bir mesaj girin.",
     errorSend: "Şu anda gönderilemedi — lütfen tekrar deneyin ya da hello@merafraud.com adresine doğrudan yazın."
+  },
+  de: {
+    default: "Wir antworten in der Regel innerhalb eines Werktags.",
+    sending: "Wird gesendet…",
+    success: "Gesendet — wir antworten direkt auf Ihre E-Mail.",
+    errorFields: "Bitte geben Sie Ihren Namen, Ihre E-Mail und eine Nachricht ein.",
+    errorSend: "Konnte gerade nicht gesendet werden — bitte versuchen Sie es erneut oder schreiben Sie direkt an hello@merafraud.com."
+  },
+  fr: {
+    default: "Nous répondons généralement sous un jour ouvré.",
+    sending: "Envoi…",
+    success: "Envoyé — nous répondrons directement à votre e-mail.",
+    errorFields: "Veuillez renseigner votre nom, votre e-mail et un message.",
+    errorSend: "Impossible d'envoyer pour le moment — veuillez réessayer, ou écrivez directement à hello@merafraud.com."
+  },
+  es: {
+    default: "Normalmente respondemos en un día hábil.",
+    sending: "Enviando…",
+    success: "Enviado — responderemos directamente a tu correo.",
+    errorFields: "Por favor completa tu nombre, correo y un mensaje.",
+    errorSend: "No se pudo enviar ahora — inténtalo de nuevo o escribe directamente a hello@merafraud.com."
   }
 };
 
@@ -272,6 +296,60 @@ async function handleSubmit(e){
       footer_product:"Ürün", footer_get_key:"API Anahtarı Al", footer_company:"Şirket",
       footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
       footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    },
+    de: {
+      nav_home:"Startseite", nav_about:"Über uns", nav_pricing:"Preise", nav_contact:"Kontakt",
+      nav_integrations:"Shop verbinden", nav_docs:"Dokumentation", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Loslegen",
+      hero_eyebrow:"Kontakt", hero_h1:"Lassen Sie uns über Ihr Betrugsproblem sprechen.",
+      hero_lede:"Fragen zu Preisen, Integration oder einem Scale-Plan? Kontaktieren Sie uns — wir antworten in der Regel innerhalb eines Werktags.",
+      info_email_h:"E-Mail", info_sales_h:"Vertrieb &amp; Partnerschaften", info_phone_h:"Telefon / WhatsApp",
+      info_response_h:"Antwortzeit", info_response_p:"Innerhalb 1 Werktags, Montag–Freitag.",
+      f_name:"Name", f_email:"Geschäftliche E-Mail", f_company:"Shop-/Firmenname", f_need:"Was brauchen Sie?",
+      opt_general:"Allgemeine Frage", opt_pricing:"Preise / Scale-Plan", opt_tech:"Technische Integrationshilfe",
+      opt_partner:"Partnerschaft", opt_other:"Sonstiges", f_message:"Nachricht",
+      f_message_ph:"Erzählen Sie uns kurz von Ihrem Shop und wonach Sie suchen…",
+      f_submit:"Nachricht senden",
+      f_note:"Wir antworten in der Regel innerhalb eines Werktags.",
+      footer_tagline:"KI-gestützte Betrugserkennung für kleine und mittlere E-Commerce-Unternehmen.",
+      footer_product:"Produkt", footer_get_key:"API-Schlüssel holen", footer_company:"Unternehmen",
+      footer_legal:"Rechtliches", footer_privacy:"Datenschutzerklärung", footer_terms:"Nutzungsbedingungen",
+      footer_copy:"© 2026 MeraFraud. Alle Rechte vorbehalten."
+    },
+    fr: {
+      nav_home:"Accueil", nav_about:"À propos", nav_pricing:"Tarifs", nav_contact:"Contact",
+      nav_integrations:"Connecter votre boutique", nav_docs:"Documentation", nav_support:"Support", nav_dashboard:"Tableau de bord", nav_cta:"Commencer",
+      hero_eyebrow:"Contact", hero_h1:"Parlons de votre problème de fraude.",
+      hero_lede:"Des questions sur les tarifs, l'intégration ou une offre Scale ? Contactez-nous — nous répondons généralement sous un jour ouvré.",
+      info_email_h:"E-mail", info_sales_h:"Ventes et partenariats", info_phone_h:"Téléphone / WhatsApp",
+      info_response_h:"Délai de réponse", info_response_p:"Sous 1 jour ouvré, du lundi au vendredi.",
+      f_name:"Nom", f_email:"E-mail professionnel", f_company:"Nom de la boutique / entreprise", f_need:"De quoi avez-vous besoin ?",
+      opt_general:"Question générale", opt_pricing:"Tarifs / offre Scale", opt_tech:"Aide à l'intégration technique",
+      opt_partner:"Partenariat", opt_other:"Autre", f_message:"Message",
+      f_message_ph:"Parlez-nous un peu de votre boutique et de ce que vous recherchez…",
+      f_submit:"Envoyer le message",
+      f_note:"Nous répondons généralement sous un jour ouvré.",
+      footer_tagline:"Détection de fraude propulsée par l'IA, conçue pour les petites et moyennes entreprises e-commerce.",
+      footer_product:"Produit", footer_get_key:"Obtenir une clé API", footer_company:"Entreprise",
+      footer_legal:"Mentions légales", footer_privacy:"Politique de confidentialité", footer_terms:"Conditions d'utilisation",
+      footer_copy:"© 2026 MeraFraud. Tous droits réservés."
+    },
+    es: {
+      nav_home:"Inicio", nav_about:"Nosotros", nav_pricing:"Precios", nav_contact:"Contacto",
+      nav_integrations:"Conecta tu tienda", nav_docs:"Documentación", nav_support:"Soporte", nav_dashboard:"Panel", nav_cta:"Empezar",
+      hero_eyebrow:"Contacto", hero_h1:"Hablemos de tu problema de fraude.",
+      hero_lede:"¿Preguntas sobre precios, integración o un plan Scale? Contáctanos — normalmente respondemos en un día hábil.",
+      info_email_h:"Correo electrónico", info_sales_h:"Ventas y alianzas", info_phone_h:"Teléfono / WhatsApp",
+      info_response_h:"Tiempo de respuesta", info_response_p:"En 1 día hábil, de lunes a viernes.",
+      f_name:"Nombre", f_email:"Correo del trabajo", f_company:"Nombre de la tienda / empresa", f_need:"¿Qué necesitas?",
+      opt_general:"Pregunta general", opt_pricing:"Precios / plan Scale", opt_tech:"Ayuda con integración técnica",
+      opt_partner:"Alianza", opt_other:"Otro", f_message:"Mensaje",
+      f_message_ph:"Cuéntanos un poco sobre tu tienda y qué buscas…",
+      f_submit:"Enviar mensaje",
+      f_note:"Normalmente respondemos en un día hábil.",
+      footer_tagline:"Detección de fraude impulsada por IA, creada para pequeñas y medianas empresas de e-commerce.",
+      footer_product:"Producto", footer_get_key:"Obtener clave API", footer_company:"Empresa",
+      footer_legal:"Legal", footer_privacy:"Política de privacidad", footer_terms:"Términos de servicio",
+      footer_copy:"© 2026 MeraFraud. Todos los derechos reservados."
     }
   };
   function apply(lang){

@@ -168,6 +168,40 @@ def send_fraud_alert_email(to_email: str, store_name: str, risk_score: float, re
     return send_email(to_email, subject, html)
 
 
+def send_webhook_alert(webhook_url: str, store_name: str, risk_score: float,
+                        reasons: list[str], order_amount: float | None) -> bool:
+    """POSTs a block-level fraud alert to a merchant-configured Slack/Discord/
+    generic incoming-webhook URL, in addition to (not instead of) the email
+    alert. Sends both 'text' (Slack's field) and 'content' (Discord's field)
+    in the same payload so it works out of the box with either, plus the
+    raw structured fields for a custom receiver."""
+    if not webhook_url:
+        return False
+
+    pct = round(risk_score * 100)
+    amount_line = f" (€{order_amount})" if order_amount else ""
+    reasons_line = "; ".join(reasons[:3]) if reasons else "no single dominant reason"
+    message = f"⚠ MeraFraud blocked a high-risk order for {store_name} — {pct}% risk{amount_line}. Reasons: {reasons_line}"
+
+    payload = {
+        "text": message,       # Slack incoming webhooks
+        "content": message,    # Discord webhooks
+        "store_name": store_name,
+        "risk_score": round(risk_score, 4),
+        "reasons": reasons,
+        "order_amount": order_amount,
+    }
+    try:
+        resp = requests.post(webhook_url, json=payload, timeout=5)
+        if resp.status_code >= 400:
+            print(f"[webhook] {webhook_url} responded {resp.status_code}: {resp.text[:200]}")
+            return False
+        return True
+    except requests.RequestException as e:
+        print(f"[webhook] Failed to POST to {webhook_url}: {e}")
+        return False
+
+
 def send_welcome_email(to_email: str, store_name: str) -> bool:
     """Sent right after a merchant signs up with an email address. This was
     previously missing its own function signature — its body had been

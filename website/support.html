@@ -96,6 +96,9 @@
   <div class="lang-switch">
     <button type="button" class="lang-btn" data-lang="tr">TR</button>
     <button type="button" class="lang-btn" data-lang="en">EN</button>
+  <button type="button" class="lang-btn" data-lang="de">DE</button>
+  <button type="button" class="lang-btn" data-lang="fr">FR</button>
+  <button type="button" class="lang-btn" data-lang="es">ES</button>
   </div>
 </header>
 
@@ -264,6 +267,51 @@ var TICKET_DICT = {
     note_success: "Gönderildi — e-postanıza doğrudan yanıt vereceğiz.",
     note_error_fields: "Lütfen adınızı, e-postanızı ve bir açıklama girin.",
     note_error_send: "Şu anda gönderilemedi — lütfen bunun yerine WhatsApp'ı deneyin."
+  },
+  de: {
+    faqs: [
+      { q: "Wie bekomme ich meinen API-Schlüssel?", a: "Besuchen Sie die Anmeldeseite, geben Sie Ihren Shopnamen ein und wählen Sie ein Risikoprofil — Ihr API-Schlüssel wird sofort generiert, keine Wartezeit." },
+      { q: "Wie funktioniert die 7-tägige kostenlose Testphase?", a: "Jeder Plan enthält eine 7-tägige kostenlose Testphase. Sie werden erst ab Tag 8 belastet und können jederzeit vorher kündigen." },
+      { q: "Kann ich meine Risikoschwellen später ändern?", a: "Ja, jederzeit — über die API (PUT /api/tenants/thresholds) oder durch Auswahl eines neuen voreingestellten Profils." },
+      { q: "Unterstützen Sie türkische Lira / lokale Karten?", a: "Ja, Zahlungen werden über einen lokalen türkischen Zahlungsanbieter abgewickelt, sodass TRY-Abrechnung und in der Türkei ausgestellte Karten unterstützt werden." },
+      { q: "Wie exportiere ich einen Nutzungsbericht?", a: "Gehen Sie zu Dashboard → Einstellungen und klicken Sie im Bereich Nutzung auf „Transaktionsbericht exportieren (CSV)“ — Ihr echter Transaktionsverlauf wird sofort heruntergeladen." },
+      { q: "Werden meine Transaktionsdaten mit anderen Händlern geteilt?", a: "Nein — Details zum Umgang mit Daten und Modelltraining finden Sie in unserer Datenschutzerklärung." },
+    ],
+    whatsapp_text: "Hallo MeraFraud, ich brauche Hilfe.",
+    note_sending: "Wird gesendet…",
+    note_success: "Gesendet — wir antworten direkt auf Ihre E-Mail.",
+    note_error_fields: "Bitte geben Sie Ihren Namen, Ihre E-Mail und eine Beschreibung ein.",
+    note_error_send: "Konnte gerade nicht gesendet werden — bitte versuchen Sie es stattdessen über WhatsApp."
+  },
+  fr: {
+    faqs: [
+      { q: "Comment obtenir ma clé API ?", a: "Rendez-vous sur la page d'inscription, indiquez le nom de votre boutique et choisissez un profil de risque — votre clé API est générée instantanément, sans attente." },
+      { q: "Comment fonctionne l'essai gratuit de 7 jours ?", a: "Chaque offre inclut un essai gratuit de 7 jours. Vous ne serez facturé qu'à partir du 8e jour, et vous pouvez annuler à tout moment avant." },
+      { q: "Puis-je modifier mes seuils de risque plus tard ?", a: "Oui, à tout moment — via l'API (PUT /api/tenants/thresholds) ou en choisissant un nouveau profil prédéfini." },
+      { q: "Prenez-vous en charge la livre turque / les cartes locales ?", a: "Oui, les paiements sont traités via un prestataire de paiement turc local, la facturation en TRY et les cartes émises en Turquie sont donc prises en charge." },
+      { q: "Comment exporter un rapport d'utilisation ?", a: "Allez dans Tableau de bord → Paramètres, puis cliquez sur « Exporter le rapport de transactions (CSV) » dans la section Utilisation — votre véritable historique de transactions se télécharge instantanément." },
+      { q: "Mes données de transaction sont-elles partagées avec d'autres marchands ?", a: "Non — consultez notre politique de confidentialité pour tous les détails sur le traitement des données et l'entraînement des modèles." },
+    ],
+    whatsapp_text: "Bonjour MeraFraud, j'ai besoin d'aide.",
+    note_sending: "Envoi…",
+    note_success: "Envoyé — nous répondrons directement à votre e-mail.",
+    note_error_fields: "Veuillez renseigner votre nom, votre e-mail et une description.",
+    note_error_send: "Impossible d'envoyer pour le moment — essayez plutôt WhatsApp."
+  },
+  es: {
+    faqs: [
+      { q: "¿Cómo obtengo mi clave API?", a: "Visita la página de registro, indica el nombre de tu tienda y elige un perfil de riesgo — tu clave API se genera al instante, sin espera." },
+      { q: "¿Cómo funciona la prueba gratuita de 7 días?", a: "Todos los planes incluyen una prueba gratuita de 7 días. No se te cobrará hasta el día 8, y puedes cancelar en cualquier momento antes." },
+      { q: "¿Puedo cambiar mis umbrales de riesgo más adelante?", a: "Sí, en cualquier momento — mediante la API (PUT /api/tenants/thresholds) o eligiendo un nuevo perfil predefinido." },
+      { q: "¿Aceptan liras turcas / tarjetas locales?", a: "Sí, los pagos se procesan mediante un proveedor de pago turco local, por lo que se admite la facturación en TRY y las tarjetas emitidas en Turquía." },
+      { q: "¿Cómo exporto un informe de uso?", a: "Ve a Panel → Configuración y haz clic en «Exportar informe de transacciones (CSV)» en la sección de Uso — descarga tu historial real de transacciones al instante." },
+      { q: "¿Mis datos de transacciones se comparten con otros comerciantes?", a: "No — consulta nuestra Política de privacidad para más detalles sobre el manejo de datos y las prácticas de entrenamiento de modelos." },
+    ],
+    whatsapp_text: "Hola MeraFraud, necesito ayuda.",
+    note_sending: "Enviando…",
+    note_success: "Enviado — responderemos directamente a tu correo.",
+    note_error_fields: "Por favor completa tu nombre, correo y una descripción.",
+    note_error_send: "No se pudo enviar ahora — prueba con WhatsApp."
   }
 };
 
@@ -384,6 +432,84 @@ async function handleTicket(e){
       footer_changelog:"Değişiklik Günlüğü", footer_status:"Durum", footer_insights:"İçgörüler",
       footer_legal:"Yasal", footer_privacy:"Gizlilik Politikası", footer_terms:"Kullanım Şartları",
       footer_copy:"© 2026 MeraFraud. Tüm hakları saklıdır."
+    },
+    de: {
+      nav_home:"Startseite", nav_about:"Über uns", nav_pricing:"Preise", nav_contact:"Kontakt",
+      nav_integrations:"Shop verbinden", nav_docs:"Dokumentation", nav_support:"Support", nav_dashboard:"Dashboard", nav_cta:"Loslegen",
+      hero_eyebrow:"Support", hero_h1:"Wir sind für Sie da.",
+      hero_lede:"Erhalten Sie eine sofortige Antwort über die Chat-Blase in der Ecke, schreiben Sie uns auf WhatsApp oder eröffnen Sie unten ein Support-Ticket.",
+      ch1_h:"Sofort-Chat", ch1_p:"Fragen Sie unseren Support-Bot alles — API-Schlüssel, Abrechnung, Testphasen, Berichte. Auf jeder Seite verfügbar.", ch1_btn:"Chat öffnen",
+      ch2_p:"Bevorzugen Sie Messaging? Chatten Sie direkt mit unserem Team auf WhatsApp für eine schnelle, persönliche Antwort.", ch2_btn:"Nachricht senden",
+      ch3_h:"E-Mail / Ticket", ch3_p:"Für alles Detaillierte — Kontoprobleme, Rechnungen, Integrationshilfe — eröffnen Sie unten ein Ticket.", ch3_btn:"Ticket eröffnen",
+      faq_eyebrow:"Selbsthilfe", faq_h2:"Häufig gestellte Fragen",
+      ticket_h2:"Support-Ticket eröffnen",
+      ticket_p:"Standardprobleme werden am schnellsten über den Sofort-Chat oben gelöst. Für alles Kontospezifische oder Nicht-Standardmäßige nutzen Sie dieses Formular, um direkt einen menschlichen Berater zu erreichen.",
+      f_name:"Name", f_email:"E-Mail", f_store:"Shop-Name", f_issuetype:"Problemart",
+      opt_account:"Konto / API-Schlüssel", opt_billing:"Abrechnung / Rechnung", opt_tech:"Technische Integration",
+      opt_report:"Bericht / Datenexport", opt_other:"Sonstiges",
+      f_describe:"Beschreiben Sie das Problem", f_describe_ph:"Was ist passiert, und was haben Sie erwartet?",
+      f_submit:"Ticket absenden", f_note:"Wir antworten in der Regel innerhalb 1 Werktags (Priority-Pläne: 4 Werkstunden).",
+      sla1_plan:"STARTER", sla1_time:"Selbstbedienung", sla1_p:"Chat-Bot + Dokumentation, keine formelle Reaktionszeit-Zusage.",
+      sla2_plan:"GROWTH", sla2_time:"Unter 1 Werktag", sla2_p:"E-Mail-Support, Zielreaktionszeit innerhalb 1 Werktags.",
+      sla3_plan:"SCALE", sla3_time:"Unter 4 Werkstunden", sla3_p:"Priority-Support über einen dedizierten Kanal, Zielreaktionszeit innerhalb 4 Werkstunden.",
+      sla_note:"Ziele, keine garantierten SLAs, solange wir ein kleines Team sind. Sehen Sie den <a href=\"status.html\">aktuellen Systemstatus</a> oder <a href=\"changelog.html\">was zuletzt veröffentlicht wurde</a>.",
+      footer_tagline:"KI-gestützte Betrugserkennung für kleine und mittlere E-Commerce-Unternehmen.",
+      footer_product:"Produkt", footer_get_key:"API-Schlüssel holen", footer_company:"Unternehmen",
+      footer_changelog:"Änderungsprotokoll", footer_status:"Status", footer_insights:"Einblicke",
+      footer_legal:"Rechtliches", footer_privacy:"Datenschutzerklärung", footer_terms:"Nutzungsbedingungen",
+      footer_copy:"© 2026 MeraFraud. Alle Rechte vorbehalten."
+    },
+    fr: {
+      nav_home:"Accueil", nav_about:"À propos", nav_pricing:"Tarifs", nav_contact:"Contact",
+      nav_integrations:"Connecter votre boutique", nav_docs:"Documentation", nav_support:"Support", nav_dashboard:"Tableau de bord", nav_cta:"Commencer",
+      hero_eyebrow:"Support", hero_h1:"Nous sommes là pour vous aider.",
+      hero_lede:"Obtenez une réponse instantanée via la bulle de chat dans le coin, écrivez-nous sur WhatsApp, ou ouvrez un ticket de support ci-dessous.",
+      ch1_h:"Chat instantané", ch1_p:"Posez toutes vos questions à notre bot de support — clés API, facturation, essais, rapports. Disponible sur chaque page.", ch1_btn:"Ouvrir le chat",
+      ch2_p:"Vous préférez la messagerie ? Discutez directement avec notre équipe sur WhatsApp pour une réponse rapide et personnalisée.", ch2_btn:"Envoyer un message",
+      ch3_h:"E-mail / Ticket", ch3_p:"Pour tout ce qui est détaillé — problèmes de compte, factures, aide à l'intégration — ouvrez un ticket ci-dessous.", ch3_btn:"Ouvrir un ticket",
+      faq_eyebrow:"Aide en libre-service", faq_h2:"Questions fréquentes",
+      ticket_h2:"Ouvrir un ticket de support",
+      ticket_p:"Les problèmes standards se résolvent plus vite via le Chat instantané ci-dessus. Pour tout ce qui est spécifique à votre compte ou non standard, utilisez ce formulaire pour joindre directement un conseiller humain.",
+      f_name:"Nom", f_email:"E-mail", f_store:"Nom de la boutique", f_issuetype:"Type de problème",
+      opt_account:"Compte / clé API", opt_billing:"Facturation / facture", opt_tech:"Intégration technique",
+      opt_report:"Rapport / export de données", opt_other:"Autre",
+      f_describe:"Décrivez le problème", f_describe_ph:"Que s'est-il passé, et à quoi vous attendiez-vous ?",
+      f_submit:"Envoyer le ticket", f_note:"Nous répondons généralement sous 1 jour ouvré (offres Priority : 4 heures ouvrées).",
+      sla1_plan:"STARTER", sla1_time:"Libre-service", sla1_p:"Chat bot + documentation, sans engagement formel de délai de réponse.",
+      sla2_plan:"GROWTH", sla2_time:"Moins d'1 jour ouvré", sla2_p:"Support par e-mail, objectif de première réponse sous 1 jour ouvré.",
+      sla3_plan:"SCALE", sla3_time:"Moins de 4 heures ouvrées", sla3_p:"Support prioritaire via un canal dédié, objectif de première réponse sous 4 heures ouvrées.",
+      sla_note:"Des objectifs, pas des SLA garantis, tant que nous sommes une petite équipe. Consultez l'<a href=\"status.html\">état actuel du système</a> ou <a href=\"changelog.html\">les dernières nouveautés</a>.",
+      footer_tagline:"Détection de fraude propulsée par l'IA, conçue pour les petites et moyennes entreprises e-commerce.",
+      footer_product:"Produit", footer_get_key:"Obtenir une clé API", footer_company:"Entreprise",
+      footer_changelog:"Journal des modifications", footer_status:"Statut", footer_insights:"Analyses",
+      footer_legal:"Mentions légales", footer_privacy:"Politique de confidentialité", footer_terms:"Conditions d'utilisation",
+      footer_copy:"© 2026 MeraFraud. Tous droits réservés."
+    },
+    es: {
+      nav_home:"Inicio", nav_about:"Nosotros", nav_pricing:"Precios", nav_contact:"Contacto",
+      nav_integrations:"Conecta tu tienda", nav_docs:"Documentación", nav_support:"Soporte", nav_dashboard:"Panel", nav_cta:"Empezar",
+      hero_eyebrow:"Soporte", hero_h1:"Estamos aquí para ayudar.",
+      hero_lede:"Obtén una respuesta instantánea desde la burbuja de chat en la esquina, escríbenos por WhatsApp, o abre un ticket de soporte abajo.",
+      ch1_h:"Chat instantáneo", ch1_p:"Pregúntale a nuestro bot de soporte lo que sea — claves API, facturación, pruebas, informes. Disponible en cada página.", ch1_btn:"Abrir chat",
+      ch2_p:"¿Prefieres mensajería? Chatea directamente con nuestro equipo por WhatsApp para una respuesta rápida y personal.", ch2_btn:"Enviar mensaje",
+      ch3_h:"Correo / Ticket", ch3_p:"Para cualquier cosa detallada — problemas de cuenta, facturas, ayuda con integración — abre un ticket abajo.", ch3_btn:"Abrir un ticket",
+      faq_eyebrow:"Ayuda de autoservicio", faq_h2:"Preguntas frecuentes",
+      ticket_h2:"Abrir un ticket de soporte",
+      ticket_p:"Los problemas estándar se resuelven más rápido mediante el Chat instantáneo de arriba. Para algo específico de tu cuenta o no estándar, usa este formulario para contactar directamente a un asesor humano.",
+      f_name:"Nombre", f_email:"Correo electrónico", f_store:"Nombre de la tienda", f_issuetype:"Tipo de problema",
+      opt_account:"Cuenta / clave API", opt_billing:"Facturación / factura", opt_tech:"Integración técnica",
+      opt_report:"Informe / exportación de datos", opt_other:"Otro",
+      f_describe:"Describe el problema", f_describe_ph:"¿Qué pasó y qué esperabas?",
+      f_submit:"Enviar ticket", f_note:"Normalmente respondemos en 1 día hábil (planes Priority: 4 horas hábiles).",
+      sla1_plan:"STARTER", sla1_time:"Autoservicio", sla1_p:"Chat bot + documentación, sin compromiso formal de tiempo de respuesta.",
+      sla2_plan:"GROWTH", sla2_time:"Menos de 1 día hábil", sla2_p:"Soporte por correo, objetivo de primera respuesta en 1 día hábil.",
+      sla3_plan:"SCALE", sla3_time:"Menos de 4 horas hábiles", sla3_p:"Soporte prioritario mediante un canal dedicado, objetivo de primera respuesta en 4 horas hábiles.",
+      sla_note:"Son objetivos, no SLA garantizados, mientras somos un equipo pequeño. Consulta el <a href=\"status.html\">estado actual del sistema</a> o <a href=\"changelog.html\">las últimas novedades</a>.",
+      footer_tagline:"Detección de fraude impulsada por IA, creada para pequeñas y medianas empresas de e-commerce.",
+      footer_product:"Producto", footer_get_key:"Obtener clave API", footer_company:"Empresa",
+      footer_changelog:"Registro de cambios", footer_status:"Estado", footer_insights:"Análisis",
+      footer_legal:"Legal", footer_privacy:"Política de privacidad", footer_terms:"Términos de servicio",
+      footer_copy:"© 2026 MeraFraud. Todos los derechos reservados."
     }
   };
   function apply(lang){

@@ -1,0 +1,802 @@
+{
+  "info": {
+    "name": "MeraFraud API",
+    "description": "Real-time fraud-risk scoring API. See openapi.yaml in the same folder for full schema detail. Set the collection variables base_url / api_key / admin_key before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://merafraud-apimerafraud-api-v2.onrender.com/api"
+    },
+    {
+      "key": "api_key",
+      "value": "sk_demo_merafraud_dashboard"
+    },
+    {
+      "key": "admin_key",
+      "value": "REPLACE_WITH_ADMIN_API_KEY"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Public Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "config"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Feature Importance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/feature-importance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "feature-importance"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Network Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/network/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "network",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Signup (create tenant)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Store\",\n  \"email\": \"me@mystore.com\",\n  \"risk_profile\": \"standard\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Checkout Initialize (demo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/checkout/initialize",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout",
+                "initialize"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"growth\",\n  \"email\": \"me@mystore.com\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Support Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/support/ticket",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "support",
+                "ticket"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane\",\n  \"email\": \"jane@example.com\",\n  \"message\": \"Question about integration\",\n  \"store_name\": \"My Store\",\n  \"issue_type\": \"integration\",\n  \"lang\": \"en\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Scoring",
+      "item": [
+        {
+          "name": "Predict (single)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/predict",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "predict"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transaction_amount\": 45.9,\n  \"amount_ratio_to_avg\": 1.1,\n  \"account_age_days\": 240,\n  \"customer_ltv\": 310.0,\n  \"time_since_last_tx_min\": 4200,\n  \"num_tx_last_24h\": 1,\n  \"hour_of_day\": 14,\n  \"num_items_in_cart\": 3,\n  \"num_failed_payments_7d\": 0,\n  \"login_attempts_before_purchase\": 1,\n  \"billing_shipping_mismatch\": 0,\n  \"ip_billing_country_mismatch\": 0,\n  \"new_device\": 0,\n  \"new_payment_method\": 0,\n  \"free_email_domain\": 0,\n  \"express_shipping\": 0,\n  \"customer_id\": \"buyer@example.com\",\n  \"customer_ip\": \"203.0.113.5\",\n  \"billing_country\": \"TR\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Predict (batch)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/predict/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "predict",
+                "batch"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactions\": [\n    {\n      \"transaction_amount\": 45.9,\n      \"amount_ratio_to_avg\": 1.1,\n      \"account_age_days\": 240,\n      \"customer_ltv\": 310.0,\n      \"time_since_last_tx_min\": 4200,\n      \"num_tx_last_24h\": 1,\n      \"hour_of_day\": 14,\n      \"num_items_in_cart\": 3,\n      \"num_failed_payments_7d\": 0,\n      \"login_attempts_before_purchase\": 1,\n      \"billing_shipping_mismatch\": 0,\n      \"ip_billing_country_mismatch\": 0,\n      \"new_device\": 0,\n      \"new_payment_method\": 0,\n      \"free_email_domain\": 0,\n      \"express_shipping\": 0,\n      \"customer_id\": \"buyer@example.com\",\n      \"customer_ip\": \"203.0.113.5\",\n      \"billing_country\": \"TR\"\n    },\n    {\n      \"transaction_amount\": 45.9,\n      \"amount_ratio_to_avg\": 1.1,\n      \"account_age_days\": 240,\n      \"customer_ltv\": 310.0,\n      \"time_since_last_tx_min\": 4200,\n      \"num_tx_last_24h\": 1,\n      \"hour_of_day\": 14,\n      \"num_items_in_cart\": 3,\n      \"num_failed_payments_7d\": 0,\n      \"login_attempts_before_purchase\": 1,\n      \"billing_shipping_mismatch\": 0,\n      \"ip_billing_country_mismatch\": 0,\n      \"new_device\": 0,\n      \"new_payment_method\": 0,\n      \"free_email_domain\": 0,\n      \"express_shipping\": 0,\n      \"customer_id\": \"buyer@example.com\",\n      \"customer_ip\": \"203.0.113.5\",\n      \"billing_country\": \"TR\"\n    }\n  ]\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "My Account",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Usage Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Geo Activity (dashboard map)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/geo-activity",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "geo-activity"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Thresholds",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants/thresholds",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants",
+                "thresholds"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"block\": 0.75,\n  \"review\": 0.35\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set/Clear Webhook URL",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants/webhook",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants",
+                "webhook"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"webhook_url\": \"https://hooks.slack.com/services/XXX\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Regenerate API Keys",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants/regenerate-key",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants",
+                "regenerate-key"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"me@mystore.com\",\n  \"password\": \"changeme\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/set-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "set-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newpassword123\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/forgot-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"me@mystore.com\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"PASTE_TOKEN\",\n  \"new_password\": \"newpassword123\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Export Transactions CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reports/transactions.csv",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "transactions.csv"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Custom Rules",
+      "item": [
+        {
+          "name": "List Rules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rules",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rules",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rules"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"field\": \"transaction_amount\",\n  \"operator\": \">\",\n  \"value\": 500,\n  \"action\": \"block\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Rule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/rules/RULE_ID",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "rules",
+                "RULE_ID"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Fraud Network",
+      "item": [
+        {
+          "name": "Report Confirmed Fraud",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/blacklist/report",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "blacklist",
+                "report"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ip\": \"203.0.113.5\",\n  \"email\": \"fraudster@example.com\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order Tracking",
+      "item": [
+        {
+          "name": "Report Order Outcome",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders/outcome",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "outcome"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"buyer@example.com\",\n  \"order_id\": \"1042\",\n  \"outcome\": \"cancelled\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Customer History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/customers/buyer@example.com/history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "customers",
+                "buyer@example.com",
+                "history"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin (internal \u2014 requires ADMIN_API_KEY)",
+      "item": [
+        {
+          "name": "List All Tenants",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Admin-Key",
+                "value": "{{admin_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Extend Trial",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin-Key",
+                "value": "{{admin_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants/TENANT_ID/trial",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants",
+                "TENANT_ID",
+                "trial"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"days\": 30\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set Subscription Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Admin-Key",
+                "value": "{{admin_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tenants/TENANT_ID/subscription",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tenants",
+                "TENANT_ID",
+                "subscription"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

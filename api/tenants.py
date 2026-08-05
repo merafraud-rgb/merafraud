@@ -75,6 +75,30 @@ def _ensure_schema(conn):
             # that was created before trial_ends_at existed (Render/Neon
             # already has live tenant rows from before this field existed).
             cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS trial_ends_at TEXT")
+            # subscription_status: trial | active | expired | cancelled.
+            # 'trial' + a past trial_ends_at is what actually gates API access
+            # now (see require_api_key in app.py) — 'active' means a human
+            # (admin, until real billing exists) has confirmed this tenant is
+            # a paying/approved account and should never be gated by the
+            # trial clock. Existing rows default to 'trial', which means any
+            # tenant whose 7-day trial already lapsed before this column
+            # existed will be gated on next deploy unless marked active.
+            cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS subscription_status TEXT NOT NULL DEFAULT 'trial'")
+            # Optional Slack/Discord/generic incoming-webhook URL — if set,
+            # a block-level fraud alert is POSTed here in addition to (not
+            # instead of) the existing email alert. NULL = disabled.
+            cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS webhook_url TEXT")
+            # Second key, sk_test_..., that authenticates exactly like the
+            # live key but is flagged as test mode (see require_api_key in
+            # app.py): usage isn't counted toward billing/usage counters and
+            # it never triggers merchant-facing block alerts. Lets a
+            # merchant integrate and test without polluting real stats.
+            cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS api_key_test TEXT")
+            cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_api_key_test ON tenants (api_key_test)")
+            cur.execute("SELECT id FROM tenants WHERE api_key_test IS NULL")
+            missing_test_key = [r[0] for r in cur.fetchall()]
+            for tid in missing_test_key:
+                cur.execute("UPDATE tenants SET api_key_test = %s WHERE id = %s", (_generate_test_key(), tid))
         conn.commit()
         _DB_INITIALIZED = True
 
@@ -94,6 +118,10 @@ def _generate_key() -> str:
     return "sk_live_" + secrets.token_urlsafe(24)
 
 
+def _generate_test_key() -> str:
+    return "sk_test_" + secrets.token_urlsafe(24)
+
+
 def seed_demo_tenant():
     """Dashboard'un kutudan çıktığı gibi çalışması için sabit bir demo
     tenant + demo API anahtarı oluşturur (yoksa)."""
@@ -103,23 +131,34 @@ def seed_demo_tenant():
             cur.execute("SELECT * FROM tenants WHERE id = %s", ("demo",))
             row = cur.fetchone()
             if row:
-                return _row_to_tenant(row)
+                tenant = _row_to_tenant(row)
+                # Self-heal: rows created before subscription_status existed
+                # default to 'trial', but the demo account must never be
+                # gated by the trial clock.
+                if tenant.get("subscription_status") != "active":
+                    cur.execute("UPDATE tenants SET subscription_status = 'active' WHERE id = 'demo'")
+                    conn.commit()
+                    tenant["subscription_status"] = "active"
+                return tenant
 
             demo = {
                 "id": "demo",
                 "name": "MeraFraud Demo Store",
                 "api_key": "sk_demo_merafraud_dashboard",
+                "api_key_test": "sk_test_demo_merafraud_dashboard",
                 "thresholds": {"block": 0.75, "review": 0.35},
                 "created_at": _now(),
                 "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
                 "trial_ends_at": None,  # demo account, never expires
+                "subscription_status": "active",
             }
             cur.execute("""
                 INSERT INTO tenants (id, name, email, password_hash, reset_token,
-                    reset_token_expires, api_key, thresholds, created_at, usage, trial_ends_at)
-                VALUES (%s, %s, NULL, NULL, NULL, NULL, %s, %s, %s, %s, NULL)
-            """, (demo["id"], demo["name"], demo["api_key"],
-                  json.dumps(demo["thresholds"]), demo["created_at"], json.dumps(demo["usage"])))
+                    reset_token_expires, api_key, api_key_test, thresholds, created_at, usage, trial_ends_at, subscription_status)
+                VALUES (%s, %s, NULL, NULL, NULL, NULL, %s, %s, %s, %s, %s, NULL, %s)
+            """, (demo["id"], demo["name"], demo["api_key"], demo["api_key_test"],
+                  json.dumps(demo["thresholds"]), demo["created_at"], json.dumps(demo["usage"]),
+                  demo["subscription_status"]))
         conn.commit()
         return demo
     finally:
@@ -146,21 +185,47 @@ def create_tenant(name: str, thresholds: dict | None = None, email: str | None =
                 "reset_token": None,
                 "reset_token_expires": None,
                 "api_key": _generate_key(),
+                "api_key_test": _generate_test_key(),
                 "thresholds": thresholds or {"block": 0.75, "review": 0.35},
                 "created_at": _now(),
                 "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
                 "trial_ends_at": trial_ends_at,
+                "subscription_status": "trial",
             }
             cur.execute("""
                 INSERT INTO tenants (id, name, email, password_hash, reset_token,
-                    reset_token_expires, api_key, thresholds, created_at, usage, trial_ends_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    reset_token_expires, api_key, api_key_test, thresholds, created_at, usage, trial_ends_at, subscription_status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (tenant["id"], tenant["name"], tenant["email"], tenant["password_hash"],
-                  tenant["reset_token"], tenant["reset_token_expires"], tenant["api_key"],
+                  tenant["reset_token"], tenant["reset_token_expires"], tenant["api_key"], tenant["api_key_test"],
                   json.dumps(tenant["thresholds"]), tenant["created_at"], json.dumps(tenant["usage"]),
-                  tenant["trial_ends_at"]))
+                  tenant["trial_ends_at"], tenant["subscription_status"]))
         conn.commit()
         return tenant
+    finally:
+        conn.close()
+
+
+def set_subscription_status(tenant_id: str, status: str) -> dict | None:
+    """Admin action: manually mark a tenant's subscription status. This is
+    the stand-in for real billing until a payment gateway is wired up —
+    e.g. after confirming a bank transfer, an admin calls this with
+    'active' so the tenant is never gated by the trial-expiry check in
+    app.py's require_api_key. 'cancelled'/'expired' immediately gate access
+    the same way a lapsed trial does."""
+    if status not in ("trial", "active", "expired", "cancelled"):
+        raise ValueError("status must be one of: trial, active, expired, cancelled")
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT id FROM tenants WHERE id = %s", (tenant_id,))
+            if not cur.fetchone():
+                return None
+            cur.execute("UPDATE tenants SET subscription_status = %s WHERE id = %s", (status, tenant_id))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            updated = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(updated)
     finally:
         conn.close()
 
@@ -184,12 +249,20 @@ def set_trial_end(tenant_id: str, days_from_now: int) -> dict | None:
 
 
 def get_tenant_by_key(api_key: str) -> dict | None:
+    """Matches either the live key OR the test key. The returned dict carries
+    an internal '_matched_key_mode' ('live' or 'test') so the caller (see
+    require_api_key in app.py) knows which one was used — public_view()
+    always strips this before it reaches an API response."""
     conn = _get_conn()
     try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute("SELECT * FROM tenants WHERE api_key = %s", (api_key,))
+            cur.execute("SELECT * FROM tenants WHERE api_key = %s OR api_key_test = %s", (api_key, api_key))
             row = cur.fetchone()
-        return _row_to_tenant(row) if row else None
+        if not row:
+            return None
+        tenant = _row_to_tenant(row)
+        tenant["_matched_key_mode"] = "test" if tenant.get("api_key_test") == api_key else "live"
+        return tenant
     finally:
         conn.close()
 
@@ -233,6 +306,25 @@ def update_thresholds(tenant_id: str, thresholds: dict) -> dict | None:
                 return None
             cur.execute("UPDATE tenants SET thresholds = %s WHERE id = %s",
                         (json.dumps(thresholds), tenant_id))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            updated = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(updated)
+    finally:
+        conn.close()
+
+
+def update_webhook(tenant_id: str, webhook_url: str | None) -> dict | None:
+    """Sets (or clears, if webhook_url is falsy) the tenant's Slack/Discord/
+    generic incoming-webhook URL for block-level fraud alerts."""
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT id FROM tenants WHERE id = %s", (tenant_id,))
+            if not cur.fetchone():
+                return None
+            cur.execute("UPDATE tenants SET webhook_url = %s WHERE id = %s",
+                        (webhook_url or None, tenant_id))
             cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
             updated = cur.fetchone()
         conn.commit()
@@ -323,15 +415,15 @@ def reset_password_with_token(token: str, new_password: str) -> dict | None:
 
 
 def regenerate_api_key(tenant_id: str) -> dict | None:
-    """Issues a brand new API key and immediately invalidates the old one —
-    used when a key may have been leaked, or the merchant just wants to
-    rotate it. Requires the merchant to already be authenticated with the
+    """Issues brand new live AND test keys, immediately invalidating both old
+    ones — used when a key may have been leaked, or the merchant just wants
+    to rotate. Requires the merchant to already be authenticated with the
     OLD key (or logged in via email+password) to call this."""
     conn = _get_conn()
     try:
         with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute("UPDATE tenants SET api_key = %s WHERE id = %s",
-                        (_generate_key(), tenant_id))
+            cur.execute("UPDATE tenants SET api_key = %s, api_key_test = %s WHERE id = %s",
+                        (_generate_key(), _generate_test_key(), tenant_id))
             cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
             row = cur.fetchone()
         conn.commit()
@@ -342,10 +434,15 @@ def regenerate_api_key(tenant_id: str) -> dict | None:
 
 def public_view(tenant: dict, reveal_api_key: bool = True) -> dict:
     """Strips fields that must NEVER leave the server in an API response —
-    password_hash and reset_token are secrets, not client-facing data.
-    Call this on every tenant dict right before jsonify()."""
+    password_hash/reset_token are secrets, and _matched_key_mode is an
+    internal detail set by get_tenant_by_key() for require_api_key's use,
+    not client-facing data. Call this on every tenant dict right before
+    jsonify()."""
     safe = {k: v for k, v in tenant.items()
-            if k not in ("password_hash", "reset_token", "reset_token_expires")}
-    if not reveal_api_key and "api_key" in safe:
-        safe["api_key"] = safe["api_key"][:11] + "…" + safe["api_key"][-4:]
+            if k not in ("password_hash", "reset_token", "reset_token_expires", "_matched_key_mode")}
+    if not reveal_api_key:
+        if safe.get("api_key"):
+            safe["api_key"] = safe["api_key"][:11] + "…" + safe["api_key"][-4:]
+        if safe.get("api_key_test"):
+            safe["api_key_test"] = safe["api_key_test"][:11] + "…" + safe["api_key_test"][-4:]
     return safe

@@ -143,6 +143,9 @@
       <div class="lang-switch">
         <button type="button" class="lang-btn" data-lang="tr">TR</button>
         <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="de">DE</button>
+      <button type="button" class="lang-btn" data-lang="fr">FR</button>
+      <button type="button" class="lang-btn" data-lang="es">ES</button>
       </div>
     </div>
   </header>
@@ -262,6 +265,81 @@ var DICT = {
     err_api:"API'ye ulaşılamadı. Şu adreste çalışıyor mu: ",
     curl_comment:"# İlk isteğinizi deneyin",
     copied:"Kopyalandı ✓"
+  },
+  de: {
+    back_dashboard:"← Zurück zum Dashboard", link_website:"Website",
+    eyebrow:"Loslegen", h1:"Erstellen Sie Ihr MeraFraud-Konto.",
+    lede:"Erhalten Sie einen API-Schlüssel in Sekunden — keine Kreditkarte, keine Wartezeit. Beginnen Sie sofort mit der Bewertung von Transaktionen.",
+    f_store:"Shop-/Firmenname", f_store_ph:"z. B. Anadolu Boutique E-Commerce",
+    f_email:"Kontakt-E-Mail ", f_email_note:"(empfohlen — für die Kontowiederherstellung erforderlich)",
+    f_email_hint:"Ermöglicht Ihnen, Ihren API-Schlüssel später wiederherzustellen oder zu erneuern, falls Sie ihn verlieren.",
+    f_pass:"Passwort ", f_pass_note:"(optional, aber später für die Anmeldung erforderlich)", f_pass_ph:"Mindestens 6 Zeichen",
+    f_pass_hint:"Ohne Passwort ist Ihr API-Schlüssel der einzige Zugang zu diesem Konto — bewahren Sie ihn sicher auf.",
+    f_riskprofile:"Risikoprofil",
+    p_lenient_n:"Mild", p_lenient_d:"Blockiert nur offensichtlichen Betrug. Weniger Fehlalarme.",
+    p_standard_n:"Standard", p_standard_d:"Ausgewogen — empfohlener Standard.",
+    p_strict_n:"Streng", p_strict_d:"Blockiert aggressiv. Mehr manuelle Überprüfungen.",
+    submit:"Konto erstellen &amp; API-Schlüssel erhalten",
+    success_badge:"✓ Konto erstellt", your_key:"Ihr API-Schlüssel", copy_btn:"In Zwischenablage kopieren",
+    warn_box:"⚠ Speichern Sie diesen Schlüssel jetzt — er wird nicht erneut angezeigt. Er wird sicher in der Datenbank gespeichert, aber Sie sind weiterhin dafür verantwortlich, ihn sicher aufzubewahren: verwenden Sie diesen Schlüssel nicht als sensibles Passwort erneut und erneuern Sie ihn vor dem Produktivbetrieb.",
+    manage_settings:"Risikoeinstellungen verwalten →",
+    footer:"MeraFraud · KI-gestützte Betrugserkennung für KMU",
+    err_name:"Bitte geben Sie Ihren Shop- oder Firmennamen ein.",
+    err_pass:"Das Passwort muss mindestens 6 Zeichen haben (oder leer lassen).",
+    creating:"Wird erstellt…",
+    err_api:"Die API konnte nicht erreicht werden. Läuft sie unter ",
+    curl_comment:"# Testen Sie Ihre erste Anfrage",
+    copied:"Kopiert ✓"
+  },
+  fr: {
+    back_dashboard:"← Retour au tableau de bord", link_website:"Site web",
+    eyebrow:"Commencer", h1:"Créez votre compte MeraFraud.",
+    lede:"Obtenez une clé API en quelques secondes — pas de carte bancaire, pas d'attente. Commencez à noter des transactions immédiatement.",
+    f_store:"Nom de la boutique / entreprise", f_store_ph:"ex. Anadolu Boutique E-Commerce",
+    f_email:"E-mail de contact ", f_email_note:"(recommandé — nécessaire pour la récupération du compte)",
+    f_email_hint:"Vous permet de récupérer ou régénérer votre clé API plus tard si vous la perdez.",
+    f_pass:"Mot de passe ", f_pass_note:"(facultatif, mais nécessaire pour vous connecter plus tard)", f_pass_ph:"Au moins 6 caractères",
+    f_pass_hint:"Sans mot de passe, votre clé API est le seul moyen d'accéder à ce compte — conservez-la en lieu sûr.",
+    f_riskprofile:"Profil de risque",
+    p_lenient_n:"Souple", p_lenient_d:"Ne bloque que la fraude évidente. Moins de fausses alertes.",
+    p_standard_n:"Standard", p_standard_d:"Équilibré — réglage par défaut recommandé.",
+    p_strict_n:"Strict", p_strict_d:"Bloque de manière agressive. Plus de vérifications manuelles.",
+    submit:"Créer le compte et obtenir la clé API",
+    success_badge:"✓ Compte créé", your_key:"Votre clé API", copy_btn:"Copier dans le presse-papiers",
+    warn_box:"⚠ Enregistrez cette clé maintenant — elle ne sera plus affichée. Elle est stockée en toute sécurité dans la base de données, mais vous restez responsable de sa protection : ne réutilisez pas un mot de passe sensible comme cette clé, et régénérez-la avant la mise en production.",
+    manage_settings:"Gérer les paramètres de risque →",
+    footer:"MeraFraud · Détection de fraude par IA pour les PME",
+    err_name:"Veuillez saisir le nom de votre boutique ou entreprise.",
+    err_pass:"Le mot de passe doit comporter au moins 6 caractères (ou laissez-le vide).",
+    creating:"Création…",
+    err_api:"Impossible de joindre l'API. Fonctionne-t-elle à l'adresse ",
+    curl_comment:"# Essayez votre première requête",
+    copied:"Copié ✓"
+  },
+  es: {
+    back_dashboard:"← Volver al panel", link_website:"Sitio web",
+    eyebrow:"Empezar", h1:"Crea tu cuenta de MeraFraud.",
+    lede:"Obtén una clave API en segundos — sin tarjeta de crédito, sin espera. Empieza a puntuar transacciones de inmediato.",
+    f_store:"Nombre de la tienda / empresa", f_store_ph:"ej. Anadolu Boutique E-Commerce",
+    f_email:"Correo de contacto ", f_email_note:"(recomendado — necesario para recuperar la cuenta)",
+    f_email_hint:"Te permite recuperar o regenerar tu clave API más adelante si la pierdes.",
+    f_pass:"Contraseña ", f_pass_note:"(opcional, pero necesaria para iniciar sesión más adelante)", f_pass_ph:"Al menos 6 caracteres",
+    f_pass_hint:"Sin contraseña, tu clave API es la única forma de acceder a esta cuenta — guárdala bien.",
+    f_riskprofile:"Perfil de riesgo",
+    p_lenient_n:"Flexible", p_lenient_d:"Solo bloquea fraude evidente. Menos falsas alarmas.",
+    p_standard_n:"Estándar", p_standard_d:"Equilibrado — valor predeterminado recomendado.",
+    p_strict_n:"Estricto", p_strict_d:"Bloquea de forma agresiva. Más revisiones manuales.",
+    submit:"Crear cuenta y obtener clave API",
+    success_badge:"✓ Cuenta creada", your_key:"Tu clave API", copy_btn:"Copiar al portapapeles",
+    warn_box:"⚠ Guarda esta clave ahora — no volverá a mostrarse. Se almacena de forma segura en la base de datos, pero sigues siendo responsable de protegerla: no reutilices una contraseña sensible como esta clave y regénerala antes de pasar a producción.",
+    manage_settings:"Gestionar configuración de riesgo →",
+    footer:"MeraFraud · Detección de fraude con IA para pymes",
+    err_name:"Por favor introduce el nombre de tu tienda o empresa.",
+    err_pass:"La contraseña debe tener al menos 6 caracteres (o déjala en blanco).",
+    creating:"Creando…",
+    err_api:"No se pudo conectar con la API. ¿Está funcionando en ",
+    curl_comment:"# Prueba tu primera solicitud",
+    copied:"Copiado ✓"
   }
 };
 

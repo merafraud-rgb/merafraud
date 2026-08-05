@@ -1,0 +1,639 @@
+openapi: 3.0.3
+info:
+  title: MeraFraud API
+  version: "1.0.0"
+  description: |
+    Real-time fraud-risk scoring API for e-commerce checkouts. Score a
+    transaction against MeraFraud's trained model plus optional enrichment
+    signals (IP intelligence, disposable-email detection, phone validation,
+    BIN lookup, postal validation, shared merchant network, customer
+    history, and merchant-defined custom rules).
+
+    Every /predict-family and account-management call requires an
+    `X-API-Key` header. Get a free key with no card required at
+    https://merafraud.com/website/pricing.html.
+  contact:
+    name: MeraFraud
+    url: https://merafraud.com
+servers:
+  - url: https://merafraud-apimerafraud-api-v2.onrender.com/api
+    description: Production
+
+tags:
+  - name: Scoring
+    description: Real-time and batch fraud-risk scoring
+  - name: Account
+    description: Tenant self-service — signup, login, keys, thresholds, webhook
+  - name: Custom Rules
+    description: Merchant-defined IF-THEN rules layered on top of the ML model
+  - name: Fraud Network
+    description: Cross-merchant shared blacklist
+  - name: Order Tracking
+    description: Feed real order outcomes back in to improve future scoring
+  - name: Admin
+    description: Internal, gated by X-Admin-Key — not for merchant use
+  - name: Public
+    description: No authentication required
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: A tenant's live (sk_live_...) or test (sk_test_...) key.
+    AdminKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Admin-Key
+      description: Internal admin key (ADMIN_API_KEY). Not issued to merchants.
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    Thresholds:
+      type: object
+      properties:
+        block:
+          type: number
+          format: float
+          example: 0.75
+        review:
+          type: number
+          format: float
+          example: 0.35
+
+    Transaction:
+      type: object
+      description: The 16 required fields every /predict call must send, plus optional enrichment fields.
+      required:
+        - transaction_amount
+        - amount_ratio_to_avg
+        - account_age_days
+        - customer_ltv
+        - time_since_last_tx_min
+        - num_tx_last_24h
+        - hour_of_day
+        - num_items_in_cart
+        - num_failed_payments_7d
+        - login_attempts_before_purchase
+        - billing_shipping_mismatch
+        - ip_billing_country_mismatch
+        - new_device
+        - new_payment_method
+        - free_email_domain
+        - express_shipping
+      properties:
+        transaction_amount: { type: number, example: 45.90 }
+        amount_ratio_to_avg: { type: number, example: 1.1, description: "This order's amount ÷ the customer's historical average order amount." }
+        account_age_days: { type: number, example: 240 }
+        customer_ltv: { type: number, example: 310.0, description: "Customer's lifetime spend to date." }
+        time_since_last_tx_min: { type: number, example: 4200 }
+        num_tx_last_24h: { type: number, example: 1 }
+        hour_of_day: { type: integer, example: 14, minimum: 0, maximum: 23 }
+        num_items_in_cart: { type: integer, example: 3 }
+        num_failed_payments_7d: { type: integer, example: 0 }
+        login_attempts_before_purchase: { type: integer, example: 1 }
+        billing_shipping_mismatch: { type: integer, enum: [0, 1] }
+        ip_billing_country_mismatch: { type: integer, enum: [0, 1], description: "Leave as 0 if you send customer_ip + billing_country — MeraFraud computes this server-side." }
+        new_device: { type: integer, enum: [0, 1] }
+        new_payment_method: { type: integer, enum: [0, 1] }
+        free_email_domain: { type: integer, enum: [0, 1] }
+        express_shipping: { type: integer, enum: [0, 1] }
+        customer_id: { type: string, description: "Optional. Usually the customer's email — enables customer-history and disposable-email checks.", example: "buyer@example.com" }
+        customer_ip: { type: string, description: "Optional. Enables real IP geolocation + proxy/VPN/datacenter detection.", example: "203.0.113.5" }
+        billing_country: { type: string, description: "Optional, ISO-2.", example: "TR" }
+        customer_phone: { type: string, description: "Optional. Enables phone format validation." }
+        card_bin: { type: string, description: "Optional, first 6-8 digits of the card. Enables issuer-country vs billing-country mismatch check." }
+        postal_code: { type: string, description: "Optional. Enables postal/ZIP validation." }
+        billing_city: { type: string, description: "Optional, used together with postal_code." }
+
+    PredictResponse:
+      type: object
+      properties:
+        risk_score: { type: number, format: float, example: 0.12 }
+        risk_level: { type: string, enum: [approve, review, block] }
+        reasons: { type: array, items: { type: string } }
+        thresholds: { $ref: "#/components/schemas/Thresholds" }
+        tenant: { type: string }
+        mode: { type: string, enum: [live, test] }
+        scored_at: { type: number, description: "Unix timestamp" }
+        customer_history:
+          type: object
+          nullable: true
+          properties:
+            total_orders: { type: integer }
+            cancelled_orders: { type: integer }
+            cancellation_rate: { type: number }
+            is_serial_canceller: { type: boolean }
+
+    Tenant:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, nullable: true }
+        api_key: { type: string }
+        api_key_test: { type: string }
+        thresholds: { $ref: "#/components/schemas/Thresholds" }
+        created_at: { type: string, format: date-time }
+        trial_ends_at: { type: string, format: date-time, nullable: true }
+        subscription_status: { type: string, enum: [trial, active, expired, cancelled] }
+        webhook_url: { type: string, nullable: true }
+        usage:
+          type: object
+          properties:
+            total_calls: { type: integer }
+            blocked: { type: integer }
+            reviewed: { type: integer }
+            approved: { type: integer }
+
+    CustomRule:
+      type: object
+      properties:
+        id: { type: string }
+        field: { type: string, example: transaction_amount }
+        operator: { type: string, enum: [">", "<", ">=", "<=", "==", "!="] }
+        value: { type: number }
+        action: { type: string, enum: [review, block] }
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Public]
+      summary: Service + model status
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  service: { type: string }
+                  model_loaded: { type: boolean }
+                  roc_auc: { type: number }
+                  training_rows: { type: integer }
+
+  /config:
+    get:
+      tags: [Public]
+      summary: Public, non-secret frontend config
+      security: []
+      responses:
+        "200":
+          description: OK
+
+  /feature-importance:
+    get:
+      tags: [Public]
+      summary: Global model feature importances
+      security: []
+      responses:
+        "200":
+          description: OK
+
+  /network/stats:
+    get:
+      tags: [Public, Fraud Network]
+      summary: Aggregate, anonymous size of the shared fraud network
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_reported_ips: { type: integer }
+                  total_reported_emails: { type: integer }
+                  total_reported_devices: { type: integer }
+
+  /predict:
+    post:
+      tags: [Scoring]
+      summary: Score a single transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Transaction" }
+      responses:
+        "200":
+          description: Scored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PredictResponse" }
+        "400": { description: Missing/invalid fields, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { description: Missing X-API-Key }
+        "402": { description: Trial expired or subscription inactive }
+        "403": { description: Invalid API key }
+
+  /predict/batch:
+    post:
+      tags: [Scoring]
+      summary: Score a list of transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transactions:
+                  type: array
+                  items: { $ref: "#/components/schemas/Transaction" }
+      responses:
+        "200":
+          description: Scored
+        "400":
+          description: transactions must be a non-empty list
+
+  /stats:
+    get:
+      tags: [Account]
+      summary: This tenant's 30-day usage stats (for the dashboard)
+      responses:
+        "200": { description: OK }
+
+  /geo-activity:
+    get:
+      tags: [Account]
+      summary: Recent flagged-transaction points for the dashboard world map
+      responses:
+        "200": { description: OK }
+
+  /checkout/initialize:
+    post:
+      tags: [Public]
+      summary: Start a demo checkout session for a plan
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plan: { type: string, enum: [starter, growth, scale] }
+                email: { type: string }
+      responses:
+        "200": { description: OK }
+        "400": { description: email is required }
+
+  /tenants:
+    get:
+      tags: [Admin]
+      summary: List all tenants (admin only)
+      security: [AdminKeyAuth: []]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Tenant" }
+        "401": { description: Missing/invalid X-Admin-Key }
+    post:
+      tags: [Public, Account]
+      summary: Public self-service signup — creates a tenant and returns its API keys
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: "Store name" }
+                email: { type: string }
+                password: { type: string }
+                risk_profile: { type: string, enum: [standard, strict, lenient] }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+        "400": { description: name is required }
+        "429": { description: "Rate limited — 5 signups/hour/IP" }
+
+  /tenants/me:
+    get:
+      tags: [Account]
+      summary: The calling tenant's own account info (reveals full API keys)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+
+  /tenants/thresholds:
+    put:
+      tags: [Account]
+      summary: Update this tenant's block/review risk thresholds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [block, review]
+              properties:
+                block: { type: number }
+                review: { type: number }
+      responses:
+        "200": { description: OK }
+        "400": { description: "must satisfy 0 <= review < block <= 1" }
+
+  /tenants/webhook:
+    put:
+      tags: [Account]
+      summary: Set or clear a Slack/Discord/generic incoming-webhook URL for block alerts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webhook_url: { type: string, nullable: true }
+      responses:
+        "200": { description: OK }
+        "400": { description: "webhook_url must be a valid http(s) URL, or null" }
+
+  /tenants/regenerate-key:
+    post:
+      tags: [Account]
+      summary: Rotate BOTH the live and test API keys (old ones stop working immediately)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+
+  /tenants/{tenant_id}/trial:
+    put:
+      tags: [Admin]
+      summary: Extend a tenant's trial (admin only)
+      security: [AdminKeyAuth: []]
+      parameters:
+        - in: path
+          name: tenant_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [days]
+              properties:
+                days: { type: integer, description: "Days from today" }
+      responses:
+        "200": { description: OK }
+        "404": { description: Tenant not found }
+
+  /tenants/{tenant_id}/subscription:
+    put:
+      tags: [Admin]
+      summary: Manually set a tenant's subscription status (stand-in for billing until a payment gateway is live)
+      security: [AdminKeyAuth: []]
+      parameters:
+        - in: path
+          name: tenant_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [trial, active, expired, cancelled] }
+      responses:
+        "200": { description: OK }
+        "400": { description: Invalid status }
+        "404": { description: Tenant not found }
+
+  /auth/login:
+    post:
+      tags: [Account]
+      summary: Log in with email + password (also recovers your API keys)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200": { description: OK }
+        "401": { description: Invalid email or password }
+
+  /auth/set-password:
+    post:
+      tags: [Account]
+      summary: Set/change the password for the calling tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: { type: string, minLength: 6 }
+      responses:
+        "200": { description: OK }
+        "400": { description: Password must be at least 6 characters }
+
+  /auth/forgot-password:
+    post:
+      tags: [Account]
+      summary: Request a password reset token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string }
+      responses:
+        "200": { description: "OK — token emailed, or returned directly if email isn't configured (demo mode)" }
+        "404": { description: No account found with that email }
+
+  /auth/reset-password:
+    post:
+      tags: [Account]
+      summary: Reset password using a token from forgot-password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, new_password]
+              properties:
+                token: { type: string }
+                new_password: { type: string, minLength: 6 }
+      responses:
+        "200": { description: OK }
+        "400": { description: Invalid or expired reset token }
+
+  /support/ticket:
+    post:
+      tags: [Public]
+      summary: Submit a support ticket (forwarded to the team inbox)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, message]
+              properties:
+                name: { type: string }
+                email: { type: string }
+                message: { type: string }
+                store_name: { type: string }
+                issue_type: { type: string }
+                lang: { type: string, enum: [en, tr] }
+      responses:
+        "201": { description: Sent }
+        "400": { description: Missing required fields }
+        "429": { description: "Rate limited — 5/hour/IP" }
+        "503": { description: Email delivery isn't configured on this server yet }
+
+  /orders/outcome:
+    post:
+      tags: [Order Tracking]
+      summary: Report what happened to an order (placed/cancelled/fulfilled)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customer_id, outcome]
+              properties:
+                customer_id: { type: string }
+                order_id: { type: string }
+                outcome: { type: string, enum: [placed, cancelled, fulfilled] }
+      responses:
+        "200": { description: OK }
+        "400": { description: Missing/invalid fields }
+
+  /customers/{customer_id}/history:
+    get:
+      tags: [Order Tracking]
+      summary: Get a customer's order/cancellation history for this tenant
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: OK }
+
+  /rules:
+    get:
+      tags: [Custom Rules]
+      summary: List this tenant's custom rules
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CustomRule" }
+    post:
+      tags: [Custom Rules]
+      summary: Add a custom rule (can only escalate risk — review or block, never approve)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [field, operator, value, action]
+              properties:
+                field: { type: string, description: "One of the 16 numeric Transaction fields" }
+                operator: { type: string, enum: [">", "<", ">=", "<=", "==", "!="] }
+                value: { type: number }
+                action: { type: string, enum: [review, block] }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CustomRule" }
+        "400": { description: Invalid rule }
+
+  /rules/{rule_id}:
+    delete:
+      tags: [Custom Rules]
+      summary: Delete a custom rule
+      parameters:
+        - in: path
+          name: rule_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: OK }
+        "404": { description: Rule not found }
+
+  /blacklist/report:
+    post:
+      tags: [Fraud Network]
+      summary: Report a confirmed-fraud identifier to the shared network
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ip: { type: string }
+                email: { type: string }
+                device_id: { type: string }
+      responses:
+        "200": { description: OK }
+        "400": { description: "Provide at least one of: ip, email, device_id" }
+
+  /reports/transactions.csv:
+    get:
+      tags: [Account]
+      summary: Export this tenant's transaction history as CSV
+      responses:
+        "200":
+          description: CSV file
+          content:
+            text/csv:
+              schema: { type: string }
