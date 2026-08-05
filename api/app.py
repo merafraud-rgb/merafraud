@@ -788,6 +788,18 @@ def network_stats():
     return jsonify(shared_intelligence.network_stats())
 
 
+@app.route("/api/network/feed", methods=["GET"])
+def network_feed():
+    """Public, fully anonymous live feed of fraud reports across every
+    MeraFraud merchant — no tenant identity or reported value is ever
+    included, only a category (ip/email/device) and a timestamp."""
+    try:
+        limit = int(request.args.get("limit", 30))
+    except (TypeError, ValueError):
+        limit = 30
+    return jsonify({"events": shared_intelligence.recent_events(limit)})
+
+
 @app.route("/api/reports/transactions.csv", methods=["GET"])
 @require_api_key
 def export_transactions_csv():

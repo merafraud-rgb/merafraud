@@ -93,6 +93,25 @@ def _ensure_schema(conn):
                     PRIMARY KEY (category, key_hash)
                 )
             """)
+            # Anonymous, append-only event log — powers the "live feed" shown
+            # in the dashboard. Deliberately stores NOTHING that could
+            # identify which merchant reported what: no tenant_id, no
+            # identifier value or hash, just a category and a timestamp.
+            # This is intentionally separate from shared_blacklist (which
+            # tracks current state per identifier) so the feed can show
+            # every individual report as it happens, including repeat
+            # reports of the same identifier by different merchants.
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS network_events (
+                    id SERIAL PRIMARY KEY,
+                    category TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+            """)
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_network_events_id
+                ON network_events (id DESC)
+            """)
         conn.commit()
         _DB_INITIALIZED = True
 
@@ -136,8 +155,41 @@ def report_fraud(tenant_id: str, ip: str | None = None, email: str | None = None
 
                 reported.append({"category": category, "report_count": len(reporting_tenants)})
 
+                # Log an anonymous event for the live feed — one row per
+                # category reported in this call, no tenant/identifier info.
+                cur.execute(
+                    "INSERT INTO network_events (category, created_at) VALUES (%s, %s)",
+                    (category, now),
+                )
+
+            # Keep the event log from growing forever — the feed only ever
+            # shows the most recent ~50, so trim well above that.
+            cur.execute("""
+                DELETE FROM network_events WHERE id NOT IN (
+                    SELECT id FROM network_events ORDER BY id DESC LIMIT 1000
+                )
+            """)
+
         conn.commit()
         return {"status": "ok", "reported": reported}
+    finally:
+        conn.close()
+
+
+def recent_events(limit: int = 30) -> list[dict]:
+    """Anonymous, real-time-ish feed of fraud reports across the whole
+    network. Only ever returns a category and a timestamp — never which
+    merchant reported it or what the identifier was."""
+    limit = max(1, min(limit, 100))
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT category, created_at FROM network_events ORDER BY id DESC LIMIT %s",
+                (limit,),
+            )
+            rows = cur.fetchall()
+        return [{"category": r["category"], "created_at": r["created_at"]} for r in rows]
     finally:
         conn.close()
 

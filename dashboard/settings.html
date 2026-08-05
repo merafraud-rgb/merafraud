@@ -116,6 +116,18 @@
   .error-msg{ color:var(--block); font-size:13px; margin-top:10px; display:none; }
   .error-msg.show{ display:block; }
 
+  .feed-panel{ display:none; margin-top:16px; border-top:1px solid rgba(255,255,255,0.08); padding-top:16px; }
+  .feed-panel.open{ display:block; }
+  .feed-panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .feed-panel-head .title{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
+  .feed-live-dot{ width:7px; height:7px; border-radius:50%; background:var(--block); display:inline-block; animation:feedPulse 1.6s ease-in-out infinite; }
+  @keyframes feedPulse{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+  .feed-list{ max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+  .feed-item{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 12px; background:rgba(0,0,0,0.2); border-radius:9px; font-size:12.5px; }
+  .feed-item .fi-label{ display:flex; align-items:center; gap:8px; color:var(--text-hi); }
+  .feed-item .fi-time{ font-family:'JetBrains Mono',monospace; color:var(--text-lo); font-size:11px; white-space:nowrap; }
+  .feed-empty{ color:var(--text-lo); font-size:12.5px; text-align:center; padding:16px 0; }
+
   .auth-tabs{ display:flex; gap:4px; background:rgba(0,0,0,0.2); padding:4px; border-radius:10px; margin-bottom:4px; }
   .auth-tab{
     flex:1; text-align:center; font-size:12.5px; padding:9px 6px; border-radius:8px; cursor:pointer;
@@ -338,6 +350,18 @@
       <button class="btn-danger" onclick="reportFraud()" data-i18n="report_fraud_btn">🚩 Report as Confirmed Fraud</button>
       <div class="error-msg" id="reportError"></div>
       <span class="save-note" id="reportNote" data-i18n="network_report_success">✓ Reported</span>
+
+      <button class="btn-secondary" style="margin-top:16px; width:100%;" onclick="toggleNetworkFeed()" id="feedToggleBtn">
+        <span data-i18n="feed_toggle_btn">🔴 Show Live Feed</span>
+      </button>
+      <div class="feed-panel" id="feedPanel">
+        <div class="feed-panel-head">
+          <div class="title"><span class="feed-live-dot"></span><span data-i18n="feed_title">Live Network Activity</span></div>
+        </div>
+        <div class="sub" style="margin-bottom:12px;" data-i18n="feed_sub">Anonymous — shows what other merchants are reporting, never who reported it or what the value was.</div>
+        <div class="feed-list" id="feedList"></div>
+        <div class="feed-empty" id="feedEmpty" data-i18n="feed_empty" style="display:none;">No activity yet.</div>
+      </div>
     </div>
 
     <div class="panel">
@@ -419,6 +443,11 @@ var DICT = {
     network_ip_label:"IP address (optional)", network_email_label:"Email (optional)", network_device_label:"Device ID (optional)",
     report_fraud_btn:"🚩 Report as Confirmed Fraud", network_report_success:"✓ Reported",
     err_report_empty:"Enter at least one of: IP, email, or device ID.",
+    feed_toggle_btn:"🔴 Show Live Feed", feed_title:"Live Network Activity",
+    feed_sub:"Anonymous — shows what other merchants are reporting, never who reported it or what the value was.",
+    feed_empty:"No activity yet.", feed_just_now:"just now",
+    m_ago_feed:"min ago", h_ago_feed:"h ago", d_ago_feed:"d ago",
+    feed_cat_ips:"IP address reported", feed_cat_emails:"Email reported", feed_cat_devices:"Device reported",
     outcome_h2:"Order Outcome Tracking",
     outcome_sub:"Tell MeraFraud what happened to an order so future scores for that customer account for their real pattern (serial cancellations, etc.).",
     outcome_customer_label:"Customer ID (the email/ID sent as customer_id at checkout)",
@@ -483,6 +512,11 @@ var DICT = {
     network_ip_label:"IP adresi (opsiyonel)", network_email_label:"E-posta (opsiyonel)", network_device_label:"Cihaz ID (opsiyonel)",
     report_fraud_btn:"🚩 Doğrulanmış Dolandırıcılık Olarak Bildir", network_report_success:"✓ Bildirildi",
     err_report_empty:"En az birini girin: IP, e-posta veya cihaz ID.",
+    feed_toggle_btn:"🔴 Canlı Akışı Göster", feed_title:"Canlı Ağ Etkinliği",
+    feed_sub:"Anonim — diğer mağazaların neyi bildirdiğini gösterir, kimin bildirdiğini veya değerin ne olduğunu asla göstermez.",
+    feed_empty:"Henüz etkinlik yok.", feed_just_now:"az önce",
+    m_ago_feed:"dk önce", h_ago_feed:"sa önce", d_ago_feed:"gün önce",
+    feed_cat_ips:"IP adresi bildirildi", feed_cat_emails:"E-posta bildirildi", feed_cat_devices:"Cihaz bildirildi",
     outcome_h2:"Sipariş Sonucu Takibi",
     outcome_sub:"Bir siparişe ne olduğunu MeraFraud'a bildirin, böylece o müşteri için gelecekteki skorlar gerçek davranış örüntüsünü (art arda iptal gibi) hesaba katar.",
     outcome_customer_label:"Müşteri ID (checkout'ta customer_id olarak gönderilen e-posta/ID)",
@@ -547,6 +581,11 @@ var DICT = {
     network_ip_label:"IP-Adresse (optional)", network_email_label:"E-Mail (optional)", network_device_label:"Geräte-ID (optional)",
     report_fraud_btn:"🚩 Als bestätigten Betrug melden", network_report_success:"✓ Gemeldet",
     err_report_empty:"Geben Sie mindestens eines an: IP, E-Mail oder Geräte-ID.",
+    feed_toggle_btn:"🔴 Live-Feed anzeigen", feed_title:"Live-Netzwerkaktivität",
+    feed_sub:"Anonym — zeigt, was andere Händler melden, niemals wer es gemeldet hat oder welcher Wert es war.",
+    feed_empty:"Noch keine Aktivität.", feed_just_now:"gerade eben",
+    m_ago_feed:"Min. her", h_ago_feed:"Std. her", d_ago_feed:"Tg. her",
+    feed_cat_ips:"IP-Adresse gemeldet", feed_cat_emails:"E-Mail gemeldet", feed_cat_devices:"Gerät gemeldet",
     outcome_h2:"Bestellergebnis-Verfolgung",
     outcome_sub:"Teilen Sie MeraFraud mit, was mit einer Bestellung passiert ist, damit zukünftige Bewertungen für dieses Kundenkonto sein tatsächliches Muster (wiederholte Stornierungen usw.) berücksichtigen.",
     outcome_customer_label:"Kunden-ID (die E-Mail/ID, die beim Checkout als customer_id gesendet wurde)",
@@ -611,6 +650,11 @@ var DICT = {
     network_ip_label:"Adresse IP (facultatif)", network_email_label:"E-mail (facultatif)", network_device_label:"ID de l'appareil (facultatif)",
     report_fraud_btn:"🚩 Signaler comme fraude confirmée", network_report_success:"✓ Signalé",
     err_report_empty:"Saisissez au moins l'un des éléments suivants : IP, e-mail ou ID de l'appareil.",
+    feed_toggle_btn:"🔴 Afficher le flux en direct", feed_title:"Activité réseau en direct",
+    feed_sub:"Anonyme — montre ce que les autres marchands signalent, jamais qui l'a signalé ni quelle était la valeur.",
+    feed_empty:"Aucune activité pour le moment.", feed_just_now:"à l'instant",
+    m_ago_feed:"min", h_ago_feed:"h", d_ago_feed:"j",
+    feed_cat_ips:"Adresse IP signalée", feed_cat_emails:"E-mail signalé", feed_cat_devices:"Appareil signalé",
     outcome_h2:"Suivi du résultat des commandes",
     outcome_sub:"Indiquez à MeraFraud ce qui est arrivé à une commande afin que les futurs scores de ce compte client tiennent compte de son schéma réel (annulations en série, etc.).",
     outcome_customer_label:"ID client (l'e-mail/ID envoyé comme customer_id au checkout)",
@@ -675,6 +719,11 @@ var DICT = {
     network_ip_label:"Dirección IP (opcional)", network_email_label:"Correo electrónico (opcional)", network_device_label:"ID del dispositivo (opcional)",
     report_fraud_btn:"🚩 Reportar como fraude confirmado", network_report_success:"✓ Reportado",
     err_report_empty:"Introduce al menos uno de estos: IP, correo electrónico o ID del dispositivo.",
+    feed_toggle_btn:"🔴 Mostrar actividad en vivo", feed_title:"Actividad de red en vivo",
+    feed_sub:"Anónimo — muestra lo que otros comerciantes están reportando, nunca quién lo reportó ni cuál era el valor.",
+    feed_empty:"Aún no hay actividad.", feed_just_now:"justo ahora",
+    m_ago_feed:"min", h_ago_feed:"h", d_ago_feed:"d",
+    feed_cat_ips:"Dirección IP reportada", feed_cat_emails:"Correo electrónico reportado", feed_cat_devices:"Dispositivo reportado",
     outcome_h2:"Seguimiento del resultado del pedido",
     outcome_sub:"Indica a MeraFraud qué pasó con un pedido para que las futuras puntuaciones de esa cuenta de cliente tengan en cuenta su patrón real (cancelaciones en serie, etc.).",
     outcome_customer_label:"ID de cliente (el correo/ID enviado como customer_id en el checkout)",
@@ -945,10 +994,65 @@ async function reportFraud(){
     document.getElementById('reportEmail').value = '';
     document.getElementById('reportDevice').value = '';
     loadNetworkStats();
+    if(feedInterval) loadNetworkFeed();
   }catch(e){
     errorEl.textContent = e.message;
     errorEl.classList.add('show');
   }
+}
+
+// --- Live Network Feed (anonymous) ---
+let feedInterval = null;
+const FEED_ICONS = { ips: '🌐', emails: '✉️', devices: '📱' };
+
+function toggleNetworkFeed(){
+  const panel = document.getElementById('feedPanel');
+  const isOpen = panel.classList.contains('open');
+  if(isOpen){
+    panel.classList.remove('open');
+    if(feedInterval){ clearInterval(feedInterval); feedInterval = null; }
+  }else{
+    panel.classList.add('open');
+    loadNetworkFeed();
+    feedInterval = setInterval(loadNetworkFeed, 8000);
+  }
+}
+
+function feedTimeAgo(isoString){
+  const d = DICT[window.mfLang || 'tr'];
+  const then = new Date(isoString).getTime();
+  const now = Date.now();
+  const diffMin = Math.max(0, Math.floor((now - then) / 60000));
+  if(diffMin < 1) return d.feed_just_now;
+  if(diffMin < 60) return `${diffMin} ${d.m_ago_feed}`;
+  const diffH = Math.floor(diffMin / 60);
+  if(diffH < 24) return `${diffH} ${d.h_ago_feed}`;
+  const diffD = Math.floor(diffH / 24);
+  return `${diffD} ${d.d_ago_feed}`;
+}
+
+async function loadNetworkFeed(){
+  const d = DICT[window.mfLang || 'tr'];
+  try{
+    const res = await fetch(`${API_BASE}/network/feed?limit=30`);
+    if(!res.ok) return;
+    const data = await res.json();
+    const events = data.events || [];
+    const listEl = document.getElementById('feedList');
+    const emptyEl = document.getElementById('feedEmpty');
+    if(events.length === 0){
+      listEl.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    listEl.innerHTML = events.map(ev => {
+      const icon = FEED_ICONS[ev.category] || '⚠️';
+      const label = d['feed_cat_' + ev.category] || ev.category;
+      const time = feedTimeAgo(ev.created_at);
+      return `<div class="feed-item"><span class="fi-label">${icon} ${label}</span><span class="fi-time">${time}</span></div>`;
+    }).join('');
+  }catch(e){ /* ignore — feed is best-effort */ }
 }
 
 // --- Order Outcome Tracking ---
