@@ -264,6 +264,17 @@
   .feed-score.review{ background:rgba(251,191,36,0.15); color:var(--review); }
   .feed-score.block{ background:rgba(251,69,112,0.15); color:var(--block); }
 
+  .netfeed-panel{ display:none; margin-top:20px; }
+  .netfeed-panel.open{ display:block; }
+  .netfeed-list{ max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+  .netfeed-item{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; background:rgba(0,0,0,0.2); border-radius:10px; font-size:13px; }
+  .netfeed-item .nfi-label{ display:flex; align-items:center; gap:8px; color:var(--text-hi); }
+  .netfeed-item .nfi-time{ font-family:'JetBrains Mono',monospace; color:var(--text-lo); font-size:11.5px; white-space:nowrap; }
+  .netfeed-empty{ color:var(--text-lo); font-size:13px; text-align:center; padding:18px 0; }
+  .netfeed-live-dot{ width:7px; height:7px; border-radius:50%; background:var(--pink-1); display:inline-block; animation:netfeedPulse 1.6s ease-in-out infinite; margin-right:6px; }
+  @keyframes netfeedPulse{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+  .netfeed-btn{ width:auto; margin-top:0; padding:11px 18px; display:flex; align-items:center; }
+
   footer{ text-align:center; color:var(--text-lo); font-size:12.5px; margin-top:60px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06); }
 </style>
 </head>
@@ -341,6 +352,24 @@
       <div class="sub" data-i18n="live_sub">Most recent scored transactions by location</div>
       <div class="feed-list" id="feedList">
         <div class="feed-item"><span class="feed-city" style="color:var(--text-lo)" data-i18n="loading">Loading…</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-bottom:20px;">
+    <div class="panel">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin-bottom:6px;" data-i18n="netfeed_h2">Network-Wide Fraud Activity</h2>
+          <div class="sub" style="margin-bottom:0;" data-i18n="netfeed_sub">Anonymous — live fraud reports from every MeraFraud merchant, not just yours.</div>
+        </div>
+        <button class="btn-secondary netfeed-btn" onclick="toggleNetFeed()">
+          <span class="netfeed-live-dot"></span><span data-i18n="netfeed_toggle_btn">Show Live Feed</span>
+        </button>
+      </div>
+      <div class="netfeed-panel" id="netFeedPanel">
+        <div class="netfeed-list" id="netFeedList"></div>
+        <div class="netfeed-empty" id="netFeedEmpty" data-i18n="netfeed_empty" style="display:none;">No activity yet.</div>
       </div>
     </div>
   </section>
@@ -480,6 +509,11 @@ var DICT = {
     map_h2:"Global Risk Map", map_sub:"Recent flagged transactions across your markets",
     legend_approve:"Approve", legend_review:"Review", legend_block:"Block",
     live_h2:"Live Activity", live_sub:"Most recent scored transactions by location", loading:"Loading…",
+    netfeed_h2:"Network-Wide Fraud Activity",
+    netfeed_sub:"Anonymous — live fraud reports from every MeraFraud merchant, not just yours.",
+    netfeed_toggle_btn:"Show Live Feed", netfeed_empty:"No activity yet.", netfeed_just_now:"just now",
+    netfeed_m_ago:"min ago", netfeed_h_ago:"h ago", netfeed_d_ago:"d ago",
+    netfeed_cat_ips:"IP address reported", netfeed_cat_emails:"Email reported", netfeed_cat_devices:"Device reported",
     test_h2:"Test a Transaction", test_sub:"Build a transaction scenario and see MeraFraud's risk score and reasoning.",
     f_amount:"Transaction Amount (€)", f_ratio:"Ratio to Average (×)", f_age:"Account Age (days)",
     f_ltv:"Customer Lifetime Value (€)", f_lasttx:"Time Since Last Transaction (min)",
@@ -529,6 +563,11 @@ var DICT = {
     map_h2:"Küresel Risk Haritası", map_sub:"Pazarlarınızdaki son işaretlenen işlemler",
     legend_approve:"Onayla", legend_review:"İncele", legend_block:"Engelle",
     live_h2:"Canlı Etkinlik", live_sub:"Konuma göre en son puanlanan işlemler", loading:"Yükleniyor…",
+    netfeed_h2:"Ağ Genelinde Dolandırıcılık Etkinliği",
+    netfeed_sub:"Anonim — sadece senin değil, tüm MeraFraud mağazalarının canlı dolandırıcılık bildirimleri.",
+    netfeed_toggle_btn:"Canlı Akışı Göster", netfeed_empty:"Henüz etkinlik yok.", netfeed_just_now:"az önce",
+    netfeed_m_ago:"dk önce", netfeed_h_ago:"sa önce", netfeed_d_ago:"gün önce",
+    netfeed_cat_ips:"IP adresi bildirildi", netfeed_cat_emails:"E-posta bildirildi", netfeed_cat_devices:"Cihaz bildirildi",
     test_h2:"Bir İşlem Test Edin", test_sub:"Bir işlem senaryosu oluşturun ve MeraFraud'un risk skorunu ve gerekçesini görün.",
     f_amount:"İşlem Tutarı (€)", f_ratio:"Ortalamaya Oran (×)", f_age:"Hesap Yaşı (gün)",
     f_ltv:"Müşteri Yaşam Boyu Değeri (€)", f_lasttx:"Son İşlemden Bu Yana Geçen Süre (dk)",
@@ -578,6 +617,11 @@ var DICT = {
     map_h2:"Globale Risikokarte", map_sub:"Kürzlich markierte Transaktionen in Ihren Märkten",
     legend_approve:"Genehmigen", legend_review:"Prüfen", legend_block:"Blockieren",
     live_h2:"Live-Aktivität", live_sub:"Neueste bewertete Transaktionen nach Standort", loading:"Wird geladen…",
+    netfeed_h2:"Netzwerkweite Betrugsaktivität",
+    netfeed_sub:"Anonym — Live-Betrugsmeldungen von jedem MeraFraud-Händler, nicht nur von Ihnen.",
+    netfeed_toggle_btn:"Live-Feed anzeigen", netfeed_empty:"Noch keine Aktivität.", netfeed_just_now:"gerade eben",
+    netfeed_m_ago:"Min. her", netfeed_h_ago:"Std. her", netfeed_d_ago:"Tg. her",
+    netfeed_cat_ips:"IP-Adresse gemeldet", netfeed_cat_emails:"E-Mail gemeldet", netfeed_cat_devices:"Gerät gemeldet",
     test_h2:"Eine Transaktion testen", test_sub:"Erstellen Sie ein Transaktionsszenario und sehen Sie den Risikowert und die Begründung von MeraFraud.",
     f_amount:"Transaktionsbetrag (€)", f_ratio:"Verhältnis zum Durchschnitt (×)", f_age:"Kontoalter (Tage)",
     f_ltv:"Kundenlebenszeitwert (€)", f_lasttx:"Zeit seit letzter Transaktion (Min)",
@@ -627,6 +671,11 @@ var DICT = {
     map_h2:"Carte de risque mondiale", map_sub:"Transactions signalées récemment sur vos marchés",
     legend_approve:"Approuver", legend_review:"Examiner", legend_block:"Bloquer",
     live_h2:"Activité en direct", live_sub:"Transactions les plus récemment évaluées par emplacement", loading:"Chargement…",
+    netfeed_h2:"Activité de fraude à l'échelle du réseau",
+    netfeed_sub:"Anonyme — signalements de fraude en direct de tous les marchands MeraFraud, pas seulement les vôtres.",
+    netfeed_toggle_btn:"Afficher le flux en direct", netfeed_empty:"Aucune activité pour le moment.", netfeed_just_now:"à l'instant",
+    netfeed_m_ago:"min", netfeed_h_ago:"h", netfeed_d_ago:"j",
+    netfeed_cat_ips:"Adresse IP signalée", netfeed_cat_emails:"E-mail signalé", netfeed_cat_devices:"Appareil signalé",
     test_h2:"Tester une transaction", test_sub:"Créez un scénario de transaction et découvrez le score de risque et le raisonnement de MeraFraud.",
     f_amount:"Montant de la transaction (€)", f_ratio:"Ratio par rapport à la moyenne (×)", f_age:"Ancienneté du compte (jours)",
     f_ltv:"Valeur vie client (€)", f_lasttx:"Temps depuis la dernière transaction (min)",
@@ -676,6 +725,11 @@ var DICT = {
     map_h2:"Mapa de riesgo global", map_sub:"Transacciones marcadas recientemente en tus mercados",
     legend_approve:"Aprobar", legend_review:"Revisar", legend_block:"Bloquear",
     live_h2:"Actividad en vivo", live_sub:"Transacciones más recientes puntuadas por ubicación", loading:"Cargando…",
+    netfeed_h2:"Actividad de fraude en toda la red",
+    netfeed_sub:"Anónimo — reportes de fraude en vivo de todos los comerciantes de MeraFraud, no solo el tuyo.",
+    netfeed_toggle_btn:"Mostrar actividad en vivo", netfeed_empty:"Aún no hay actividad.", netfeed_just_now:"justo ahora",
+    netfeed_m_ago:"min", netfeed_h_ago:"h", netfeed_d_ago:"d",
+    netfeed_cat_ips:"Dirección IP reportada", netfeed_cat_emails:"Correo electrónico reportado", netfeed_cat_devices:"Dispositivo reportado",
     test_h2:"Probar una transacción", test_sub:"Crea un escenario de transacción y consulta la puntuación de riesgo y el razonamiento de MeraFraud.",
     f_amount:"Importe de la transacción (€)", f_ratio:"Ratio respecto a la media (×)", f_age:"Antigüedad de la cuenta (días)",
     f_ltv:"Valor de vida del cliente (€)", f_lasttx:"Tiempo desde la última transacción (min)",
@@ -868,6 +922,60 @@ async function checkHealth(){
     loadImportanceMock();
     loadGeoActivityMock();
   }
+}
+
+// --- Network-Wide Fraud Activity (anonymous, shared across all merchants) ---
+let netFeedInterval = null;
+const NETFEED_ICONS = { ips: '🌐', emails: '✉️', devices: '📱' };
+
+function toggleNetFeed(){
+  const panel = document.getElementById('netFeedPanel');
+  const isOpen = panel.classList.contains('open');
+  if(isOpen){
+    panel.classList.remove('open');
+    if(netFeedInterval){ clearInterval(netFeedInterval); netFeedInterval = null; }
+  }else{
+    panel.classList.add('open');
+    loadNetFeed();
+    netFeedInterval = setInterval(loadNetFeed, 8000);
+  }
+}
+
+function netFeedTimeAgo(isoString){
+  const d = t();
+  const then = new Date(isoString).getTime();
+  const now = Date.now();
+  const diffMin = Math.max(0, Math.floor((now - then) / 60000));
+  if(diffMin < 1) return d.netfeed_just_now;
+  if(diffMin < 60) return `${diffMin} ${d.netfeed_m_ago}`;
+  const diffH = Math.floor(diffMin / 60);
+  if(diffH < 24) return `${diffH} ${d.netfeed_h_ago}`;
+  const diffD = Math.floor(diffH / 24);
+  return `${diffD} ${d.netfeed_d_ago}`;
+}
+
+async function loadNetFeed(){
+  const d = t();
+  try{
+    const res = await fetch(`${API_BASE}/network/feed?limit=30`);
+    if(!res.ok) return;
+    const data = await res.json();
+    const events = data.events || [];
+    const listEl = document.getElementById('netFeedList');
+    const emptyEl = document.getElementById('netFeedEmpty');
+    if(events.length === 0){
+      listEl.innerHTML = '';
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    listEl.innerHTML = events.map(ev => {
+      const icon = NETFEED_ICONS[ev.category] || '⚠️';
+      const label = d['netfeed_cat_' + ev.category] || ev.category;
+      const time = netFeedTimeAgo(ev.created_at);
+      return `<div class="netfeed-item"><span class="nfi-label">${icon} ${label}</span><span class="nfi-time">${time}</span></div>`;
+    }).join('');
+  }catch(e){ /* ignore — feed is best-effort */ }
 }
 
 async function loadStats(){
