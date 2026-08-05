@@ -95,13 +95,6 @@ def _ensure_schema(conn):
             # merchant integrate and test without polluting real stats.
             cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS api_key_test TEXT")
             cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_api_key_test ON tenants (api_key_test)")
-            # Tracks which trial-ending reminder emails have already gone out
-            # for this tenant, as a comma-separated list of day-thresholds
-            # (e.g. "3" or "3,1") — prevents the daily reminder job from
-            # sending the same "3 days left" email twice if it runs more
-            # than once, or re-sending after the tenant's trial_ends_at
-            # changes for an unrelated reason.
-            cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS trial_reminders_sent TEXT NOT NULL DEFAULT ''")
             cur.execute("SELECT id FROM tenants WHERE api_key_test IS NULL")
             missing_test_key = [r[0] for r in cur.fetchall()]
             for tid in missing_test_key:
@@ -251,72 +244,6 @@ def set_trial_end(tenant_id: str, days_from_now: int) -> dict | None:
             row = cur.fetchone()
         conn.commit()
         return _row_to_tenant(row) if row else None
-    finally:
-        conn.close()
-
-
-TRIAL_REMINDER_DAY_THRESHOLDS = (3, 1)
-
-
-def get_tenants_needing_trial_reminder() -> list[dict]:
-    """Called once a day by a scheduled job (see the trial-reminders GitHub
-    Action). Returns tenants still on 'trial' whose trial_ends_at falls
-    within one of TRIAL_REMINDER_DAY_THRESHOLDS days from now, and who
-    haven't already been sent that specific reminder — each returned row
-    is tagged with '_reminder_day' so the caller knows which one to send.
-    Tenants without an email on file are skipped; there's nowhere to send
-    the reminder."""
-    conn = _get_conn()
-    try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute("""
-                SELECT * FROM tenants
-                WHERE subscription_status = 'trial'
-                  AND trial_ends_at IS NOT NULL
-                  AND email IS NOT NULL
-                  AND email != ''
-            """)
-            rows = cur.fetchall()
-    finally:
-        conn.close()
-
-    now = datetime.now(timezone.utc)
-    due = []
-    for row in rows:
-        tenant = _row_to_tenant(row)
-        try:
-            ends_at = datetime.fromisoformat(tenant["trial_ends_at"])
-        except (TypeError, ValueError):
-            continue
-        already_sent = set((tenant.get("trial_reminders_sent") or "").split(",")) - {""}
-        days_left = (ends_at - now).total_seconds() / 86400
-        if days_left <= 0:
-            continue  # already expired — the subscription gate handles this, not a reminder
-        for threshold in TRIAL_REMINDER_DAY_THRESHOLDS:
-            if str(threshold) in already_sent:
-                continue
-            # Fire once days_left drops to/below the threshold (covers the
-            # job running slightly late or the trial length changing).
-            if days_left <= threshold:
-                tenant["_reminder_day"] = threshold
-                due.append(tenant)
-                break  # one reminder per tenant per run, even if multiple thresholds are overdue
-    return due
-
-
-def mark_trial_reminder_sent(tenant_id: str, day_threshold: int) -> None:
-    conn = _get_conn()
-    try:
-        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute("SELECT trial_reminders_sent FROM tenants WHERE id = %s", (tenant_id,))
-            row = cur.fetchone()
-            if not row:
-                return
-            sent = set((row["trial_reminders_sent"] or "").split(",")) - {""}
-            sent.add(str(day_threshold))
-            cur.execute("UPDATE tenants SET trial_reminders_sent = %s WHERE id = %s",
-                        (",".join(sorted(sent)), tenant_id))
-        conn.commit()
     finally:
         conn.close()
 

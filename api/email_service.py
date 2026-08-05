@@ -202,45 +202,6 @@ def send_webhook_alert(webhook_url: str, store_name: str, risk_score: float,
         return False
 
 
-def send_trial_reminder_email(to_email: str, store_name: str, days_left: int, lang: str = "tr") -> bool:
-    """Sent 3 days and 1 day before a tenant's free trial ends (see
-    tenants.get_tenants_needing_trial_reminder / the daily trial-reminders
-    GitHub Action). Without this, a merchant's API key silently starts
-    returning 402 the moment the trial clock runs out, with no warning —
-    this gives them a heads-up and a clear next step (contact us to go
-    active) before that happens."""
-    settings_url = "https://merafraud.com/dashboard/settings.html"
-    if lang == "en":
-        day_word = "day" if days_left == 1 else "days"
-        subject = f"Your MeraFraud trial ends in {days_left} {day_word}"
-        html = f"""
-        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
-          <h2 style="color:#1c1044;">Your trial ends in {days_left} {day_word}</h2>
-          <p>Hi {store_name},</p>
-          <p>Your MeraFraud free trial ends in <b>{days_left} {day_word}</b>. After that, your API key will stop scoring transactions until your account is switched to active.</p>
-          <p>To keep it running without interruption, reply to this email or reach us at <a href="mailto:hello@merafraud.com">hello@merafraud.com</a> and we'll get you set up.</p>
-          <p><a href="{settings_url}">Check your account status</a></p>
-          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
-        </div>
-        """
-        text = f"Hi {store_name}, your MeraFraud free trial ends in {days_left} {day_word}. Reply to this email or contact hello@merafraud.com to stay active without interruption."
-    else:
-        day_word = "gün"
-        subject = f"MeraFraud deneme süreniz {days_left} {day_word} sonra bitiyor"
-        html = f"""
-        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
-          <h2 style="color:#1c1044;">Deneme süreniz {days_left} {day_word} sonra bitiyor</h2>
-          <p>Merhaba {store_name},</p>
-          <p>MeraFraud ücretsiz deneme süreniz <b>{days_left} {day_word}</b> sonra bitiyor. Bu tarihten sonra hesabınız aktif hale getirilmeden API anahtarınız işlem puanlamayı durduracak.</p>
-          <p>Kesintisiz devam etmek için bu e-postayı yanıtlayabilir veya <a href="mailto:hello@merafraud.com">hello@merafraud.com</a> adresinden bize ulaşabilirsiniz.</p>
-          <p><a href="{settings_url}">Hesap durumunuzu kontrol edin</a></p>
-          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
-        </div>
-        """
-        text = f"Merhaba {store_name}, MeraFraud ücretsiz deneme süreniz {days_left} gün sonra bitiyor. Kesintisiz devam etmek için hello@merafraud.com adresinden bize ulaşın."
-    return send_email(to_email, subject, html, text, reply_to="hello@merafraud.com")
-
-
 def send_welcome_email(to_email: str, store_name: str) -> bool:
     """Sent right after a merchant signs up with an email address. This was
     previously missing its own function signature — its body had been
