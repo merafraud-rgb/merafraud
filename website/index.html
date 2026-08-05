@@ -58,6 +58,7 @@
   .trust-row b{ color:var(--text-hi); font-size:20px; display:block; font-family:'JetBrains Mono',monospace; }
 
   .problem-solution{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:800px){ .problem-solution{ grid-template-columns:1fr; } }
   .ps-card{ padding:32px; }
   .ps-card.problem{ border-color:rgba(251,69,112,0.25); }
   .ps-card.solution{ border-color:rgba(52,211,153,0.25); }
@@ -128,6 +129,7 @@
     <button type="button" class="lang-btn" data-lang="fr">FR</button>
     <button type="button" class="lang-btn" data-lang="es">ES</button>
   </div>
+    <button type="button" class="mobile-toggle" aria-label="Menu" aria-expanded="false" onclick="var n=document.querySelector('.main-nav'); n.classList.toggle('mobile-open'); this.setAttribute('aria-expanded', n.classList.contains('mobile-open'));">☰</button>
 </header>
 
 <section class="wrap hero" id="tour-hero">

@@ -74,6 +74,7 @@
   .error-msg.show{ display:block; }
 
   .summary-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:24px; }
+  @media (max-width:560px){ .summary-grid{ grid-template-columns:repeat(2,1fr); } }
   .summary-card{ text-align:center; padding:16px 8px; background:rgba(0,0,0,0.2); border-radius:12px; }
   .summary-card .n{ font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600; }
   .summary-card .l{ font-size:10.5px; color:var(--text-lo); margin-top:4px; }
