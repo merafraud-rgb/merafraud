@@ -108,9 +108,20 @@ header{
 }
 .nav-backdrop.show{ display:block; opacity:1; }
 
+/* Two copies of .lang-switch exist in the markup: one in the header row
+   (desktop) and one duplicated inside .main-nav (mobile dropdown, marked
+   .lang-switch-mobile). Only one is ever visible at a time — see the base
+   rule below and the mobile override in the media query. Without this the
+   header row on mobile had to fit logo + 5 language buttons + the hamburger
+   all in one non-wrapping line, which is wider than most phones and just
+   got silently clipped by body's overflow-x:hidden — that's why the
+   language buttons looked "cut in half" and the hamburger never appeared:
+   it was pushed off-screen, not missing. */
+.main-nav .lang-switch{ display:none; }
 @media (max-width:720px){
-  .lang-switch{ order:3; }
-  .mobile-toggle{ display:flex; order:4; }
+  .lang-switch:not(.lang-switch-mobile){ display:none; }
+  .mobile-toggle{ display:flex; }
+  .main-nav .lang-switch{ display:flex; margin:16px auto 2px; }
   .main-nav{
     display:flex; visibility:hidden; pointer-events:none; position:absolute; left:12px; right:12px; top:calc(100% + 8px);
     flex-direction:column; align-items:stretch; overflow-x:visible; mask-image:none;
