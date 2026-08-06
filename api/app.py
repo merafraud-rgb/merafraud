@@ -651,6 +651,11 @@ def auth_login():
     tenant = tenant_store.login(email, password)
     if not tenant:
         return jsonify({"error": "Invalid email or password"}), 401
+    # tenant_store.login() attaches a '_member' key when the email/password
+    # matched an invited team member rather than the account owner —
+    # public_view() doesn't strip it, so it rides along automatically and
+    # the frontend can tell "signed in as teammate X (role)" apart from
+    # "signed in as the owner".
     return jsonify(tenant_store.public_view(tenant))
 
 
@@ -872,6 +877,103 @@ def update_my_webhook():
         return jsonify({"error": "'webhook_url' must be a valid http(s) URL, or null/empty to disable"}), 400
     updated = tenant_store.update_webhook(g.tenant["id"], webhook_url)
     return jsonify(tenant_store.public_view(updated))
+
+
+# ---------------------------------------------------------------------------
+# Team accounts — lets a store owner invite teammates who sign in with their
+# own email/password instead of sharing the account's API key. They act
+# through the SAME tenant (same api_key, same data) once signed in; role
+# (admin/viewer) is enforced in the dashboard UI for this first version, not
+# re-checked per API call — see the comment on the team_members table in
+# tenants.py for why that's a deliberate MVP tradeoff, not an oversight.
+# ---------------------------------------------------------------------------
+
+@app.route("/api/team", methods=["GET"])
+@require_api_key
+def get_team():
+    """Everyone who can sign in to this tenant's dashboard: the owner plus
+    any invited team members and their role/status. Powers the Settings
+    page's Team panel."""
+    members = tenant_store.get_team_members(g.tenant["id"])
+    return jsonify({
+        "owner": {"email": g.tenant.get("email"), "name": g.tenant.get("name")},
+        "members": members,
+    })
+
+
+@app.route("/api/team/invite", methods=["POST"])
+@require_api_key
+def invite_team_member():
+    payload = request.get_json(force=True, silent=True) or {}
+    email = (payload.get("email") or "").strip()
+    role = payload.get("role", "viewer")
+    lang = payload.get("lang", "tr")
+    if not email:
+        return jsonify({"error": "'email' is required"}), 400
+
+    try:
+        member = tenant_store.create_team_invite(
+            g.tenant["id"], email, role, invited_by=g.tenant.get("name"))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+    invite_link = f"https://merafraud.com/dashboard/accept-invite.html?token={member['invite_token']}"
+    store_name = g.tenant.get("name") or "MeraFraud"
+    email_service.send_team_invite_email(
+        email, store_name, store_name, role, invite_link, lang=lang if lang in ("tr", "en") else "tr")
+
+    return jsonify({
+        "id": member["id"], "email": member["email"],
+        "role": member["role"], "status": member["status"],
+    })
+
+
+@app.route("/api/team/<member_id>", methods=["DELETE"])
+@require_api_key
+def delete_team_member(member_id):
+    removed = tenant_store.remove_team_member(g.tenant["id"], member_id)
+    if not removed:
+        return jsonify({"error": "Team member not found"}), 404
+    return jsonify({"status": "ok"})
+
+
+@app.route("/api/team/invite/<token>", methods=["GET"])
+def preview_team_invite(token):
+    """Public — lets accept-invite.html show 'You've been invited to join
+    <store> as <role>' before asking for a password, instead of a blind
+    password box with no context."""
+    invite = tenant_store.get_invite_by_token(token)
+    if not invite or invite.get("status") != "invited":
+        return jsonify({"error": "Invalid or expired invite link"}), 404
+    expires = invite.get("invite_token_expires")
+    if expires and datetime.fromisoformat(expires) < datetime.now(timezone.utc):
+        return jsonify({"error": "Invalid or expired invite link"}), 404
+    tenant = tenant_store.get_tenant_by_id(invite["tenant_id"])
+    return jsonify({
+        "email": invite["email"], "role": invite["role"],
+        "store_name": tenant["name"] if tenant else "MeraFraud",
+    })
+
+
+@app.route("/api/team/accept-invite", methods=["POST"])
+def accept_team_invite_route():
+    """Public — the invited person has no API key yet; the token from the
+    invite email is the credential here."""
+    payload = request.get_json(force=True, silent=True) or {}
+    token = payload.get("token", "")
+    password = payload.get("password", "")
+    if not token:
+        return jsonify({"error": "'token' is required"}), 400
+    if len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+
+    result = tenant_store.accept_team_invite(token, password)
+    if not result:
+        return jsonify({"error": "Invalid or expired invite link"}), 400
+
+    tenant_view = tenant_store.public_view(result["tenant"])
+    tenant_view["_member"] = result["member"]
+    return jsonify(tenant_view)
 
 
 # ---------------------------------------------------------------------------

@@ -241,6 +241,43 @@ def send_trial_reminder_email(to_email: str, store_name: str, days_left: int, la
     return send_email(to_email, subject, html, text, reply_to="hello@merafraud.com")
 
 
+def send_team_invite_email(to_email: str, inviter_name: str, store_name: str, role: str,
+                            invite_link: str, lang: str = "tr") -> bool:
+    """Sent when a store owner invites a teammate from the Team panel in
+    Settings. The link carries a one-time token (see tenants.create_team_invite
+    / accept_team_invite) that the recipient uses to set their own password —
+    they then log in with their own email from then on, no shared credentials."""
+    if lang == "en":
+        role_label = "Admin" if role == "admin" else "Viewer"
+        subject = f"{inviter_name} invited you to {store_name} on MeraFraud"
+        html = f"""
+        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
+          <h2 style="color:#1c1044;">You've been invited</h2>
+          <p><b>{inviter_name}</b> invited you to join <b>{store_name}</b>'s MeraFraud account as <b>{role_label}</b>.</p>
+          <p>Click below to set your password and get access to the dashboard.</p>
+          <p style="margin:24px 0;"><a href="{invite_link}" style="background:#7c3aed; color:#fff; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:600;">Accept invite</a></p>
+          <p style="color:#888; font-size:12.5px;">This link expires in 7 days. If you weren't expecting this, you can safely ignore this email.</p>
+          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
+        </div>
+        """
+        text = f"{inviter_name} invited you to join {store_name}'s MeraFraud account as {role_label}. Accept your invite: {invite_link} (expires in 7 days)"
+    else:
+        role_label = "Yönetici (Admin)" if role == "admin" else "Görüntüleyici (Viewer)"
+        subject = f"{inviter_name} sizi {store_name} için MeraFraud'a davet etti"
+        html = f"""
+        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
+          <h2 style="color:#1c1044;">Bir davetiniz var</h2>
+          <p><b>{inviter_name}</b>, sizi <b>{store_name}</b> mağazasının MeraFraud hesabına <b>{role_label}</b> rolüyle davet etti.</p>
+          <p>Şifrenizi belirleyip panele erişmek için aşağıya tıklayın.</p>
+          <p style="margin:24px 0;"><a href="{invite_link}" style="background:#7c3aed; color:#fff; padding:12px 22px; border-radius:8px; text-decoration:none; font-weight:600;">Daveti kabul et</a></p>
+          <p style="color:#888; font-size:12.5px;">Bu bağlantı 7 gün sonra geçersiz olur. Bunu beklemiyorsanız e-postayı yok sayabilirsiniz.</p>
+          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
+        </div>
+        """
+        text = f"{inviter_name}, sizi {store_name} mağazasının MeraFraud hesabına {role_label} rolüyle davet etti. Daveti kabul edin: {invite_link} (7 gün geçerli)"
+    return send_email(to_email, subject, html, text, reply_to="hello@merafraud.com")
+
+
 def send_welcome_email(to_email: str, store_name: str) -> bool:
     """Sent right after a merchant signs up with an email address. This was
     previously missing its own function signature — its body had been

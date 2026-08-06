@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeraFraud — Accept Team Invite</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="../website/favicon.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="../website/favicon-48.png">
+<link rel="icon" href="../website/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../website/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0620; --purple-1:#4c1d95; --purple-2:#7c3aed; --pink-1:#ec4899; --pink-2:#f472b6;
+    --cyan:#22d3ee; --text-hi:#f5f3ff; --text-lo:#b8aee0; --safe:#34d399; --review:#fbbf24; --block:#fb4570;
+    --card-bg:rgba(255,255,255,0.045); --card-border:rgba(255,255,255,0.09); --radius:18px;
+    font-family:'Space Grotesk', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background:
+      radial-gradient(circle at 12% -10%, rgba(124,58,237,0.55), transparent 40%),
+      radial-gradient(circle at 90% 8%, rgba(236,72,153,0.35), transparent 45%),
+      radial-gradient(circle at 50% 110%, rgba(34,211,238,0.18), transparent 50%),
+      var(--bg-deep);
+    color:var(--text-hi); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:520px; margin:0 auto; padding:0 24px 80px;}
+  header{ display:flex; align-items:center; justify-content:space-between; padding:28px 0 20px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:48px; }
+  .logo{display:flex; align-items:center; gap:12px;}
+  .logo-mark{
+    width:34px; height:34px;
+    background:conic-gradient(from 120deg, var(--purple-2), var(--pink-1), var(--cyan), var(--purple-2));
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    filter: drop-shadow(0 0 10px rgba(236,72,153,0.5));
+    animation: logoSpin 9s linear infinite;
+  }
+  @keyframes logoSpin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .logo-mark{ animation:none; } }
+  .logo-text{ font-family:'Fraunces', serif; font-weight:700; font-size:22px; }
+  .logo-text span{color:var(--pink-2);}
+  .lang-switch{ display:flex; gap:4px; background:rgba(255,255,255,0.04); padding:4px; border-radius:999px; border:1px solid var(--card-border); }
+  .lang-btn{ font-family:inherit; font-size:12px; font-weight:600; color:var(--text-lo); background:transparent; border:none; padding:6px 12px; border-radius:999px; cursor:pointer; transition:all .2s ease; }
+  .lang-btn.active{ background:linear-gradient(135deg,var(--purple-2),var(--pink-1)); color:#fff; }
+  .lang-btn:not(.active):hover{ color:var(--text-hi); }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; color:var(--cyan);
+    text-transform:uppercase; letter-spacing:2px; margin-bottom:14px; display:block;
+  }
+  h1{ font-family:'Fraunces', serif; font-weight:600; font-size:clamp(26px,4vw,34px); line-height:1.15; margin-bottom:14px; }
+  .lede{ color:var(--text-lo); font-size:15px; line-height:1.6; margin-bottom:32px; }
+
+  .panel{ background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius); padding:32px; }
+  .invite-badge{
+    display:flex; align-items:center; gap:10px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.3);
+    border-radius:12px; padding:14px 16px; margin-bottom:24px; font-size:13.5px;
+  }
+  .invite-badge b{ color:var(--text-hi); }
+  .role-pill{ font-size:10.5px; font-weight:600; padding:3px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; background:rgba(236,72,153,0.15); color:var(--pink-2); border:1px solid rgba(236,72,153,0.35); margin-left:auto; flex-shrink:0; }
+
+  .field{ display:flex; flex-direction:column; gap:7px; margin-bottom:20px; }
+  .field label{ font-size:13px; color:var(--text-lo); }
+  .field input{
+    background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px;
+    padding:12px 14px; color:var(--text-hi); font-family:'Space Grotesk'; font-size:14px;
+  }
+  .field input:focus{ outline:none; border-color:var(--pink-1); }
+
+  .btn-primary{
+    width:100%; padding:15px; border:none; border-radius:12px; font-family:'Space Grotesk';
+    font-weight:600; font-size:15px; color:#fff; cursor:pointer;
+    background:linear-gradient(135deg,var(--purple-2),var(--pink-1));
+    box-shadow:0 8px 24px -8px rgba(236,72,153,0.6);
+  }
+  .btn-primary:hover{ transform:translateY(-1px); }
+  .btn-primary:disabled{ opacity:0.6; cursor:not-allowed; }
+  .error-msg{ color:var(--block); font-size:13px; margin-top:12px; display:none; }
+  .error-msg.show{ display:block; }
+
+  #invalidPanel, #successPanel{ display:none; }
+  #invalidPanel.show, #successPanel.show{ display:block; }
+  #formPanel.hide{ display:none; }
+  .success-badge{
+    display:inline-flex; align-items:center; gap:8px; background:rgba(52,211,153,0.12);
+    border:1px solid rgba(52,211,153,0.35); color:var(--safe); padding:7px 14px; border-radius:999px;
+    font-size:12.5px; font-weight:600; margin-bottom:20px;
+  }
+  .btn-secondary{
+    display:block; text-align:center; text-decoration:none; width:100%; padding:13px; border-radius:12px; font-size:14px;
+    background:transparent; border:1px solid var(--card-border); color:var(--text-hi); margin-top:12px;
+  }
+  footer{ text-align:center; color:var(--text-lo); font-size:12.5px; margin-top:50px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-mark"></div>
+      <div class="logo-text">Mera<span>Fraud</span></div>
+    </div>
+    <div class="lang-switch">
+      <button type="button" class="lang-btn" data-lang="tr">TR</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+    </div>
+  </header>
+
+  <span class="eyebrow" data-i18n="eyebrow">Team Invite</span>
+  <h1 data-i18n="h1">You've been invited to join a team.</h1>
+  <p class="lede" data-i18n="lede">Set a password below to accept and sign in with your own email from now on.</p>
+
+  <div class="panel" id="loadingPanel">
+    <p class="lede" style="margin:0;" data-i18n="loading">Checking your invite…</p>
+  </div>
+
+  <div class="panel" id="invalidPanel">
+    <p class="lede" style="margin-bottom:0;" data-i18n="invalid_msg">This invite link is invalid or has expired. Ask whoever invited you to send a new one.</p>
+  </div>
+
+  <div class="panel" id="formPanel" style="display:none;">
+    <div class="invite-badge">
+      <span data-i18n="invite_join_prefix">Joining</span>&nbsp;<b id="inviteStore">—</b>
+      <span class="role-pill" id="inviteRole">—</span>
+    </div>
+    <div class="field">
+      <label data-i18n="f_email">Email</label>
+      <input type="email" id="inviteEmail" disabled>
+    </div>
+    <div class="field">
+      <label data-i18n="f_pass">Password</label>
+      <input type="password" id="invitePassword" data-i18n-ph="f_pass_ph" placeholder="At least 6 characters" minlength="6">
+    </div>
+    <div class="field">
+      <label data-i18n="f_pass_confirm">Confirm password</label>
+      <input type="password" id="invitePasswordConfirm" data-i18n-ph="f_pass_ph" placeholder="At least 6 characters" minlength="6">
+    </div>
+    <button class="btn-primary" onclick="acceptInvite()" id="submitBtn" data-i18n="submit">Accept &amp; Set Password</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <div class="panel" id="successPanel">
+    <span class="success-badge" data-i18n="success_badge">✓ You're in</span>
+    <p class="lede" style="margin-bottom:0;" data-i18n="success_msg">Your password is set. You can now log in from the Settings page with your own email.</p>
+    <a href="settings.html" class="btn-secondary" data-i18n="go_to_login">Go to login →</a>
+  </div>
+
+  <footer data-i18n="footer">MeraFraud · AI-powered fraud detection for SMEs</footer>
+</div>
+
+<script>
+const API_BASE = "https://merafraud-apimerafraud-api-v2.onrender.com/api";
+const params = new URLSearchParams(window.location.search);
+const inviteToken = params.get('token') || '';
+
+var DICT = {
+  en: {
+    eyebrow:"Team Invite", h1:"You've been invited to join a team.",
+    lede:"Set a password below to accept and sign in with your own email from now on.",
+    loading:"Checking your invite…",
+    invalid_msg:"This invite link is invalid or has expired. Ask whoever invited you to send a new one.",
+    invite_join_prefix:"Joining",
+    f_email:"Email", f_pass:"Password", f_pass_ph:"At least 6 characters", f_pass_confirm:"Confirm password",
+    submit:"Accept &amp; Set Password", accepting:"Setting password…",
+    role_admin:"Admin", role_viewer:"Viewer",
+    err_pass_short:"Password must be at least 6 characters.",
+    err_pass_match:"Passwords don't match.",
+    err_generic:"Something went wrong. The link may have expired.",
+    success_badge:"✓ You're in",
+    success_msg:"Your password is set. You can now log in from the Settings page with your own email.",
+    go_to_login:"Go to login →",
+    footer:"MeraFraud · AI-powered fraud detection for SMEs"
+  },
+  tr: {
+    eyebrow:"Ekip Daveti", h1:"Bir ekibe katılmaya davet edildiniz.",
+    lede:"Daveti kabul etmek ve bundan sonra kendi e-postanızla giriş yapmak için aşağıya bir şifre belirleyin.",
+    loading:"Davetiniz kontrol ediliyor…",
+    invalid_msg:"Bu davet bağlantısı geçersiz veya süresi dolmuş. Sizi davet eden kişiden yeni bir bağlantı istemenizi öneririz.",
+    invite_join_prefix:"Katılıyorsunuz:",
+    f_email:"E-posta", f_pass:"Şifre", f_pass_ph:"En az 6 karakter", f_pass_confirm:"Şifreyi onayla",
+    submit:"Kabul Et ve Şifre Belirle", accepting:"Şifre belirleniyor…",
+    role_admin:"Yönetici", role_viewer:"Görüntüleyici",
+    err_pass_short:"Şifre en az 6 karakter olmalı.",
+    err_pass_match:"Şifreler eşleşmiyor.",
+    err_generic:"Bir şeyler ters gitti. Bağlantının süresi dolmuş olabilir.",
+    success_badge:"✓ Katıldınız",
+    success_msg:"Şifreniz belirlendi. Artık Ayarlar sayfasından kendi e-postanızla giriş yapabilirsiniz.",
+    go_to_login:"Girişe git →",
+    footer:"MeraFraud · KOBİ'ler için yapay zeka destekli dolandırıcılık tespiti"
+  }
+};
+
+function applyLang(lang){
+  document.documentElement.setAttribute('lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var v = DICT[lang][el.getAttribute('data-i18n')];
+    if(v !== undefined) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var v = DICT[lang][el.getAttribute('data-i18n-ph')];
+    if(v !== undefined) el.setAttribute('placeholder', v);
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  window.mfLang = lang;
+  if(window._inviteInfo) applyInvitePreview(window._inviteInfo);
+}
+document.querySelectorAll('.lang-btn').forEach(function(b){
+  b.addEventListener('click', function(){
+    localStorage.setItem('mf_lang', b.dataset.lang);
+    applyLang(b.dataset.lang);
+  });
+});
+applyLang(localStorage.getItem('mf_lang') || 'tr');
+
+function applyInvitePreview(info){
+  const d = DICT[window.mfLang || 'tr'];
+  document.getElementById('inviteStore').textContent = info.store_name;
+  document.getElementById('inviteRole').textContent = info.role === 'admin' ? d.role_admin : d.role_viewer;
+  document.getElementById('inviteEmail').value = info.email;
+}
+
+async function loadInvitePreview(){
+  if(!inviteToken){ showInvalid(); return; }
+  try{
+    const res = await fetch(`${API_BASE}/team/invite/${encodeURIComponent(inviteToken)}`);
+    if(!res.ok) throw new Error('invalid');
+    const info = await res.json();
+    window._inviteInfo = info;
+    applyInvitePreview(info);
+    document.getElementById('loadingPanel').style.display = 'none';
+    document.getElementById('formPanel').style.display = 'block';
+  }catch(e){
+    showInvalid();
+  }
+}
+
+function showInvalid(){
+  document.getElementById('loadingPanel').style.display = 'none';
+  document.getElementById('invalidPanel').classList.add('show');
+}
+
+async function acceptInvite(){
+  const d = DICT[window.mfLang || 'tr'];
+  const password = document.getElementById('invitePassword').value;
+  const confirmPw = document.getElementById('invitePasswordConfirm').value;
+  const errorEl = document.getElementById('errorMsg');
+  const btn = document.getElementById('submitBtn');
+  errorEl.classList.remove('show');
+
+  if(password.length < 6){
+    errorEl.textContent = d.err_pass_short;
+    errorEl.classList.add('show');
+    return;
+  }
+  if(password !== confirmPw){
+    errorEl.textContent = d.err_pass_match;
+    errorEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = d.accepting;
+  try{
+    const res = await fetch(`${API_BASE}/team/accept-invite`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: inviteToken, password })
+    });
+    if(!res.ok){
+      const dErr = await res.json().catch(()=>({}));
+      throw new Error(dErr.error || d.err_generic);
+    }
+    document.getElementById('formPanel').classList.add('hide');
+    document.getElementById('formPanel').style.display = 'none';
+    document.getElementById('successPanel').classList.add('show');
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = d.submit;
+  }
+}
+
+loadInvitePreview();
+</script>
+<script src="../website/support.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f180a3e856a249fa825d541f97a5e57c"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

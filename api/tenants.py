@@ -102,6 +102,30 @@ def _ensure_schema(conn):
             # than once, or re-sending after the tenant's trial_ends_at
             # changes for an unrelated reason.
             cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS trial_reminders_sent TEXT NOT NULL DEFAULT ''")
+            # Team accounts: additional people who can sign in to ONE tenant's
+            # dashboard under their own email/password, without sharing the
+            # owner's login. They authenticate as themselves but act through
+            # the same tenant's api_key underneath (see login() below) — no
+            # separate per-request session system exists yet, so role
+            # enforcement (admin vs viewer) is done in the dashboard UI, not
+            # re-checked on every API call. Good enough for a small-team MVP;
+            # tightening that is a deliberate later step, not an oversight.
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS team_members (
+                    id TEXT PRIMARY KEY,
+                    tenant_id TEXT NOT NULL REFERENCES tenants(id),
+                    email TEXT NOT NULL,
+                    password_hash TEXT,
+                    role TEXT NOT NULL DEFAULT 'viewer',
+                    status TEXT NOT NULL DEFAULT 'invited',
+                    invite_token TEXT,
+                    invite_token_expires TEXT,
+                    invited_by TEXT,
+                    created_at TEXT NOT NULL,
+                    accepted_at TEXT
+                )
+            """)
+            cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_team_members_email ON team_members (lower(email))")
             cur.execute("SELECT id FROM tenants WHERE api_key_test IS NULL")
             missing_test_key = [r[0] for r in cur.fetchall()]
             for tid in missing_test_key:
@@ -406,6 +430,17 @@ def update_webhook(tenant_id: str, webhook_url: str | None) -> dict | None:
         conn.close()
 
 
+def get_tenant_by_id(tenant_id: str) -> dict | None:
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+        return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
+
+
 def get_tenant_by_email(email: str) -> dict | None:
     conn = _get_conn()
     try:
@@ -419,13 +454,169 @@ def get_tenant_by_email(email: str) -> dict | None:
 
 def login(email: str, password: str) -> dict | None:
     """Returns the full tenant record (including the real api_key — this is
-    how a merchant recovers a lost key: log in with email + password)."""
+    how a merchant recovers a lost key: log in with email + password).
+
+    If the email belongs to the tenant owner, this is unchanged from before.
+    If it belongs to an invited team member instead, we still return the
+    SAME parent tenant record — same api_key, same dashboard data — but with
+    an extra '_member' key describing who actually logged in and at what
+    role, so app.py/the frontend can show "signed in as X (Admin/Viewer)"
+    and hide owner-only controls without needing a whole second data model."""
     tenant = get_tenant_by_email(email)
-    if not tenant or not tenant.get("password_hash"):
+    if tenant and tenant.get("password_hash") and check_password_hash(tenant["password_hash"], password):
+        return tenant
+
+    member = get_team_member_by_email(email)
+    if not member or not member.get("password_hash"):
         return None
-    if not check_password_hash(tenant["password_hash"], password):
+    if not check_password_hash(member["password_hash"], password):
         return None
-    return tenant
+
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (member["tenant_id"],))
+            tenant_row = cur.fetchone()
+        if not tenant_row:
+            return None
+        tenant = _row_to_tenant(tenant_row)
+        tenant["_member"] = {"id": member["id"], "email": member["email"], "role": member["role"]}
+        return tenant
+    finally:
+        conn.close()
+
+
+TEAM_INVITE_TTL_MINUTES = 60 * 24 * 7  # a week to accept before the link expires
+TEAM_ROLES = ("admin", "viewer")
+
+
+def _member_email_taken(email: str) -> bool:
+    """An email can only belong to one identity across all of MeraFraud —
+    either a tenant owner or a team member, never both — so login-by-email
+    always resolves to exactly one account."""
+    if get_tenant_by_email(email):
+        return True
+    conn = _get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1 FROM team_members WHERE lower(email) = lower(%s)", (email,))
+            return cur.fetchone() is not None
+    finally:
+        conn.close()
+
+
+def create_team_invite(tenant_id: str, email: str, role: str, invited_by: str | None = None) -> dict:
+    """Owner invites a teammate by email. This only creates a pending row
+    with a signup token — the teammate isn't a real login until they open
+    the invite link and set a password (see accept_team_invite)."""
+    email = (email or "").strip()
+    if not email:
+        raise ValueError("email is required")
+    if role not in TEAM_ROLES:
+        raise ValueError(f"role must be one of: {', '.join(TEAM_ROLES)}")
+    if _member_email_taken(email):
+        raise ValueError("That email is already in use on MeraFraud (as an account owner or another team's member).")
+
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor() as cur:
+            member_id = secrets.token_hex(8)
+            token = secrets.token_urlsafe(24)
+            expires = (datetime.now(timezone.utc) + timedelta(minutes=TEAM_INVITE_TTL_MINUTES)).isoformat()
+            cur.execute("""
+                INSERT INTO team_members (id, tenant_id, email, role, status, invite_token,
+                    invite_token_expires, invited_by, created_at)
+                VALUES (%s, %s, %s, %s, 'invited', %s, %s, %s, %s)
+            """, (member_id, tenant_id, email, role, token, expires, invited_by, _now()))
+        conn.commit()
+        return {
+            "id": member_id, "tenant_id": tenant_id, "email": email, "role": role,
+            "status": "invited", "invite_token": token, "invite_token_expires": expires,
+        }
+    finally:
+        conn.close()
+
+
+def get_team_members(tenant_id: str) -> list[dict]:
+    """Never includes password_hash or invite_token — this is meant to be
+    shown directly in the dashboard's Team panel."""
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT id, tenant_id, email, role, status, invited_by, created_at, accepted_at
+                FROM team_members WHERE tenant_id = %s ORDER BY created_at ASC
+            """, (tenant_id,))
+            rows = cur.fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def get_team_member_by_email(email: str) -> dict | None:
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM team_members WHERE lower(email) = lower(%s) AND status = 'active'", (email,))
+            row = cur.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def get_invite_by_token(token: str) -> dict | None:
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM team_members WHERE invite_token = %s", (token,))
+            row = cur.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def accept_team_invite(token: str, password: str) -> dict | None:
+    """Returns {'member': {...}, 'tenant': {...}} on success, None if the
+    token is invalid, expired, or already used."""
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM team_members WHERE invite_token = %s", (token,))
+            row = cur.fetchone()
+            if not row or row["status"] != "invited":
+                return None
+            expires = row.get("invite_token_expires")
+            if not expires or datetime.fromisoformat(expires) < datetime.now(timezone.utc):
+                return None
+            cur.execute("""
+                UPDATE team_members SET password_hash = %s, status = 'active',
+                    invite_token = NULL, invite_token_expires = NULL, accepted_at = %s
+                WHERE id = %s
+            """, (generate_password_hash(password), _now(), row["id"]))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (row["tenant_id"],))
+            tenant_row = cur.fetchone()
+        conn.commit()
+        if not tenant_row:
+            return None
+        member = dict(row)
+        member["status"] = "active"
+        member.pop("password_hash", None)
+        member.pop("invite_token", None)
+        return {"member": member, "tenant": _row_to_tenant(tenant_row)}
+    finally:
+        conn.close()
+
+
+def remove_team_member(tenant_id: str, member_id: str) -> bool:
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor() as cur:
+            cur.execute("DELETE FROM team_members WHERE id = %s AND tenant_id = %s", (member_id, tenant_id))
+            deleted = cur.rowcount > 0
+        conn.commit()
+        return deleted
+    finally:
+        conn.close()
 
 
 def set_password(tenant_id: str, password: str) -> dict | None:

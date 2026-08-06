@@ -98,6 +98,23 @@
   .account-row .label{ color:var(--text-lo); }
   .account-row .value{ font-family:'JetBrains Mono',monospace; color:var(--text-hi); }
 
+  .team-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13.5px; flex-wrap:wrap; }
+  .team-row:last-child{ border-bottom:none; }
+  .team-row .who{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .team-row .who .em{ color:var(--text-hi); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:260px; }
+  .team-row .tags{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .role-badge{ font-size:10.5px; font-weight:600; padding:3px 10px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
+  .role-badge.owner{ background:rgba(236,72,153,0.12); color:var(--pink-2); border:1px solid rgba(236,72,153,0.3); }
+  .role-badge.admin{ background:rgba(124,58,237,0.15); color:#c4b5fd; border:1px solid rgba(124,58,237,0.35); }
+  .role-badge.viewer{ background:rgba(255,255,255,0.06); color:var(--text-lo); border:1px solid var(--card-border); }
+  .status-badge{ font-size:10.5px; padding:3px 10px; border-radius:999px; }
+  .status-badge.invited{ background:rgba(251,191,36,0.1); color:var(--review); border:1px solid rgba(251,191,36,0.3); }
+  .status-badge.active{ background:rgba(52,211,153,0.1); color:var(--safe); border:1px solid rgba(52,211,153,0.3); }
+  .team-invite-row{ display:grid; grid-template-columns:1.4fr 1fr auto; gap:10px; align-items:end; margin-top:18px; }
+  @media (max-width:560px){ .team-invite-row{ grid-template-columns:1fr; } }
+  .viewer-note{ font-size:12.5px; color:var(--review); background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:10px 14px; margin-top:12px; display:none; }
+  .viewer-note.show{ display:block; }
+
   .slider-group{ margin-bottom:26px; }
   .slider-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
   .slider-head .name{ font-size:13.5px; font-weight:600; }
@@ -240,6 +257,7 @@
       <h2 id="storeName">—</h2>
       <div class="sub" data-i18n="signed_in_sub">Signed in with your API key on this device</div>
       <div class="demo-note" id="trialBanner" style="display:none;"></div>
+      <div class="viewer-note" id="viewerModeBanner" data-i18n="viewer_mode_banner">👁 Signed in as Viewer — you can see everything here but can't make changes.</div>
       <div class="account-row"><span class="label" data-i18n="row_store_name">Store name</span><span class="value" id="rowName">—</span></div>
       <div class="account-row"><span class="label" data-i18n="email_label">Email</span><span class="value" id="rowEmail">—</span></div>
       <div class="account-row"><span class="label" data-i18n="row_api_key">API key</span><span class="value" id="rowKey">—</span></div>
@@ -247,7 +265,7 @@
       <div class="account-row"><span class="label" data-i18n="row_member_since">Member since</span><span class="value" id="rowSince">—</span></div>
       <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
         <button class="btn-secondary" onclick="logout()" data-i18n="logout_btn">Switch account / Log out</button>
-        <button class="btn-danger" onclick="confirmRegenerateKey()" data-i18n="regen_btn">🔄 Regenerate API Key</button>
+        <button class="btn-danger" id="regenKeyBtn" onclick="confirmRegenerateKey()" data-i18n="regen_btn">🔄 Regenerate API Key</button>
       </div>
       <div class="error-msg" id="regenError"></div>
       <div class="demo-note" id="regenNote" style="display:none;"></div>
@@ -295,7 +313,7 @@
       <div class="risk-labels"><span>0%</span><span data-i18n="risk_score_label">Risk score</span><span>100%</span></div>
 
       <div class="save-row">
-        <button class="btn-primary" onclick="saveThresholds()" data-i18n="save_changes">Save Changes</button>
+        <button class="btn-primary" id="saveThresholdsBtn" onclick="saveThresholds()" data-i18n="save_changes">Save Changes</button>
         <span class="save-note" id="saveNote" data-i18n="saved_note">✓ Saved</span>
       </div>
       <div class="error-msg" id="saveError"></div>
@@ -306,10 +324,35 @@
       <div class="sub" data-i18n="webhook_sub">Get a Slack or Discord message the instant an order is blocked, in addition to email. Paste an incoming-webhook URL from either.</div>
       <div class="field"><label data-i18n="webhook_url_label">Webhook URL</label><input type="text" id="webhookUrlInput" placeholder="https://hooks.slack.com/services/..."></div>
       <div style="display:flex; gap:10px; align-items:center;">
-        <button class="btn-primary" onclick="saveWebhook()" data-i18n="save_changes">Save Changes</button>
+        <button class="btn-primary" id="saveWebhookBtn" onclick="saveWebhook()" data-i18n="save_changes">Save Changes</button>
         <span class="save-note" id="webhookNote" data-i18n="saved_note">✓ Saved</span>
       </div>
       <div class="error-msg" id="webhookError"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="team_h2">Team</h2>
+      <div class="sub" data-i18n="team_sub">Invite teammates to sign in with their own email — they'll share this account's data without sharing your password.</div>
+
+      <div id="teamList"></div>
+      <div class="sub" id="noTeamMsg" data-i18n="no_team_msg" style="display:none;">Just you so far.</div>
+
+      <div id="teamInviteBlock">
+        <div class="team-invite-row">
+          <div class="field"><label data-i18n="team_invite_email_label">Email</label><input type="email" id="teamInviteEmail" placeholder="teammate@yourstore.com"></div>
+          <div class="field">
+            <label data-i18n="team_invite_role_label">Role</label>
+            <select id="teamInviteRole" style="background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px; padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;">
+              <option value="admin" data-i18n="role_admin">Admin</option>
+              <option value="viewer" data-i18n="role_viewer">Viewer</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="inviteMember()" data-i18n="team_invite_btn" style="white-space:nowrap;">+ Invite</button>
+        </div>
+        <div class="error-msg" id="teamError"></div>
+        <span class="save-note" id="teamNote" data-i18n="team_invite_sent">✓ Invite sent</span>
+      </div>
+      <div class="viewer-note" id="teamViewerNote" data-i18n="team_owner_only_note">Only the account owner can manage the team.</div>
     </div>
 
     <div class="panel">
@@ -347,7 +390,7 @@
           </select>
         </div>
       </div>
-      <button class="btn-primary" onclick="addRule()" style="margin-top:6px;" data-i18n="add_rule_btn">+ Add Rule</button>
+      <button class="btn-primary" id="addRuleBtn" onclick="addRule()" style="margin-top:6px;" data-i18n="add_rule_btn">+ Add Rule</button>
       <div class="error-msg" id="ruleError"></div>
     </div>
 
@@ -359,7 +402,7 @@
       <div class="field"><label data-i18n="network_ip_label">IP address (optional)</label><input type="text" id="reportIp" placeholder="203.0.113.5"></div>
       <div class="field"><label data-i18n="network_email_label">Email (optional)</label><input type="email" id="reportEmail" placeholder="fraudster@example.com"></div>
       <div class="field"><label data-i18n="network_device_label">Device ID (optional)</label><input type="text" id="reportDevice" placeholder="device-abc123"></div>
-      <button class="btn-danger" onclick="reportFraud()" data-i18n="report_fraud_btn">🚩 Report as Confirmed Fraud</button>
+      <button class="btn-danger" id="reportFraudBtn" onclick="reportFraud()" data-i18n="report_fraud_btn">🚩 Report as Confirmed Fraud</button>
       <div class="error-msg" id="reportError"></div>
       <span class="save-note" id="reportNote" data-i18n="network_report_success">✓ Reported</span>
 
@@ -389,7 +432,7 @@
           <option value="cancelled" data-i18n="outcome_cancelled">Cancelled</option>
         </select>
       </div>
-      <button class="btn-primary" onclick="submitOutcome()" data-i18n="outcome_submit_btn">Submit</button>
+      <button class="btn-primary" id="outcomeSubmitBtn" onclick="submitOutcome()" data-i18n="outcome_submit_btn">Submit</button>
       <div class="error-msg" id="outcomeError"></div>
       <span class="save-note" id="outcomeNote" data-i18n="outcome_success">✓ Recorded</span>
     </div>
@@ -467,6 +510,17 @@ var DICT = {
     outcome_placed:"Placed", outcome_fulfilled:"Fulfilled", outcome_cancelled:"Cancelled",
     outcome_submit_btn:"Submit", outcome_success:"✓ Recorded",
     err_outcome_customer:"Enter the customer ID used at checkout.",
+    team_h2:"Team",
+    team_sub:"Invite teammates to sign in with their own email — they'll share this account's data without sharing your password.",
+    no_team_msg:"Just you so far.",
+    team_invite_email_label:"Email", team_invite_role_label:"Role",
+    role_admin:"Admin", role_viewer:"Viewer", role_owner:"Owner",
+    team_invite_btn:"+ Invite", team_invite_sent:"✓ Invite sent",
+    team_owner_only_note:"Only the account owner can manage the team.",
+    err_team_email:"Enter the teammate's email address.",
+    confirm_remove_member:"Remove this person from the team? They'll lose access immediately.",
+    team_remove_btn:"Remove", status_invited:"Invited", status_active:"Active",
+    viewer_mode_banner:"👁 Signed in as Viewer — you can see everything here but can't make changes.",
     date_locale:"en-GB"
   },
   tr: {
@@ -536,6 +590,17 @@ var DICT = {
     outcome_placed:"Verildi", outcome_fulfilled:"Tamamlandı", outcome_cancelled:"İptal edildi",
     outcome_submit_btn:"Gönder", outcome_success:"✓ Kaydedildi",
     err_outcome_customer:"Checkout'ta kullanılan müşteri ID'sini girin.",
+    team_h2:"Ekip",
+    team_sub:"Ekip arkadaşlarınızı kendi e-postalarıyla giriş yapmaya davet edin — şifrenizi paylaşmadan bu hesabın verilerine erişirler.",
+    no_team_msg:"Şimdilik sadece siz varsınız.",
+    team_invite_email_label:"E-posta", team_invite_role_label:"Rol",
+    role_admin:"Yönetici", role_viewer:"Görüntüleyici", role_owner:"Sahip",
+    team_invite_btn:"+ Davet Et", team_invite_sent:"✓ Davet gönderildi",
+    team_owner_only_note:"Ekibi yalnızca hesap sahibi yönetebilir.",
+    err_team_email:"Ekip arkadaşının e-posta adresini girin.",
+    confirm_remove_member:"Bu kişiyi ekipten çıkarmak istiyor musunuz? Erişimi hemen kaybeder.",
+    team_remove_btn:"Çıkar", status_invited:"Davet edildi", status_active:"Aktif",
+    viewer_mode_banner:"👁 Görüntüleyici olarak giriş yaptınız — her şeyi görebilirsiniz ama değişiklik yapamazsınız.",
     date_locale:"tr-TR"
   },
   de: {
@@ -605,6 +670,17 @@ var DICT = {
     outcome_placed:"Aufgegeben", outcome_fulfilled:"Erfüllt", outcome_cancelled:"Storniert",
     outcome_submit_btn:"Absenden", outcome_success:"✓ Erfasst",
     err_outcome_customer:"Geben Sie die beim Checkout verwendete Kunden-ID ein.",
+    team_h2:"Team",
+    team_sub:"Laden Sie Teammitglieder ein, sich mit ihrer eigenen E-Mail anzumelden — sie greifen auf die Daten dieses Kontos zu, ohne Ihr Passwort zu teilen.",
+    no_team_msg:"Bisher nur Sie.",
+    team_invite_email_label:"E-Mail", team_invite_role_label:"Rolle",
+    role_admin:"Admin", role_viewer:"Betrachter", role_owner:"Inhaber",
+    team_invite_btn:"+ Einladen", team_invite_sent:"✓ Einladung gesendet",
+    team_owner_only_note:"Nur der Kontoinhaber kann das Team verwalten.",
+    err_team_email:"Geben Sie die E-Mail-Adresse des Teammitglieds ein.",
+    confirm_remove_member:"Diese Person aus dem Team entfernen? Der Zugriff wird sofort entzogen.",
+    team_remove_btn:"Entfernen", status_invited:"Eingeladen", status_active:"Aktiv",
+    viewer_mode_banner:"👁 Als Betrachter angemeldet — Sie können alles sehen, aber keine Änderungen vornehmen.",
     date_locale:"de-DE"
   },
   fr: {
@@ -674,6 +750,17 @@ var DICT = {
     outcome_placed:"Passée", outcome_fulfilled:"Honorée", outcome_cancelled:"Annulée",
     outcome_submit_btn:"Envoyer", outcome_success:"✓ Enregistré",
     err_outcome_customer:"Saisissez l'ID client utilisé au checkout.",
+    team_h2:"Équipe",
+    team_sub:"Invitez des coéquipiers à se connecter avec leur propre e-mail — ils accèdent aux données de ce compte sans partager votre mot de passe.",
+    no_team_msg:"Pour l'instant, juste vous.",
+    team_invite_email_label:"E-mail", team_invite_role_label:"Rôle",
+    role_admin:"Admin", role_viewer:"Lecteur", role_owner:"Propriétaire",
+    team_invite_btn:"+ Inviter", team_invite_sent:"✓ Invitation envoyée",
+    team_owner_only_note:"Seul le propriétaire du compte peut gérer l'équipe.",
+    err_team_email:"Entrez l'adresse e-mail du coéquipier.",
+    confirm_remove_member:"Retirer cette personne de l'équipe ? Elle perdra immédiatement l'accès.",
+    team_remove_btn:"Retirer", status_invited:"Invité", status_active:"Actif",
+    viewer_mode_banner:"👁 Connecté en tant que Lecteur — vous pouvez tout voir mais pas apporter de modifications.",
     date_locale:"fr-FR"
   },
   es: {
@@ -743,6 +830,17 @@ var DICT = {
     outcome_placed:"Realizado", outcome_fulfilled:"Completado", outcome_cancelled:"Cancelado",
     outcome_submit_btn:"Enviar", outcome_success:"✓ Registrado",
     err_outcome_customer:"Introduce el ID de cliente usado en el checkout.",
+    team_h2:"Equipo",
+    team_sub:"Invita a compañeros a iniciar sesión con su propio correo — accederán a los datos de esta cuenta sin compartir tu contraseña.",
+    no_team_msg:"Por ahora, solo tú.",
+    team_invite_email_label:"Correo electrónico", team_invite_role_label:"Rol",
+    role_admin:"Administrador", role_viewer:"Visor", role_owner:"Propietario",
+    team_invite_btn:"+ Invitar", team_invite_sent:"✓ Invitación enviada",
+    team_owner_only_note:"Solo el propietario de la cuenta puede gestionar el equipo.",
+    err_team_email:"Ingresa el correo electrónico del compañero.",
+    confirm_remove_member:"¿Quitar a esta persona del equipo? Perderá el acceso de inmediato.",
+    team_remove_btn:"Quitar", status_invited:"Invitado", status_active:"Activo",
+    viewer_mode_banner:"👁 Sesión iniciada como Visor — puedes ver todo pero no hacer cambios.",
     date_locale:"es-ES"
   }
 };
@@ -774,6 +872,25 @@ function authHeaders(extra = {}){
   return { "X-API-Key": localStorage.getItem('merafraud_api_key'), ...extra };
 }
 
+// Team accounts: everyone signed in shares the same tenant's api_key
+// underneath, so "who am I" is tracked separately in localStorage — set
+// whenever /auth/login returns a '_member' object (meaning the email
+// belonged to an invited teammate, not the account owner), and cleared on
+// logout or on pasting the raw API key directly (which always implies
+// owner-level trust — see loadAccount()).
+function getMemberRole(){
+  return localStorage.getItem('merafraud_member_role'); // null/absent = owner
+}
+function setMemberInfo(member){
+  if(member && member.role){
+    localStorage.setItem('merafraud_member_role', member.role);
+    localStorage.setItem('merafraud_member_email', member.email || '');
+  } else {
+    localStorage.removeItem('merafraud_member_role');
+    localStorage.removeItem('merafraud_member_email');
+  }
+}
+
 async function loadAccount(){
   const key = document.getElementById('apiKeyInput').value.trim();
   const errorEl = document.getElementById('loadError');
@@ -781,6 +898,9 @@ async function loadAccount(){
   errorEl.classList.remove('show');
   if(!key){ errorEl.textContent = d.err_paste_key; errorEl.classList.add('show'); return; }
 
+  // Pasting the raw key directly always implies owner-level trust — a
+  // teammate never sees this key, only the owner does at signup.
+  setMemberInfo(null);
   localStorage.setItem('merafraud_api_key', key);
   try{
     await refreshAccount();
@@ -824,6 +944,8 @@ function renderAccount(t){
   renderTrialBanner(t);
   loadRules();
   loadNetworkStats();
+  applyRoleGating();
+  loadTeam();
 }
 
 async function saveWebhook(){
@@ -881,6 +1003,121 @@ function renderTrialBanner(t){
     el.innerHTML = d.trial_days_left_prefix + daysLeft + d.trial_days_left_suffix;
   } else {
     el.innerHTML = d.trial_no_end_msg;
+  }
+}
+
+// --- Role gating (viewer = read-only in the UI; see the comment on the
+// team_members table in tenants.py for why this isn't re-enforced on every
+// API call in this first version) ---
+function applyRoleGating(){
+  const role = getMemberRole(); // null = owner, 'admin', 'viewer'
+  const isViewer = role === 'viewer';
+  document.getElementById('viewerModeBanner').classList.toggle('show', isViewer);
+
+  ['regenKeyBtn','saveThresholdsBtn','saveWebhookBtn','addRuleBtn','reportFraudBtn','outcomeSubmitBtn']
+    .forEach(function(id){
+      const el = document.getElementById(id);
+      if(el) el.disabled = isViewer;
+    });
+  ['reviewSlider','blockSlider'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.disabled = isViewer;
+  });
+}
+
+// --- Team ---
+async function loadTeam(){
+  const listEl = document.getElementById('teamList');
+  const emptyEl = document.getElementById('noTeamMsg');
+  const isOwner = !getMemberRole();
+  document.getElementById('teamInviteBlock').style.display = isOwner ? 'block' : 'none';
+  document.getElementById('teamViewerNote').classList.toggle('show', !isOwner);
+
+  try{
+    const res = await fetch(`${API_BASE}/team`, { headers: authHeaders() });
+    if(!res.ok) return;
+    const data = await res.json();
+    renderTeam(data, isOwner);
+  }catch(e){
+    // Team panel is a nice-to-have — a network hiccup here shouldn't block
+    // the rest of the Settings page from working.
+  }
+}
+
+function renderTeam(data, isOwner){
+  const d = DICT[window.mfLang || 'tr'];
+  const listEl = document.getElementById('teamList');
+  const rows = [];
+
+  rows.push(`
+    <div class="team-row">
+      <div class="who"><span class="em">${data.owner.email || (data.owner.name || '—')}</span></div>
+      <div class="tags"><span class="role-badge owner" data-i18n="role_owner">${d.role_owner}</span></div>
+    </div>
+  `);
+
+  (data.members || []).forEach(function(m){
+    const roleLabel = m.role === 'admin' ? d.role_admin : d.role_viewer;
+    const statusLabel = m.status === 'active' ? d.status_active : d.status_invited;
+    const removeBtn = isOwner
+      ? `<button class="btn-secondary" style="padding:5px 10px; font-size:11.5px;" onclick="removeMember('${m.id}')">${d.team_remove_btn}</button>`
+      : '';
+    rows.push(`
+      <div class="team-row">
+        <div class="who"><span class="em">${m.email}</span></div>
+        <div class="tags">
+          <span class="role-badge ${m.role}">${roleLabel}</span>
+          <span class="status-badge ${m.status}">${statusLabel}</span>
+          ${removeBtn}
+        </div>
+      </div>
+    `);
+  });
+
+  listEl.innerHTML = rows.join('');
+}
+
+async function inviteMember(){
+  const d = DICT[window.mfLang || 'tr'];
+  const email = document.getElementById('teamInviteEmail').value.trim();
+  const role = document.getElementById('teamInviteRole').value;
+  const errorEl = document.getElementById('teamError');
+  const noteEl = document.getElementById('teamNote');
+  errorEl.classList.remove('show');
+  noteEl.classList.remove('show');
+
+  if(!email){
+    errorEl.textContent = d.err_team_email;
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const res = await fetch(`${API_BASE}/team/invite`, {
+      method: 'POST', headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({ email, role, lang: window.mfLang || 'tr' })
+    });
+    const dResp = await res.json();
+    if(!res.ok) throw new Error(dResp.error || 'Invite failed');
+    document.getElementById('teamInviteEmail').value = '';
+    noteEl.classList.add('show');
+    loadTeam();
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+async function removeMember(memberId){
+  const d = DICT[window.mfLang || 'tr'];
+  if(!confirm(d.confirm_remove_member)) return;
+  try{
+    const res = await fetch(`${API_BASE}/team/${memberId}`, {
+      method: 'DELETE', headers: authHeaders()
+    });
+    if(!res.ok){ const dResp = await res.json().catch(()=>({})); throw new Error(dResp.error || 'Failed'); }
+    loadTeam();
+  }catch(e){
+    alert(e.message);
   }
 }
 
@@ -1141,6 +1378,7 @@ async function saveThresholds(){
 
 function logout(){
   localStorage.removeItem('merafraud_api_key');
+  setMemberInfo(null);
   document.getElementById('loggedInState').style.display = 'none';
   document.getElementById('loggedOutState').style.display = 'block';
   document.getElementById('apiKeyInput').value = '';
@@ -1198,6 +1436,7 @@ async function doLogin(){
     }
     const tenant = await res.json();
     localStorage.setItem('merafraud_api_key', tenant.api_key);
+    setMemberInfo(tenant._member || null);
     renderAccount(tenant);
   }catch(e){
     errorEl.textContent = e.message;
