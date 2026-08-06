@@ -607,6 +607,33 @@ def set_tenant_subscription(tenant_id):
     return jsonify(tenant_store.public_view(updated))
 
 
+@app.route("/api/internal/send-trial-reminders", methods=["POST"])
+def send_trial_reminders():
+    """Admin-only, meant to be called once a day by a scheduled job (see
+    .github/workflows/trial-reminders.yml) rather than by a human. Finds
+    every tenant whose trial ends in 3 days or 1 day and hasn't already
+    been emailed that specific reminder, sends it, and marks it sent so a
+    re-run (or a retry after a partial failure) doesn't double-send.
+    Failures for individual tenants don't abort the batch — one bad email
+    address shouldn't block everyone else's reminder."""
+    admin_key = request.headers.get("X-Admin-Key")
+    if not admin_key or admin_key != ADMIN_API_KEY:
+        return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
+
+    due = tenant_store.get_tenants_needing_trial_reminder()
+    sent, failed = [], []
+    for tenant in due:
+        days_left = tenant["_reminder_day"]
+        ok = email_service.send_trial_reminder_email(tenant["email"], tenant["name"], days_left)
+        if ok:
+            tenant_store.mark_trial_reminder_sent(tenant["id"], days_left)
+            sent.append({"tenant_id": tenant["id"], "days_left": days_left})
+        else:
+            failed.append({"tenant_id": tenant["id"], "days_left": days_left})
+
+    return jsonify({"checked": len(due), "sent": sent, "failed": failed})
+
+
 # ---------------------------------------------------------------------------
 # Account recovery — login with email+password (this doubles as API key
 # recovery, since login returns the real key), forgot/reset password, and

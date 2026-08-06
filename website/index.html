@@ -17,6 +17,9 @@
 <meta name="twitter:description" content="Real-time, explainable fraud detection built for small and medium e-commerce businesses. Score every transaction in milliseconds.">
 <meta name="twitter:image" content="https://merafraud.com/website/og-image.png">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -58,6 +61,7 @@
   .trust-row b{ color:var(--text-hi); font-size:20px; display:block; font-family:'JetBrains Mono',monospace; }
 
   .problem-solution{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:800px){ .problem-solution{ grid-template-columns:1fr; } }
   .ps-card{ padding:32px; }
   .ps-card.problem{ border-color:rgba(251,69,112,0.25); }
   .ps-card.solution{ border-color:rgba(52,211,153,0.25); }
@@ -128,6 +132,8 @@
     <button type="button" class="lang-btn" data-lang="fr">FR</button>
     <button type="button" class="lang-btn" data-lang="es">ES</button>
   </div>
+    <button type="button" class="mobile-toggle" aria-label="Menu" aria-expanded="false" onclick="var n=document.querySelector('.main-nav'), b=document.querySelector('.nav-backdrop'), o=!n.classList.contains('mobile-open'); n.classList.toggle('mobile-open', o); if(b) b.classList.toggle('show', o); this.setAttribute('aria-expanded', o);"><span class="mt-icon"><span></span><span></span><span></span></span></button>
+<div class="nav-backdrop" onclick="document.querySelector('.main-nav').classList.remove('mobile-open'); this.classList.remove('show'); var t=document.querySelector('.mobile-toggle'); if(t) t.setAttribute('aria-expanded','false');"></div>
 </header>
 
 <section class="wrap hero" id="tour-hero">
