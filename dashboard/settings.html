@@ -269,6 +269,29 @@
       </div>
       <div class="error-msg" id="regenError"></div>
       <div class="demo-note" id="regenNote" style="display:none;"></div>
+
+      <div id="emailChangeBlock" style="margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
+        <button class="btn-secondary" id="emailChangeToggleBtn" onclick="toggleEmailChangeForm()" data-i18n="email_change_toggle">✉️ Change account email</button>
+        <div id="emailChangeForm" style="display:none; margin-top:12px;">
+          <div class="field"><label data-i18n="email_change_new_label">New email</label><input type="email" id="newEmailInput" placeholder="new@store.com"></div>
+          <div class="field"><label data-i18n="email_change_pw_label">Current password</label><input type="password" id="emailChangePasswordInput"></div>
+          <button class="btn-primary" onclick="changeEmail()" data-i18n="email_change_btn">Update email</button>
+          <div class="error-msg" id="emailChangeError"></div>
+          <div class="demo-note" id="emailChangeNote" style="display:none;" data-i18n="email_change_success">✓ Email updated</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="referral_h2">Refer a friend</h2>
+      <div class="sub" id="referralSub" data-i18n="referral_sub">Share your link — you and the friend you refer both get 30 extra trial days when they sign up.</div>
+      <div class="field"><label data-i18n="referral_link_label">Your referral link</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="referralLinkInput" readonly style="flex:1;">
+          <button class="btn-secondary" onclick="copyReferralLink()" data-i18n="referral_copy_btn">Copy</button>
+        </div>
+      </div>
+      <div class="sub" id="referralCountMsg"></div>
     </div>
 
     <div class="panel">
@@ -521,6 +544,18 @@ var DICT = {
     confirm_remove_member:"Remove this person from the team? They'll lose access immediately.",
     team_remove_btn:"Remove", status_invited:"Invited", status_active:"Active",
     viewer_mode_banner:"👁 Signed in as Viewer — you can see everything here but can't make changes.",
+    email_change_toggle:"✉️ Change account email",
+    email_change_new_label:"New email",
+    email_change_pw_label:"Current password",
+    email_change_btn:"Update email",
+    email_change_success:"✓ Email updated",
+    email_change_err_required:"New email and current password are required",
+    referral_h2:"Refer a friend",
+    referral_sub:"Share your link — you and the friend you refer both get 30 extra trial days when they sign up.",
+    referral_link_label:"Your referral link",
+    referral_copy_btn:"Copy",
+    referral_count_prefix:"Referrals so far: ",
+    referral_count_suffix:"",
     date_locale:"en-GB"
   },
   tr: {
@@ -601,6 +636,18 @@ var DICT = {
     confirm_remove_member:"Bu kişiyi ekipten çıkarmak istiyor musunuz? Erişimi hemen kaybeder.",
     team_remove_btn:"Çıkar", status_invited:"Davet edildi", status_active:"Aktif",
     viewer_mode_banner:"👁 Görüntüleyici olarak giriş yaptınız — her şeyi görebilirsiniz ama değişiklik yapamazsınız.",
+    email_change_toggle:"✉️ Hesap e-postasını değiştir",
+    email_change_new_label:"Yeni e-posta",
+    email_change_pw_label:"Mevcut şifre",
+    email_change_btn:"E-postayı güncelle",
+    email_change_success:"✓ E-posta güncellendi",
+    email_change_err_required:"Yeni e-posta ve mevcut şifre gerekli",
+    referral_h2:"Arkadaşını davet et",
+    referral_sub:"Linkini paylaş — davet ettiğin arkadaşın kaydolduğunda ikinizde 30 gün ekstra deneme süresi kazanır.",
+    referral_link_label:"Davet linkiniz",
+    referral_copy_btn:"Kopyala",
+    referral_count_prefix:"Şu ana kadar davet edilen: ",
+    referral_count_suffix:"",
     date_locale:"tr-TR"
   },
   de: {
@@ -681,6 +728,18 @@ var DICT = {
     confirm_remove_member:"Diese Person aus dem Team entfernen? Der Zugriff wird sofort entzogen.",
     team_remove_btn:"Entfernen", status_invited:"Eingeladen", status_active:"Aktiv",
     viewer_mode_banner:"👁 Als Betrachter angemeldet — Sie können alles sehen, aber keine Änderungen vornehmen.",
+    email_change_toggle:"✉️ Konto-E-Mail ändern",
+    email_change_new_label:"Neue E-Mail",
+    email_change_pw_label:"Aktuelles Passwort",
+    email_change_btn:"E-Mail aktualisieren",
+    email_change_success:"✓ E-Mail aktualisiert",
+    email_change_err_required:"Neue E-Mail und aktuelles Passwort sind erforderlich",
+    referral_h2:"Freund einladen",
+    referral_sub:"Teilen Sie Ihren Link — Sie und der eingeladene Freund erhalten beide 30 zusätzliche Testtage bei der Anmeldung.",
+    referral_link_label:"Ihr Empfehlungslink",
+    referral_copy_btn:"Kopieren",
+    referral_count_prefix:"Bisherige Empfehlungen: ",
+    referral_count_suffix:"",
     date_locale:"de-DE"
   },
   fr: {
@@ -761,6 +820,18 @@ var DICT = {
     confirm_remove_member:"Retirer cette personne de l'équipe ? Elle perdra immédiatement l'accès.",
     team_remove_btn:"Retirer", status_invited:"Invité", status_active:"Actif",
     viewer_mode_banner:"👁 Connecté en tant que Lecteur — vous pouvez tout voir mais pas apporter de modifications.",
+    email_change_toggle:"✉️ Changer l'e-mail du compte",
+    email_change_new_label:"Nouvel e-mail",
+    email_change_pw_label:"Mot de passe actuel",
+    email_change_btn:"Mettre à jour l'e-mail",
+    email_change_success:"✓ E-mail mis à jour",
+    email_change_err_required:"Le nouvel e-mail et le mot de passe actuel sont requis",
+    referral_h2:"Parrainer un ami",
+    referral_sub:"Partagez votre lien — vous et l'ami parrainé obtenez chacun 30 jours d'essai supplémentaires lors de son inscription.",
+    referral_link_label:"Votre lien de parrainage",
+    referral_copy_btn:"Copier",
+    referral_count_prefix:"Parrainages à ce jour : ",
+    referral_count_suffix:"",
     date_locale:"fr-FR"
   },
   es: {
@@ -841,6 +912,18 @@ var DICT = {
     confirm_remove_member:"¿Quitar a esta persona del equipo? Perderá el acceso de inmediato.",
     team_remove_btn:"Quitar", status_invited:"Invitado", status_active:"Activo",
     viewer_mode_banner:"👁 Sesión iniciada como Visor — puedes ver todo pero no hacer cambios.",
+    email_change_toggle:"✉️ Cambiar el correo de la cuenta",
+    email_change_new_label:"Nuevo correo",
+    email_change_pw_label:"Contraseña actual",
+    email_change_btn:"Actualizar correo",
+    email_change_success:"✓ Correo actualizado",
+    email_change_err_required:"Se requieren el nuevo correo y la contraseña actual",
+    referral_h2:"Invita a un amigo",
+    referral_sub:"Comparte tu enlace — tú y el amigo invitado obtienen 30 días extra de prueba cuando se registre.",
+    referral_link_label:"Tu enlace de referido",
+    referral_copy_btn:"Copiar",
+    referral_count_prefix:"Referidos hasta ahora: ",
+    referral_count_suffix:"",
     date_locale:"es-ES"
   }
 };
@@ -869,7 +952,14 @@ document.querySelectorAll('.lang-btn').forEach(function(b){
 applyLang(localStorage.getItem('mf_lang') || 'tr');
 
 function authHeaders(extra = {}){
-  return { "X-API-Key": localStorage.getItem('merafraud_api_key'), ...extra };
+  const headers = { "X-API-Key": localStorage.getItem('merafraud_api_key'), ...extra };
+  // Lets the backend's require_not_viewer check identify a Viewer-role team
+  // member even though everyone shares the same API key underneath — see
+  // _is_viewer_request() in app.py. Owners send no such header, so this is
+  // a no-op for the common case.
+  const memberEmail = localStorage.getItem('merafraud_member_email');
+  if(memberEmail) headers["X-Member-Email"] = memberEmail;
+  return headers;
 }
 
 // Team accounts: everyone signed in shares the same tenant's api_key
@@ -946,6 +1036,7 @@ function renderAccount(t){
   loadNetworkStats();
   applyRoleGating();
   loadTeam();
+  loadReferrals();
 }
 
 async function saveWebhook(){
@@ -1023,6 +1114,72 @@ function applyRoleGating(){
     const el = document.getElementById(id);
     if(el) el.disabled = isViewer;
   });
+
+  // Changing the account's registered email requires the OWNER's own
+  // password (see change_email() in tenants.py) — a team member's own
+  // password never matches it, so this block is hidden for any team
+  // member (admin or viewer) rather than just gated for viewers.
+  const emailBlock = document.getElementById('emailChangeBlock');
+  if(emailBlock) emailBlock.style.display = role ? 'none' : 'block';
+}
+
+// --- Account email change (owner only — see applyRoleGating) ---
+function toggleEmailChangeForm(){
+  const form = document.getElementById('emailChangeForm');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+async function changeEmail(){
+  const d = DICT[window.mfLang || 'tr'];
+  const newEmail = document.getElementById('newEmailInput').value.trim();
+  const password = document.getElementById('emailChangePasswordInput').value;
+  const errorEl = document.getElementById('emailChangeError');
+  const noteEl = document.getElementById('emailChangeNote');
+  errorEl.classList.remove('show');
+  noteEl.style.display = 'none';
+
+  if(!newEmail || !password){
+    errorEl.textContent = d.email_change_err_required;
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const res = await fetch(`${API_BASE}/tenants/email`, {
+      method: 'PUT', headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({ new_email: newEmail, current_password: password })
+    });
+    const dResp = await res.json();
+    if(!res.ok) throw new Error(dResp.error || 'Update failed');
+    document.getElementById('rowEmail').textContent = dResp.email || newEmail;
+    document.getElementById('emailChangePasswordInput').value = '';
+    noteEl.style.display = 'block';
+    setTimeout(function(){ noteEl.style.display = 'none'; }, 3000);
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+// --- Referrals ---
+async function loadReferrals(){
+  try{
+    const res = await fetch(`${API_BASE}/tenants/referrals`, { headers: authHeaders() });
+    if(!res.ok) return;
+    const data = await res.json();
+    document.getElementById('referralLinkInput').value = data.referral_link || '';
+    const d = DICT[window.mfLang || 'tr'];
+    document.getElementById('referralCountMsg').textContent =
+      (d.referral_count_prefix || '') + data.referral_count + (d.referral_count_suffix || '');
+  }catch(e){
+    // Referral panel is a nice-to-have — a network hiccup shouldn't block the rest of Settings.
+  }
+}
+
+function copyReferralLink(){
+  const input = document.getElementById('referralLinkInput');
+  input.select();
+  input.setSelectionRange(0, 99999);
+  navigator.clipboard && navigator.clipboard.writeText(input.value);
 }
 
 // --- Team ---

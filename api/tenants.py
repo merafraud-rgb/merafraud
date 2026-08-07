@@ -126,10 +126,40 @@ def _ensure_schema(conn):
                 )
             """)
             cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_team_members_email ON team_members (lower(email))")
+
+            # Admin audit log — every action taken from the internal admin
+            # panel (extend trial, change subscription status, etc.) is
+            # recorded here. ADMIN_API_KEY is a single shared secret (see
+            # app.py), so this can't attribute an action to a specific
+            # person — only "the admin panel did X to tenant Y at time Z" —
+            # but a timestamped trail beats none at all.
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS admin_audit_log (
+                    id SERIAL PRIMARY KEY,
+                    action TEXT NOT NULL,
+                    tenant_id TEXT,
+                    detail TEXT,
+                    created_at TEXT NOT NULL
+                )
+            """)
+
+            # Referral program: every tenant gets a short unique code at
+            # creation. A signup that arrives with ?ref=<code> (see POST
+            # /api/tenants in app.py) is linked back via referred_by, and
+            # both sides get a trial extension (see apply_referral_bonus).
+            cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS referral_code TEXT")
+            cur.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS referred_by TEXT")
+            cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_referral_code ON tenants (referral_code)")
+
             cur.execute("SELECT id FROM tenants WHERE api_key_test IS NULL")
             missing_test_key = [r[0] for r in cur.fetchall()]
             for tid in missing_test_key:
                 cur.execute("UPDATE tenants SET api_key_test = %s WHERE id = %s", (_generate_test_key(), tid))
+
+            cur.execute("SELECT id FROM tenants WHERE referral_code IS NULL")
+            missing_ref_code = [r[0] for r in cur.fetchall()]
+            for tid in missing_ref_code:
+                cur.execute("UPDATE tenants SET referral_code = %s WHERE id = %s", (_generate_referral_code(), tid))
         conn.commit()
         _DB_INITIALIZED = True
 
@@ -151,6 +181,10 @@ def _generate_key() -> str:
 
 def _generate_test_key() -> str:
     return "sk_test_" + secrets.token_urlsafe(24)
+
+
+def _generate_referral_code() -> str:
+    return secrets.token_hex(4).upper()
 
 
 def seed_demo_tenant():
@@ -182,14 +216,15 @@ def seed_demo_tenant():
                 "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
                 "trial_ends_at": None,  # demo account, never expires
                 "subscription_status": "active",
+                "referral_code": _generate_referral_code(),
             }
             cur.execute("""
                 INSERT INTO tenants (id, name, email, password_hash, reset_token,
-                    reset_token_expires, api_key, api_key_test, thresholds, created_at, usage, trial_ends_at, subscription_status)
-                VALUES (%s, %s, NULL, NULL, NULL, NULL, %s, %s, %s, %s, %s, NULL, %s)
+                    reset_token_expires, api_key, api_key_test, thresholds, created_at, usage, trial_ends_at, subscription_status, referral_code)
+                VALUES (%s, %s, NULL, NULL, NULL, NULL, %s, %s, %s, %s, %s, NULL, %s, %s)
             """, (demo["id"], demo["name"], demo["api_key"], demo["api_key_test"],
                   json.dumps(demo["thresholds"]), demo["created_at"], json.dumps(demo["usage"]),
-                  demo["subscription_status"]))
+                  demo["subscription_status"], demo["referral_code"]))
         conn.commit()
         return demo
     finally:
@@ -197,12 +232,18 @@ def seed_demo_tenant():
 
 
 def create_tenant(name: str, thresholds: dict | None = None, email: str | None = None,
-                   password: str | None = None, trial_days: int = 7) -> dict:
+                   password: str | None = None, trial_days: int = 7,
+                   referred_by: str | None = None) -> dict:
     """trial_days defaults to 7 to match the "7-day free trial" already
     advertised on the pricing page — public self-serve signup should never
     let the caller override this (see /api/tenants in app.py). For a longer
     pilot trial, create the tenant normally and then call set_trial_end()
-    as an admin action."""
+    as an admin action.
+
+    referred_by is the referring tenant's id (resolved from a ?ref=<code>
+    query param in app.py via get_tenant_by_referral_code) — just recorded
+    here; the actual trial-extension reward is applied separately by
+    apply_referral_bonus() once the row exists."""
     conn = _get_conn()
     try:
         with _lock, conn.cursor() as cur:
@@ -222,15 +263,19 @@ def create_tenant(name: str, thresholds: dict | None = None, email: str | None =
                 "usage": {"total_calls": 0, "blocked": 0, "reviewed": 0, "approved": 0},
                 "trial_ends_at": trial_ends_at,
                 "subscription_status": "trial",
+                "referral_code": _generate_referral_code(),
+                "referred_by": referred_by,
             }
             cur.execute("""
                 INSERT INTO tenants (id, name, email, password_hash, reset_token,
-                    reset_token_expires, api_key, api_key_test, thresholds, created_at, usage, trial_ends_at, subscription_status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    reset_token_expires, api_key, api_key_test, thresholds, created_at, usage, trial_ends_at, subscription_status,
+                    referral_code, referred_by)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (tenant["id"], tenant["name"], tenant["email"], tenant["password_hash"],
                   tenant["reset_token"], tenant["reset_token_expires"], tenant["api_key"], tenant["api_key_test"],
                   json.dumps(tenant["thresholds"]), tenant["created_at"], json.dumps(tenant["usage"]),
-                  tenant["trial_ends_at"], tenant["subscription_status"]))
+                  tenant["trial_ends_at"], tenant["subscription_status"],
+                  tenant["referral_code"], tenant["referred_by"]))
         conn.commit()
         return tenant
     finally:
@@ -275,6 +320,37 @@ def set_trial_end(tenant_id: str, days_from_now: int) -> dict | None:
             row = cur.fetchone()
         conn.commit()
         return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
+
+
+def log_admin_action(action: str, tenant_id: str | None, detail: str = "") -> None:
+    """Appends one row to admin_audit_log. Called from app.py right after an
+    admin-key-gated action (extend trial, change subscription status)
+    succeeds — never called on a failed/rejected attempt, since those never
+    reach the point of having anything to log."""
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO admin_audit_log (action, tenant_id, detail, created_at)
+                VALUES (%s, %s, %s, %s)
+            """, (action, tenant_id, detail, _now()))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_admin_audit_log(limit: int = 200) -> list[dict]:
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT id, action, tenant_id, detail, created_at
+                FROM admin_audit_log ORDER BY id DESC LIMIT %s
+            """, (limit,))
+            rows = cur.fetchall()
+        return [dict(r) for r in rows]
     finally:
         conn.close()
 
@@ -448,6 +524,71 @@ def get_tenant_by_email(email: str) -> dict | None:
             cur.execute("SELECT * FROM tenants WHERE lower(email) = lower(%s)", (email,))
             row = cur.fetchone()
         return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
+
+
+REFERRAL_BONUS_DAYS = 30
+
+
+def get_tenant_by_referral_code(code: str) -> dict | None:
+    code = (code or "").strip()
+    if not code:
+        return None
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE upper(referral_code) = upper(%s)", (code,))
+            row = cur.fetchone()
+        return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
+
+
+def apply_referral_bonus(referrer_id: str, referred_id: str, bonus_days: int = REFERRAL_BONUS_DAYS) -> None:
+    """Extends both sides' trial by bonus_days once a referred signup
+    completes. Only meaningful for tenants still on the 'trial' clock — an
+    'active' tenant is never gated by trial_ends_at (see
+    _check_subscription_gate in app.py), so extending it there would be an
+    invisible no-op; those are skipped rather than writing a number nobody
+    will ever see enforced. Extends from whichever is later — today, or the
+    tenant's current trial end — so a referral never wastes days someone
+    already has left."""
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            for tid in (referrer_id, referred_id):
+                cur.execute("SELECT trial_ends_at, subscription_status FROM tenants WHERE id = %s", (tid,))
+                row = cur.fetchone()
+                if not row or row["subscription_status"] != "trial":
+                    continue
+                base = datetime.now(timezone.utc)
+                if row["trial_ends_at"]:
+                    try:
+                        current_end = datetime.fromisoformat(row["trial_ends_at"])
+                        if current_end.tzinfo is None:
+                            current_end = current_end.replace(tzinfo=timezone.utc)
+                        if current_end > base:
+                            base = current_end
+                    except ValueError:
+                        pass
+                new_end = (base + timedelta(days=bonus_days)).isoformat()
+                cur.execute("UPDATE tenants SET trial_ends_at = %s WHERE id = %s", (new_end, tid))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_referral_stats(tenant_id: str) -> dict:
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT referral_code FROM tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+            code = row["referral_code"] if row else None
+            cur.execute("SELECT COUNT(*) AS n FROM tenants WHERE referred_by = %s", (tenant_id,))
+            count = cur.fetchone()["n"]
+        return {"referral_code": code, "referral_count": count}
     finally:
         conn.close()
 
@@ -629,6 +770,40 @@ def set_password(tenant_id: str, password: str) -> dict | None:
             row = cur.fetchone()
         conn.commit()
         return _row_to_tenant(row) if row else None
+    finally:
+        conn.close()
+
+
+def change_email(tenant_id: str, new_email: str, current_password: str) -> dict:
+    """Owner-only self-service email change. A team member's own password
+    won't match the owner's password_hash checked here, so this naturally
+    can't be used by an invited teammate to change the account's registered
+    (owner) email — only the owner's own login credential works. Raises
+    ValueError with a user-facing message on any failure, which app.py
+    returns directly as the API error."""
+    new_email = (new_email or "").strip()
+    if not new_email or "@" not in new_email:
+        raise ValueError("Please provide a valid email address.")
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            row = cur.fetchone()
+            if not row or not row.get("password_hash"):
+                raise ValueError("This account has no password set yet — set one first, then change your email.")
+            if not check_password_hash(row["password_hash"], current_password):
+                raise ValueError("Current password is incorrect.")
+            cur.execute("SELECT 1 FROM tenants WHERE lower(email) = lower(%s) AND id != %s", (new_email, tenant_id))
+            if cur.fetchone():
+                raise ValueError("That email is already in use by another MeraFraud account.")
+            cur.execute("SELECT 1 FROM team_members WHERE lower(email) = lower(%s)", (new_email,))
+            if cur.fetchone():
+                raise ValueError("That email is already in use by another MeraFraud account.")
+            cur.execute("UPDATE tenants SET email = %s WHERE id = %s", (new_email, tenant_id))
+            cur.execute("SELECT * FROM tenants WHERE id = %s", (tenant_id,))
+            updated = cur.fetchone()
+        conn.commit()
+        return _row_to_tenant(updated)
     finally:
         conn.close()
 

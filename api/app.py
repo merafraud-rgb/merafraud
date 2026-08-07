@@ -202,6 +202,41 @@ def require_admin_key(f):
     return wrapper
 
 
+def _is_viewer_request() -> bool:
+    """Best-effort server-side check backing up the dashboard's UI-level
+    role gating (see applyRoleGating() in settings.html). The dashboard
+    sends an X-Member-Email header (added by authHeaders() once a team
+    member is signed in) alongside the shared X-API-Key — if that header
+    identifies an active Viewer-role member of the calling tenant, mutating
+    endpoints reject the request even if it was fired directly (e.g. from
+    devtools) with a Viewer's edit buttons re-enabled.
+
+    This is deliberately fail-open on any ambiguity (missing header, header
+    that doesn't resolve to a member of this tenant) rather than fail-closed
+    — it only ever blocks a request it can positively identify as a Viewer,
+    so it can't accidentally lock out the owner or an Admin member. A
+    Viewer who calls the API directly with a hand-written script and omits
+    the header still isn't blocked by this — closing that gap fully would
+    require giving each team member their own credential instead of sharing
+    the tenant's API key, which is a larger change than this pass makes."""
+    member_email = request.headers.get("X-Member-Email")
+    if not member_email:
+        return False
+    member = tenant_store.get_team_member_by_email(member_email)
+    if not member or member.get("tenant_id") != g.tenant.get("id"):
+        return False
+    return member.get("role") == "viewer"
+
+
+def require_not_viewer(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if _is_viewer_request():
+            return jsonify({"error": "Viewers can't make changes to this account."}), 403
+        return f(*args, **kwargs)
+    return wrapper
+
+
 def risk_level(score: float, thresholds: dict) -> str:
     if score >= thresholds["block"]:
         return "block"
@@ -523,10 +558,33 @@ def tenants_collection():
     # an unlimited free account. create_tenant() defaults to the standard
     # 7-day trial. Longer trials (pilot customers) are set separately via
     # the admin-only /api/tenants/<id>/trial route below.
-    tenant = tenant_store.create_tenant(name, thresholds, email, password)
+
+    # Referral program: a signup that arrives with a referral code (either
+    # ?ref=CODE in the signup page URL, forwarded as "referral_code" in the
+    # request body) is linked to the referring tenant, and both sides get a
+    # trial extension once the new tenant row exists. An unrecognized code
+    # is silently ignored rather than rejected — a stale/mistyped code
+    # shouldn't block someone from signing up.
+    ref_code = (payload.get("referral_code") or "").strip()
+    referrer = tenant_store.get_tenant_by_referral_code(ref_code) if ref_code else None
+
+    tenant = tenant_store.create_tenant(name, thresholds, email, password, referred_by=referrer["id"] if referrer else None)
+    if referrer:
+        tenant_store.apply_referral_bonus(referrer["id"], tenant["id"])
     if email:
         email_service.send_welcome_email(email, name)  # no-op if SMTP isn't configured
     return jsonify(tenant_store.public_view(tenant)), 201
+
+
+@app.route("/api/tenants/referrals", methods=["GET"])
+@require_api_key
+def get_my_referrals():
+    """Powers the 'Refer a friend' panel in Settings — this tenant's own
+    referral code/link plus how many signups it's brought in so far."""
+    stats = tenant_store.get_referral_stats(g.tenant["id"])
+    stats["referral_link"] = f"https://merafraud.com/dashboard/signup.html?ref={stats['referral_code']}"
+    stats["bonus_days"] = tenant_store.REFERRAL_BONUS_DAYS
+    return jsonify(stats)
 
 
 @app.route("/api/support/ticket", methods=["POST"])
@@ -583,6 +641,7 @@ def set_tenant_trial(tenant_id):
     updated = tenant_store.set_trial_end(tenant_id, days)
     if not updated:
         return jsonify({"error": "Tenant not found"}), 404
+    tenant_store.log_admin_action("extend_trial", tenant_id, f"days={days}")
     return jsonify(tenant_store.public_view(updated))
 
 
@@ -604,7 +663,22 @@ def set_tenant_subscription(tenant_id):
     updated = tenant_store.set_subscription_status(tenant_id, status)
     if not updated:
         return jsonify({"error": "Tenant not found"}), 404
+    tenant_store.log_admin_action("set_subscription", tenant_id, f"status={status}")
     return jsonify(tenant_store.public_view(updated))
+
+
+@app.route("/api/admin/audit-log", methods=["GET"])
+@require_admin_key
+def get_admin_audit_log():
+    """Recent admin-panel actions (trial extensions, subscription status
+    changes), most recent first. Powers the audit log table in admin.html —
+    without this there was no record of who/when for any admin action, just
+    the after-effects on a tenant's row."""
+    try:
+        limit = int(request.args.get("limit", 200))
+    except (TypeError, ValueError):
+        limit = 200
+    return jsonify({"entries": tenant_store.get_admin_audit_log(limit)})
 
 
 @app.route("/api/internal/send-trial-reminders", methods=["POST"])
@@ -632,6 +706,34 @@ def send_trial_reminders():
             failed.append({"tenant_id": tenant["id"], "days_left": days_left})
 
     return jsonify({"checked": len(due), "sent": sent, "failed": failed})
+
+
+@app.route("/api/internal/send-weekly-digest", methods=["POST"])
+def send_weekly_digest():
+    """Admin-only, meant to be called once a week by a scheduled job (see
+    .github/workflows/weekly-digest.yml) rather than by a human. Sends every
+    tenant with an email on file a summary of their last 7 days — skips
+    tenants with zero scored transactions that week so nobody gets an empty
+    report, and skips the demo tenant (no real email on file for it)."""
+    admin_key = request.headers.get("X-Admin-Key")
+    if not admin_key or admin_key != ADMIN_API_KEY:
+        return jsonify({"error": "Missing or invalid X-Admin-Key header"}), 401
+
+    sent, skipped, failed = [], [], []
+    for tenant in tenant_store.list_tenants():
+        email = tenant.get("email")
+        if not email:
+            skipped.append(tenant["id"])
+            continue
+        summary = transaction_log.get_weekly_summary(tenant["id"])
+        if summary["total"] == 0:
+            skipped.append(tenant["id"])
+            continue
+        lang = "en"  # tenants don't have a stored language preference yet; default matches the site's primary EN copy
+        ok = email_service.send_weekly_digest_email(email, tenant["name"], summary, lang=lang)
+        (sent if ok else failed).append(tenant["id"])
+
+    return jsonify({"sent": sent, "skipped": skipped, "failed": failed})
 
 
 # ---------------------------------------------------------------------------
@@ -670,6 +772,26 @@ def auth_set_password():
         return jsonify({"error": "Password must be at least 6 characters"}), 400
     updated = tenant_store.set_password(g.tenant["id"], password)
     return jsonify({"status": "ok"})
+
+
+@app.route("/api/tenants/email", methods=["PUT"])
+@require_api_key
+def update_my_email():
+    """Self-service change of the account's registered (owner) email —
+    requires the OWNER's current password, which is what actually restricts
+    this to the owner: a team member's own password never matches the
+    owner's password_hash, so this can't be used by an invited teammate
+    even though they authenticate with the same shared API key."""
+    payload = request.get_json(force=True, silent=True) or {}
+    new_email = payload.get("new_email", "")
+    current_password = payload.get("current_password", "")
+    if not current_password:
+        return jsonify({"error": "'current_password' is required"}), 400
+    try:
+        updated = tenant_store.change_email(g.tenant["id"], new_email, current_password)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify(tenant_store.public_view(updated))
 
 
 @app.route("/api/auth/forgot-password", methods=["POST"])
@@ -721,6 +843,7 @@ def auth_reset_password():
 
 @app.route("/api/tenants/regenerate-key", methods=["POST"])
 @require_api_key
+@require_not_viewer
 def regenerate_api_key():
     """Rotates the caller's API key. The OLD key stops working immediately
     — the caller must switch to the new one everywhere it's used."""
@@ -736,6 +859,7 @@ def regenerate_api_key():
 
 @app.route("/api/orders/outcome", methods=["POST"])
 @require_api_key
+@require_not_viewer
 def report_order_outcome():
     payload = request.get_json(force=True, silent=True) or {}
     customer_id = payload.get("customer_id")
@@ -770,6 +894,7 @@ def list_custom_rules():
 
 @app.route("/api/rules", methods=["POST"])
 @require_api_key
+@require_not_viewer
 def create_custom_rule():
     payload = request.get_json(force=True, silent=True) or {}
     field = payload.get("field")
@@ -787,6 +912,7 @@ def create_custom_rule():
 
 @app.route("/api/rules/<rule_id>", methods=["DELETE"])
 @require_api_key
+@require_not_viewer
 def remove_custom_rule(rule_id):
     deleted = custom_rules.delete_rule(g.tenant["id"], rule_id)
     if not deleted:
@@ -801,6 +927,7 @@ def remove_custom_rule(rule_id):
 
 @app.route("/api/blacklist/report", methods=["POST"])
 @require_api_key
+@require_not_viewer
 def report_to_shared_network():
     payload = request.get_json(force=True, silent=True) or {}
     ip = payload.get("ip")
@@ -854,6 +981,7 @@ def get_my_account():
 
 @app.route("/api/tenants/thresholds", methods=["PUT"])
 @require_api_key
+@require_not_viewer
 def update_my_thresholds():
     payload = request.get_json(force=True, silent=True) or {}
     block = payload.get("block")
@@ -868,6 +996,7 @@ def update_my_thresholds():
 
 @app.route("/api/tenants/webhook", methods=["PUT"])
 @require_api_key
+@require_not_viewer
 def update_my_webhook():
     """Sets or clears the calling tenant's Slack/Discord/generic incoming-
     webhook URL. Send {"webhook_url": null} (or omit it) to disable."""
@@ -903,6 +1032,7 @@ def get_team():
 
 @app.route("/api/team/invite", methods=["POST"])
 @require_api_key
+@require_not_viewer
 def invite_team_member():
     payload = request.get_json(force=True, silent=True) or {}
     email = (payload.get("email") or "").strip()
@@ -930,6 +1060,7 @@ def invite_team_member():
 
 @app.route("/api/team/<member_id>", methods=["DELETE"])
 @require_api_key
+@require_not_viewer
 def delete_team_member(member_id):
     removed = tenant_store.remove_team_member(g.tenant["id"], member_id)
     if not removed:

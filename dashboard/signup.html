@@ -410,10 +410,16 @@ async function createAccount(){
   btn.textContent = d.creating;
 
   try{
+    // Referral program: a signup that arrived via a friend's link
+    // (?ref=CODE — see the 'Refer a friend' panel in dashboard/settings.html)
+    // is forwarded so both accounts get a trial extension; see
+    // POST /api/tenants in app.py. An absent/invalid code is a normal
+    // signup, not an error.
+    const refCode = new URLSearchParams(window.location.search).get('ref') || '';
     const res = await fetch(`${API_BASE}/tenants`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ name, email, password, risk_profile: selectedProfile })
+      body: JSON.stringify({ name, email, password, risk_profile: selectedProfile, referral_code: refCode })
     });
     if(!res.ok){
       const dErr = await res.json().catch(()=>({}));

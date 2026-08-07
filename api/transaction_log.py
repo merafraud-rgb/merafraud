@@ -99,6 +99,45 @@ def get_transactions(tenant_id: str) -> list:
         conn.close()
 
 
+def get_weekly_summary(tenant_id: str) -> dict:
+    """Aggregates this tenant's last 7 days of scored transactions for the
+    weekly digest email (see email_service.send_weekly_digest_email /
+    POST /api/internal/send-weekly-digest in app.py). 'amount_protected' is
+    the sum of transaction_amount across blocked transactions only — a
+    simple, defensible "money kept out of a fraudster's hands" estimate,
+    not a claim about actual chargebacks avoided."""
+    conn = _get_conn()
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT risk_level, COUNT(*) AS n, COALESCE(SUM(transaction_amount), 0) AS amount
+                FROM transaction_logs
+                WHERE tenant_id = %s AND scored_at::timestamptz >= (NOW() - INTERVAL '7 days')
+                GROUP BY risk_level
+            """, (tenant_id,))
+            rows = cur.fetchall()
+    finally:
+        conn.close()
+
+    counts = {"approve": 0, "review": 0, "block": 0}
+    amount_protected = 0.0
+    for r in rows:
+        level = r["risk_level"]
+        if level in counts:
+            counts[level] = r["n"]
+        if level == "block":
+            amount_protected = float(r["amount"] or 0)
+
+    total = counts["approve"] + counts["review"] + counts["block"]
+    return {
+        "total": total,
+        "approved": counts["approve"],
+        "reviewed": counts["review"],
+        "blocked": counts["block"],
+        "amount_protected": round(amount_protected, 2),
+    }
+
+
 def to_csv(tenant_id: str) -> str:
     rows = get_transactions(tenant_id)
     buf = io.StringIO()

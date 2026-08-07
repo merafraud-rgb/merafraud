@@ -278,6 +278,60 @@ def send_team_invite_email(to_email: str, inviter_name: str, store_name: str, ro
     return send_email(to_email, subject, html, text, reply_to="hello@merafraud.com")
 
 
+def send_weekly_digest_email(to_email: str, store_name: str, summary: dict, lang: str = "tr") -> bool:
+    """Sent once a week (see POST /api/internal/send-weekly-digest in app.py
+    and .github/workflows/weekly-digest.yml) so a merchant sees the product
+    doing its job even on a week they never opened the dashboard — a plain
+    activity report, not a sales pitch. Callers should skip tenants with
+    zero total transactions that week rather than send an empty report."""
+    dashboard_url = "https://merafraud.com/dashboard/settings.html"
+    total = summary.get("total", 0)
+    blocked = summary.get("blocked", 0)
+    reviewed = summary.get("reviewed", 0)
+    approved = summary.get("approved", 0)
+    amount = summary.get("amount_protected", 0)
+
+    if lang == "en":
+        subject = f"Your MeraFraud week: {blocked} risky order{'s' if blocked != 1 else ''} blocked"
+        html = f"""
+        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
+          <h2 style="color:#1c1044;">Your week with MeraFraud</h2>
+          <p>Hi {store_name}, here's what happened on your store over the last 7 days:</p>
+          <table style="width:100%; border-collapse:collapse; margin:18px 0;">
+            <tr><td style="padding:8px 0; color:#555;">Transactions scored</td><td style="text-align:right; font-weight:600;">{total}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">Approved</td><td style="text-align:right; font-weight:600;">{approved}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">Flagged for review</td><td style="text-align:right; font-weight:600;">{reviewed}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">Blocked as high-risk</td><td style="text-align:right; font-weight:600; color:#c0392b;">{blocked}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">Estimated amount protected</td><td style="text-align:right; font-weight:600;">€{amount}</td></tr>
+          </table>
+          <p><a href="{dashboard_url}">Open your dashboard</a> for the full picture, or adjust when you get alerted from Settings.</p>
+          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
+        </div>
+        """
+        text = (f"Hi {store_name}, your MeraFraud week: {total} transactions scored, {approved} approved, "
+                f"{reviewed} flagged for review, {blocked} blocked (≈€{amount} protected).")
+    else:
+        subject = f"MeraFraud haftalık özet: {blocked} riskli sipariş engellendi"
+        html = f"""
+        <div style="font-family:sans-serif; max-width:480px; margin:0 auto;">
+          <h2 style="color:#1c1044;">Bu haftaki MeraFraud özetiniz</h2>
+          <p>Merhaba {store_name}, son 7 günde mağazanızda olanlar:</p>
+          <table style="width:100%; border-collapse:collapse; margin:18px 0;">
+            <tr><td style="padding:8px 0; color:#555;">Puanlanan işlem</td><td style="text-align:right; font-weight:600;">{total}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">Onaylanan</td><td style="text-align:right; font-weight:600;">{approved}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">İncelemeye alınan</td><td style="text-align:right; font-weight:600;">{reviewed}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">Yüksek riskli, engellenen</td><td style="text-align:right; font-weight:600; color:#c0392b;">{blocked}</td></tr>
+            <tr><td style="padding:8px 0; color:#555;">Tahmini korunan tutar</td><td style="text-align:right; font-weight:600;">€{amount}</td></tr>
+          </table>
+          <p>Tüm ayrıntılar için <a href="{dashboard_url}">panelinizi açın</a>, bildirim tercihlerinizi Settings'ten değiştirebilirsiniz.</p>
+          <p style="color:#888; font-size:12px; margin-top:32px;">— MeraFraud</p>
+        </div>
+        """
+        text = (f"Merhaba {store_name}, bu haftaki özetiniz: {total} işlem puanlandı, {approved} onaylandı, "
+                f"{reviewed} incelemeye alındı, {blocked} engellendi (≈€{amount} korundu).")
+    return send_email(to_email, subject, html, text, reply_to="hello@merafraud.com")
+
+
 def send_welcome_email(to_email: str, store_name: str) -> bool:
     """Sent right after a merchant signs up with an email address. This was
     previously missing its own function signature — its body had been
