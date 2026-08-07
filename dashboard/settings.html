@@ -37,7 +37,7 @@
     color:var(--text-hi); min-height:100vh; -webkit-font-smoothing:antialiased;
   }
   a{color:inherit;}
-  .wrap{max-width:680px; margin:0 auto; padding:0 24px 80px;}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 24px 80px;}
   header{ display:flex; align-items:center; justify-content:space-between; padding:28px 0 20px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:40px; }
   .logo{display:flex; align-items:center; gap:12px;}
   .logo-mark{
@@ -90,8 +90,23 @@
     border:1px solid var(--card-border); color:var(--text-hi); cursor:pointer;
   }
 
+  /* The sign-in card stays a narrow, centered form even though .wrap is
+     wide — only the logged-in dashboard state below uses the full width. */
   #loggedOutState{ display:block; }
-  #loggedInState{ display:none; }
+  #loggedOutState .panel{ max-width:520px; margin:0 auto 20px; }
+
+  /* Logged-in state: a 2-column masonry so panels sit side by side on
+     desktop instead of one long single-file column with empty margins on
+     either side. CSS multi-column (not grid) is used deliberately — panels
+     have very different natural heights (Usage vs. Custom Rules vs. Team),
+     and `columns` flows shorter panels up to fill gaps the way grid's
+     row-major auto-placement can't. `columns:2 480px` caps it at 2 columns
+     even on very wide screens and collapses to 1 on its own once the
+     viewport can't fit two 480px columns + gap — the explicit media query
+     below is just a belt-and-suspenders backup for that. */
+  #loggedInState{ display:none; columns:2 480px; column-gap:20px; }
+  #loggedInState .panel{ break-inside:avoid; -webkit-column-break-inside:avoid; display:inline-block; width:100%; }
+  @media (max-width:960px){ #loggedInState{ columns:1; } }
 
   .account-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13.5px; }
   .account-row:last-child{ border-bottom:none; }
@@ -112,6 +127,8 @@
   .status-badge.active{ background:rgba(52,211,153,0.1); color:var(--safe); border:1px solid rgba(52,211,153,0.3); }
   .team-invite-row{ display:grid; grid-template-columns:1.4fr 1fr auto; gap:10px; align-items:end; margin-top:18px; }
   @media (max-width:560px){ .team-invite-row{ grid-template-columns:1fr; } }
+  .two-col-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:560px){ .two-col-grid{ grid-template-columns:1fr; } }
   .viewer-note{ font-size:12.5px; color:var(--review); background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:10px 14px; margin-top:12px; display:none; }
   .viewer-note.show{ display:block; }
 
@@ -266,15 +283,17 @@
       <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
         <button class="btn-secondary" onclick="logout()" data-i18n="logout_btn">Switch account / Log out</button>
         <button class="btn-danger" id="regenKeyBtn" onclick="confirmRegenerateKey()" data-i18n="regen_btn">🔄 Regenerate API Key</button>
+        <button class="btn-secondary" id="emailChangeToggleBtn" onclick="toggleEmailChangeForm()" data-i18n="email_change_toggle">✉️ Change account email</button>
       </div>
       <div class="error-msg" id="regenError"></div>
       <div class="demo-note" id="regenNote" style="display:none;"></div>
 
-      <div id="emailChangeBlock" style="margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
-        <button class="btn-secondary" id="emailChangeToggleBtn" onclick="toggleEmailChangeForm()" data-i18n="email_change_toggle">✉️ Change account email</button>
-        <div id="emailChangeForm" style="display:none; margin-top:12px;">
-          <div class="field"><label data-i18n="email_change_new_label">New email</label><input type="email" id="newEmailInput" placeholder="new@store.com"></div>
-          <div class="field"><label data-i18n="email_change_pw_label">Current password</label><input type="password" id="emailChangePasswordInput"></div>
+      <div id="emailChangeBlock">
+        <div id="emailChangeForm" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
+          <div class="two-col-grid">
+            <div class="field"><label data-i18n="email_change_new_label">New email</label><input type="email" id="newEmailInput" placeholder="new@store.com"></div>
+            <div class="field"><label data-i18n="email_change_pw_label">Current password</label><input type="password" id="emailChangePasswordInput"></div>
+          </div>
           <button class="btn-primary" onclick="changeEmail()" data-i18n="email_change_btn">Update email</button>
           <div class="error-msg" id="emailChangeError"></div>
           <div class="demo-note" id="emailChangeNote" style="display:none;" data-i18n="email_change_success">✓ Email updated</div>
@@ -448,7 +467,7 @@
       <div class="field"><label data-i18n="outcome_customer_label">Customer ID (the email/ID sent as customer_id at checkout)</label><input type="text" id="outcomeCustomer" placeholder="customer@email.com"></div>
       <div class="field"><label data-i18n="outcome_order_label">Order ID (optional)</label><input type="text" id="outcomeOrder" placeholder="#1042"></div>
       <div class="field"><label data-i18n="outcome_name_label">Customer name (optional)</label><input type="text" id="outcomeName" placeholder="Ayşe Yılmaz"></div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="two-col-grid">
         <div class="field"><label data-i18n="outcome_country_label">Country (optional)</label><input type="text" id="outcomeCountry" placeholder="Türkiye"></div>
         <div class="field"><label data-i18n="outcome_city_label">City (optional)</label><input type="text" id="outcomeCity" placeholder="İstanbul"></div>
       </div>
