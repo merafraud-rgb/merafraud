@@ -108,6 +108,28 @@
   #loggedInState .panel{ break-inside:avoid; -webkit-column-break-inside:avoid; display:inline-block; width:100%; }
   @media (max-width:960px){ #loggedInState{ columns:1; } }
 
+  /* Panel titles as clickable, button-styled headers: every panel inside
+     the logged-in dashboard collapses/expands on click, and looks like a
+     pill/chip rather than plain text so the (now much busier) 2-column
+     layout has clearer visual anchors. Scoped to the first h2 of each
+     panel only — the sign-in card's h2s (key/login/forgot) are untouched. */
+  #loggedInState .panel > h2:first-child{
+    cursor:pointer; user-select:none;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px; padding:12px 16px; margin:0 0 16px 0;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  #loggedInState .panel > h2:first-child:hover{
+    background:rgba(255,255,255,0.1); border-color:rgba(236,72,153,0.35);
+  }
+  #loggedInState .panel > h2:first-child::after{
+    content:'⌃'; font-size:13px; opacity:.55; flex-shrink:0; transition:transform .2s ease;
+  }
+  #loggedInState .panel.collapsed > h2:first-child{ margin-bottom:0; }
+  #loggedInState .panel.collapsed > h2:first-child::after{ transform:rotate(180deg); }
+  #loggedInState .panel.collapsed > *:not(h2){ display:none !important; }
+
   .account-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13.5px; }
   .account-row:last-child{ border-bottom:none; }
   .account-row .label{ color:var(--text-lo); }
@@ -1815,6 +1837,17 @@ async function confirmRegenerateKey(){
     errorEl.classList.add('show');
   }
 }
+
+// Panel titles double as collapse/expand buttons (see CSS: #loggedInState
+// .panel > h2:first-child). Delegated on the container instead of wiring
+// each h2 individually, since #storeName's text is set dynamically by
+// renderAccount() and the other 8 titles are plain i18n text — one
+// listener covers all 9 panels regardless of content.
+document.getElementById('loggedInState').addEventListener('click', function(e){
+  const h2 = e.target.closest('h2');
+  if(!h2 || h2 !== h2.parentElement.firstElementChild) return;
+  h2.closest('.panel').classList.toggle('collapsed');
+});
 
 (async function init(){
   const stored = localStorage.getItem('merafraud_api_key');
