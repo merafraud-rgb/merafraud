@@ -165,8 +165,12 @@ class CheckOrderObserver implements ObserverInterface
             ),
             'express_shipping' => 0,
             'customer_id' => $customer,
+            'customer_name' => $billingAddress
+                ? trim($billingAddress->getFirstname() . ' ' . $billingAddress->getLastname())
+                : null,
             'customer_ip' => $order->getRemoteIp(),
             'billing_country' => $billingAddress ? $billingAddress->getCountryId() : null,
+            'billing_city' => $billingAddress ? $billingAddress->getCity() : null,
         ];
         $payload = array_filter($payload, static fn($v) => $v !== null);
 
@@ -205,4 +209,24 @@ class CheckOrderObserver implements ObserverInterface
         <observer name="merafraud_check_order" instance="MeraFraud\FraudCheck\Observer\CheckOrderObserver" />
     </event>
 </config>
+*/
+
+/*
+--- OPTIONAL FOLLOW-UP: feeding cancellations back into MeraFraud ---
+
+This observer only reports orders at CREATION time (POST /predict). Without
+also reporting what happens to the order afterwards, MeraFraud's per-customer
+history (customer_history.py's "serial canceller" detection) never learns
+about a cancellation and stays permanently empty for this store.
+
+To close that loop, add a second observer on the `order_cancel_after` event
+(fires when an order is cancelled) that POSTs to /api/orders/outcome with
+{"customer_id": <email>, "outcome": "cancelled", "order_id": <id>,
+"customer_name": ..., "billing_country": ..., "billing_city": ...} — same
+shape as the /predict payload above, just a different endpoint and outcome
+value. Similarly, `sales_order_shipment_save_after` is the closest stable
+event for "fulfilled". This isn't wired up here because those two events
+need their own observer classes and events.xml entries, which is a bigger
+change than this file's scope — see PrestaShop's merafraud.php for a fully
+worked example of the same pattern if you want a reference implementation.
 */

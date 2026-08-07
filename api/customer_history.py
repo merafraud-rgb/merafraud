@@ -82,12 +82,31 @@ def _ensure_schema(conn):
                     PRIMARY KEY (tenant_id, customer_id)
                 )
             """)
+            # Last-known identity/location for this customer, so a merchant
+            # looking up a serial canceller sees who and roughly where they
+            # are, not just an opaque ID + a cancellation rate. Populated
+            # from whichever of /api/predict (customer_name) or
+            # /api/orders/outcome sent it most recently — see
+            # touch_customer_profile() and record_order_outcome() below.
+            # Optional and best-effort: a merchant that never sends these
+            # fields simply never gets them filled in, nothing breaks.
+            cur.execute("ALTER TABLE customer_history ADD COLUMN IF NOT EXISTS customer_name TEXT")
+            cur.execute("ALTER TABLE customer_history ADD COLUMN IF NOT EXISTS billing_country TEXT")
+            cur.execute("ALTER TABLE customer_history ADD COLUMN IF NOT EXISTS billing_city TEXT")
         conn.commit()
         _DB_INITIALIZED = True
 
 
-def record_order_outcome(tenant_id: str, customer_id: str, outcome: str, order_id: str | None = None) -> dict:
-    """outcome: 'placed' | 'cancelled' | 'fulfilled'"""
+def record_order_outcome(tenant_id: str, customer_id: str, outcome: str, order_id: str | None = None,
+                          customer_name: str | None = None, billing_country: str | None = None,
+                          billing_city: str | None = None) -> dict:
+    """outcome: 'placed' | 'cancelled' | 'fulfilled'
+
+    customer_name/billing_country/billing_city are optional — when given,
+    they overwrite the stored profile; when omitted (None/empty), whatever
+    was already on file is kept rather than being wiped out, so a merchant
+    that only sometimes sends this data doesn't lose it on the calls that
+    don't."""
     conn = _get_conn()
     try:
         with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -100,6 +119,9 @@ def record_order_outcome(tenant_id: str, customer_id: str, outcome: str, order_i
             total = row["total_orders"] if row else 0
             cancelled = row["cancelled_orders"] if row else 0
             fulfilled = row["fulfilled_orders"] if row else 0
+            name = customer_name or (row["customer_name"] if row else None)
+            country = billing_country or (row["billing_country"] if row else None)
+            city = billing_city or (row["billing_city"] if row else None)
 
             if outcome == "placed":
                 total += 1
@@ -112,21 +134,60 @@ def record_order_outcome(tenant_id: str, customer_id: str, outcome: str, order_i
             cur.execute("""
                 INSERT INTO customer_history
                     (tenant_id, customer_id, total_orders, cancelled_orders, fulfilled_orders,
-                     last_order_id, last_outcome, last_updated)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                     last_order_id, last_outcome, last_updated, customer_name, billing_country, billing_city)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (tenant_id, customer_id) DO UPDATE SET
                     total_orders = EXCLUDED.total_orders,
                     cancelled_orders = EXCLUDED.cancelled_orders,
                     fulfilled_orders = EXCLUDED.fulfilled_orders,
                     last_order_id = EXCLUDED.last_order_id,
                     last_outcome = EXCLUDED.last_outcome,
-                    last_updated = EXCLUDED.last_updated
-            """, (tenant_id, customer_id, total, cancelled, fulfilled, order_id, outcome, now))
+                    last_updated = EXCLUDED.last_updated,
+                    customer_name = EXCLUDED.customer_name,
+                    billing_country = EXCLUDED.billing_country,
+                    billing_city = EXCLUDED.billing_city
+            """, (tenant_id, customer_id, total, cancelled, fulfilled, order_id, outcome, now, name, country, city))
         conn.commit()
         return compute_risk({
             "total_orders": total, "cancelled_orders": cancelled, "fulfilled_orders": fulfilled,
             "last_order_id": order_id, "last_outcome": outcome, "last_updated": now,
+            "customer_name": name, "billing_country": country, "billing_city": city,
         })
+    finally:
+        conn.close()
+
+
+def touch_customer_profile(tenant_id: str, customer_id: str, customer_name: str | None = None,
+                            billing_country: str | None = None, billing_city: str | None = None) -> None:
+    """Best-effort profile update called from /api/predict (see app.py) —
+    unlike record_order_outcome, this never touches the order/cancellation
+    counters, it only fills in name/country/city if MeraFraud has learned
+    something new about this customer since the last order-outcome report.
+    No-op if none of the three fields were actually provided, so a normal
+    /predict call without this optional data doesn't do a wasted write."""
+    if not any([customer_name, billing_country, billing_city]):
+        return
+    conn = _get_conn()
+    try:
+        with _lock, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                "SELECT customer_name, billing_country, billing_city FROM customer_history "
+                "WHERE tenant_id = %s AND customer_id = %s", (tenant_id, customer_id),
+            )
+            row = cur.fetchone()
+            name = customer_name or (row["customer_name"] if row else None)
+            country = billing_country or (row["billing_country"] if row else None)
+            city = billing_city or (row["billing_city"] if row else None)
+            cur.execute("""
+                INSERT INTO customer_history (tenant_id, customer_id, customer_name, billing_country, billing_city, last_updated)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                ON CONFLICT (tenant_id, customer_id) DO UPDATE SET
+                    customer_name = EXCLUDED.customer_name,
+                    billing_country = EXCLUDED.billing_country,
+                    billing_city = EXCLUDED.billing_city,
+                    last_updated = EXCLUDED.last_updated
+            """, (tenant_id, customer_id, name, country, city, _now()))
+        conn.commit()
     finally:
         conn.close()
 
@@ -144,6 +205,7 @@ def get_customer_history(tenant_id: str, customer_id: str) -> dict:
             return {
                 "total_orders": 0, "cancelled_orders": 0, "fulfilled_orders": 0,
                 "cancellation_rate": 0.0, "is_serial_canceller": False,
+                "customer_name": None, "billing_country": None, "billing_city": None,
             }
         return compute_risk(dict(row))
     finally:

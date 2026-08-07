@@ -97,8 +97,10 @@ add_hook('OrderPaid', 1, function ($vars) {
         'free_email_domain' => (int) in_array($emailDomain, $freeEmailDomains),
         'express_shipping' => 0,
         'customer_id' => $client->email,
+        'customer_name' => trim(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) ?: null,
         'customer_ip' => $order->ipaddress ?? '',
         'billing_country' => $client->country ?? null, // tblclients.country is already ISO-2
+        'billing_city' => $client->city ?? null,
     ];
     $payload = array_filter($payload, function ($v) {
         return $v !== null;

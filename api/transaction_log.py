@@ -66,20 +66,32 @@ def _ensure_schema(conn):
                 CREATE INDEX IF NOT EXISTS idx_transaction_logs_tenant
                 ON transaction_logs (tenant_id, scored_at)
             """)
+            # Optional customer identity/location, carried over from the
+            # /api/predict payload (see app.py) — lets a merchant's exported
+            # CSV report and the customer-lookup panel in Settings show WHO
+            # and roughly WHERE a flagged transaction came from, not just an
+            # opaque customer_id. Never required; a merchant that doesn't
+            # send these fields just gets NULLs here, same as before.
+            cur.execute("ALTER TABLE transaction_logs ADD COLUMN IF NOT EXISTS customer_name TEXT")
+            cur.execute("ALTER TABLE transaction_logs ADD COLUMN IF NOT EXISTS billing_country TEXT")
+            cur.execute("ALTER TABLE transaction_logs ADD COLUMN IF NOT EXISTS billing_city TEXT")
         conn.commit()
         _DB_INITIALIZED = True
 
 
-def log_transaction(tenant_id: str, row: dict, risk_score: float, risk_level: str, customer_id: str | None):
+def log_transaction(tenant_id: str, row: dict, risk_score: float, risk_level: str, customer_id: str | None,
+                     customer_name: str | None = None, billing_country: str | None = None,
+                     billing_city: str | None = None):
     conn = _get_conn()
     try:
         with _lock, conn.cursor() as cur:
             cur.execute("""
                 INSERT INTO transaction_logs
-                    (tenant_id, scored_at, customer_id, transaction_amount, risk_score, risk_level)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                    (tenant_id, scored_at, customer_id, transaction_amount, risk_score, risk_level,
+                     customer_name, billing_country, billing_city)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (tenant_id, _now(), customer_id or "", row.get("transaction_amount"),
-                  round(risk_score, 4), risk_level))
+                  round(risk_score, 4), risk_level, customer_name, billing_country, billing_city))
         conn.commit()
     finally:
         conn.close()
@@ -90,7 +102,8 @@ def get_transactions(tenant_id: str) -> list:
     try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute("""
-                SELECT scored_at, customer_id, transaction_amount, risk_score, risk_level
+                SELECT scored_at, customer_id, customer_name, billing_country, billing_city,
+                       transaction_amount, risk_score, risk_level
                 FROM transaction_logs WHERE tenant_id = %s ORDER BY scored_at
             """, (tenant_id,))
             rows = cur.fetchall()
@@ -141,7 +154,10 @@ def get_weekly_summary(tenant_id: str) -> dict:
 def to_csv(tenant_id: str) -> str:
     rows = get_transactions(tenant_id)
     buf = io.StringIO()
-    writer = csv.DictWriter(buf, fieldnames=["scored_at", "customer_id", "transaction_amount", "risk_score", "risk_level"])
+    writer = csv.DictWriter(buf, fieldnames=[
+        "scored_at", "customer_id", "customer_name", "billing_country", "billing_city",
+        "transaction_amount", "risk_score", "risk_level",
+    ])
     writer.writeheader()
     for r in rows:
         writer.writerow(r)

@@ -447,6 +447,11 @@
       <div class="sub" data-i18n="outcome_sub">Tell MeraFraud what happened to an order so future scores for that customer account for their real pattern (serial cancellations, etc.).</div>
       <div class="field"><label data-i18n="outcome_customer_label">Customer ID (the email/ID sent as customer_id at checkout)</label><input type="text" id="outcomeCustomer" placeholder="customer@email.com"></div>
       <div class="field"><label data-i18n="outcome_order_label">Order ID (optional)</label><input type="text" id="outcomeOrder" placeholder="#1042"></div>
+      <div class="field"><label data-i18n="outcome_name_label">Customer name (optional)</label><input type="text" id="outcomeName" placeholder="Ayşe Yılmaz"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="field"><label data-i18n="outcome_country_label">Country (optional)</label><input type="text" id="outcomeCountry" placeholder="Türkiye"></div>
+        <div class="field"><label data-i18n="outcome_city_label">City (optional)</label><input type="text" id="outcomeCity" placeholder="İstanbul"></div>
+      </div>
       <div class="field">
         <label data-i18n="outcome_type_label">Outcome</label>
         <select id="outcomeType" style="background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px; padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;">
@@ -458,6 +463,16 @@
       <button class="btn-primary" id="outcomeSubmitBtn" onclick="submitOutcome()" data-i18n="outcome_submit_btn">Submit</button>
       <div class="error-msg" id="outcomeError"></div>
       <span class="save-note" id="outcomeNote" data-i18n="outcome_success">✓ Recorded</span>
+
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div class="sub" data-i18n="lookup_sub">Look up what MeraFraud knows about a customer — name, location, and order/cancellation history.</div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="lookupCustomer" placeholder="customer@email.com" style="flex:1; background:rgba(0,0,0,0.25); border:1px solid var(--card-border); border-radius:10px; padding:11px 13px; color:var(--text-hi); font-family:'JetBrains Mono',monospace; font-size:13px;">
+          <button class="btn-secondary" onclick="lookupCustomer()" data-i18n="lookup_btn">🔍 Look up</button>
+        </div>
+        <div id="lookupResult" style="display:none; margin-top:12px; padding:14px; background:rgba(0,0,0,0.2); border-radius:10px; font-size:13px; line-height:1.9;"></div>
+        <div class="error-msg" id="lookupError"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -556,6 +571,17 @@ var DICT = {
     referral_copy_btn:"Copy",
     referral_count_prefix:"Referrals so far: ",
     referral_count_suffix:"",
+    outcome_name_label:"Customer name (optional)",
+    outcome_country_label:"Country (optional)",
+    outcome_city_label:"City (optional)",
+    lookup_sub:"Look up what MeraFraud knows about a customer — name, location, and order/cancellation history.",
+    lookup_btn:"🔍 Look up",
+    lookup_no_name:"Name unknown",
+    lookup_total:"Total orders",
+    lookup_cancelled:"Cancelled",
+    lookup_fulfilled:"Fulfilled",
+    lookup_rate:"Cancellation rate",
+    lookup_flagged:"⚠ Flagged as serial canceller",
     date_locale:"en-GB"
   },
   tr: {
@@ -648,6 +674,17 @@ var DICT = {
     referral_copy_btn:"Kopyala",
     referral_count_prefix:"Şu ana kadar davet edilen: ",
     referral_count_suffix:"",
+    outcome_name_label:"Müşteri adı (opsiyonel)",
+    outcome_country_label:"Ülke (opsiyonel)",
+    outcome_city_label:"Şehir (opsiyonel)",
+    lookup_sub:"MeraFraud'un bir müşteri hakkında bildiklerine bakın — isim, konum ve sipariş/iptal geçmişi.",
+    lookup_btn:"🔍 Sorgula",
+    lookup_no_name:"İsim bilinmiyor",
+    lookup_total:"Toplam sipariş",
+    lookup_cancelled:"İptal edilen",
+    lookup_fulfilled:"Tamamlanan",
+    lookup_rate:"İptal oranı",
+    lookup_flagged:"⚠ Sık iptal eden olarak işaretlendi",
     date_locale:"tr-TR"
   },
   de: {
@@ -740,6 +777,17 @@ var DICT = {
     referral_copy_btn:"Kopieren",
     referral_count_prefix:"Bisherige Empfehlungen: ",
     referral_count_suffix:"",
+    outcome_name_label:"Kundenname (optional)",
+    outcome_country_label:"Land (optional)",
+    outcome_city_label:"Stadt (optional)",
+    lookup_sub:"Sehen Sie, was MeraFraud über einen Kunden weiß — Name, Standort und Bestell-/Stornierungsverlauf.",
+    lookup_btn:"🔍 Nachschlagen",
+    lookup_no_name:"Name unbekannt",
+    lookup_total:"Bestellungen gesamt",
+    lookup_cancelled:"Storniert",
+    lookup_fulfilled:"Erfüllt",
+    lookup_rate:"Stornoquote",
+    lookup_flagged:"⚠ Als Serienstornierer markiert",
     date_locale:"de-DE"
   },
   fr: {
@@ -832,6 +880,17 @@ var DICT = {
     referral_copy_btn:"Copier",
     referral_count_prefix:"Parrainages à ce jour : ",
     referral_count_suffix:"",
+    outcome_name_label:"Nom du client (facultatif)",
+    outcome_country_label:"Pays (facultatif)",
+    outcome_city_label:"Ville (facultative)",
+    lookup_sub:"Consultez ce que MeraFraud sait sur un client — nom, localisation et historique de commandes/annulations.",
+    lookup_btn:"🔍 Rechercher",
+    lookup_no_name:"Nom inconnu",
+    lookup_total:"Commandes totales",
+    lookup_cancelled:"Annulées",
+    lookup_fulfilled:"Honorées",
+    lookup_rate:"Taux d'annulation",
+    lookup_flagged:"⚠ Signalé comme annulateur récurrent",
     date_locale:"fr-FR"
   },
   es: {
@@ -924,6 +983,17 @@ var DICT = {
     referral_copy_btn:"Copiar",
     referral_count_prefix:"Referidos hasta ahora: ",
     referral_count_suffix:"",
+    outcome_name_label:"Nombre del cliente (opcional)",
+    outcome_country_label:"País (opcional)",
+    outcome_city_label:"Ciudad (opcional)",
+    lookup_sub:"Consulta lo que MeraFraud sabe sobre un cliente — nombre, ubicación e historial de pedidos/cancelaciones.",
+    lookup_btn:"🔍 Buscar",
+    lookup_no_name:"Nombre desconocido",
+    lookup_total:"Pedidos totales",
+    lookup_cancelled:"Cancelados",
+    lookup_fulfilled:"Completados",
+    lookup_rate:"Tasa de cancelación",
+    lookup_flagged:"⚠ Marcado como cancelador recurrente",
     date_locale:"es-ES"
   }
 };
@@ -1476,9 +1546,16 @@ async function submitOutcome(){
     errorEl.classList.add('show');
     return;
   }
+  const customer_name = document.getElementById('outcomeName').value.trim();
+  const billing_country = document.getElementById('outcomeCountry').value.trim();
+  const billing_city = document.getElementById('outcomeCity').value.trim();
+
   try{
     const body = { customer_id, outcome };
     if(order_id) body.order_id = order_id;
+    if(customer_name) body.customer_name = customer_name;
+    if(billing_country) body.billing_country = billing_country;
+    if(billing_city) body.billing_city = billing_city;
     const res = await fetch(`${API_BASE}/orders/outcome`, {
       method: 'POST', headers: authHeaders({'Content-Type':'application/json'}),
       body: JSON.stringify(body)
@@ -1488,6 +1565,40 @@ async function submitOutcome(){
     document.getElementById('outcomeNote').classList.add('show');
     document.getElementById('outcomeCustomer').value = '';
     document.getElementById('outcomeOrder').value = '';
+    document.getElementById('outcomeName').value = '';
+    document.getElementById('outcomeCountry').value = '';
+    document.getElementById('outcomeCity').value = '';
+  }catch(e){
+    errorEl.textContent = e.message;
+    errorEl.classList.add('show');
+  }
+}
+
+// --- Customer lookup (name/location/order history MeraFraud has on file) ---
+async function lookupCustomer(){
+  const d = DICT[window.mfLang || 'tr'];
+  const customerId = document.getElementById('lookupCustomer').value.trim();
+  const resultEl = document.getElementById('lookupResult');
+  const errorEl = document.getElementById('lookupError');
+  errorEl.classList.remove('show');
+  resultEl.style.display = 'none';
+  if(!customerId){
+    errorEl.textContent = d.err_outcome_customer;
+    errorEl.classList.add('show');
+    return;
+  }
+  try{
+    const res = await fetch(`${API_BASE}/customers/${encodeURIComponent(customerId)}/history`, { headers: authHeaders() });
+    const h = await res.json();
+    if(!res.ok) throw new Error(h.error || 'Failed');
+    const location = [h.billing_city, h.billing_country].filter(Boolean).join(', ') || '—';
+    const ratePct = Math.round((h.cancellation_rate || 0) * 100);
+    resultEl.innerHTML = `
+      <div><b>${h.customer_name || d.lookup_no_name}</b> — ${location}</div>
+      <div>${d.lookup_total}: ${h.total_orders} · ${d.lookup_cancelled}: ${h.cancelled_orders} · ${d.lookup_fulfilled}: ${h.fulfilled_orders}</div>
+      <div>${d.lookup_rate}: ${ratePct}%${h.is_serial_canceller ? ' · <span style="color:var(--block, #fb4570);">' + d.lookup_flagged + '</span>' : ''}</div>
+    `;
+    resultEl.style.display = 'block';
   }catch(e){
     errorEl.textContent = e.message;
     errorEl.classList.add('show');

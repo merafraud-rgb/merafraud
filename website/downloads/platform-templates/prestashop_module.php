@@ -38,7 +38,63 @@ class MeraFraud extends Module
 
     public function install()
     {
-        return parent::install() && $this->registerHook('actionOrderStatusPostUpdate');
+        return parent::install()
+            && $this->registerHook('actionOrderStatusPostUpdate')
+            && $this->registerHook('actionValidateOrder');
+    }
+
+    /**
+     * Fires exactly once, when the order is first created — the correct
+     * place to report outcome "placed" to MeraFraud's customer history
+     * (POST /api/orders/outcome). Unlike actionOrderStatusPostUpdate below
+     * (which fires on every later status change too), this can't
+     * accidentally double-count an order as "placed" multiple times.
+     */
+    public function hookActionValidateOrder($params)
+    {
+        /** @var Order $order */
+        $order = $params['order'] ?? null;
+        if (!$order) {
+            return;
+        }
+        $customer = new Customer($order->id_customer);
+        $invoiceAddress = new Address($order->id_address_invoice);
+        $this->reportOutcome(
+            $customer->email,
+            'placed',
+            $order->id,
+            trim($customer->firstname . ' ' . $customer->lastname) ?: null,
+            Country::getIsoById((int) $invoiceAddress->id_country) ?: null,
+            $invoiceAddress->city ?: null
+        );
+    }
+
+    /**
+     * POSTs to /api/orders/outcome so MeraFraud actually learns whether an
+     * order was cancelled/refunded or delivered — without this, the
+     * "serial canceller" detection in customer_history.py has nothing to
+     * work with beyond "placed". Fails silently: a history-reporting hiccup
+     * shouldn't disrupt the store's order status update.
+     */
+    private function reportOutcome($customerId, $outcome, $orderId, $customerName = null, $billingCountry = null, $billingCity = null)
+    {
+        $body = array_filter([
+            'customer_id' => $customerId,
+            'outcome' => $outcome,
+            'order_id' => (string) $orderId,
+            'customer_name' => $customerName,
+            'billing_country' => $billingCountry,
+            'billing_city' => $billingCity,
+        ], static function ($v) { return $v !== null; });
+
+        $ch = curl_init(self::API_BASE . '/orders/outcome');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'X-API-Key: ' . self::API_KEY]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_exec($ch);
+        curl_close($ch);
     }
 
     public function hookActionOrderStatusPostUpdate($params)
@@ -122,9 +178,12 @@ class MeraFraud extends Module
             ),
             'express_shipping' => 0,
             'customer_id' => $customer->email,
+            'customer_name' => trim($customer->firstname . ' ' . $customer->lastname) ?: null,
             'customer_ip' => Tools::getRemoteAddr(),
             'billing_country' => Country::getIsoById((int) $invoiceAddress->id_country),
+            'billing_city' => $invoiceAddress->city ?: null,
         ];
+        $payload = array_filter($payload, static function ($v) { return $v !== null; });
 
         $ch = curl_init(self::API_BASE . '/predict');
         curl_setopt($ch, CURLOPT_POST, true);
@@ -153,6 +212,32 @@ class MeraFraud extends Module
             PrestaShopLogger::addLog('MeraFraud: order #' . $order->id . ' flagged HIGH RISK: ' . implode('; ', $result['reasons']), 3);
         } elseif ($result['risk_level'] === 'review') {
             PrestaShopLogger::addLog('MeraFraud: order #' . $order->id . ' flagged for review: ' . implode('; ', $result['reasons']), 2);
+        }
+
+        // --- Feed cancelled/refunded/delivered outcomes back into MeraFraud ---
+        // Configuration::get('PS_OS_...') are PrestaShop's own stable IDs for
+        // its built-in order states (same ones used throughout core code),
+        // safer than hardcoding numeric state IDs which aren't guaranteed
+        // identical across every install. Without this, MeraFraud only ever
+        // sees "placed" (from hookActionValidateOrder above) and the serial-
+        // canceller detection in customer_history.py never has cancellation
+        // data to flag on.
+        $currentStateId = (int) $order->getCurrentState();
+        $outcome = null;
+        if (in_array($currentStateId, [(int) Configuration::get('PS_OS_CANCELED'), (int) Configuration::get('PS_OS_REFUND')], true)) {
+            $outcome = 'cancelled';
+        } elseif ($currentStateId === (int) Configuration::get('PS_OS_DELIVERED')) {
+            $outcome = 'fulfilled';
+        }
+        if ($outcome) {
+            $this->reportOutcome(
+                $customer->email,
+                $outcome,
+                $order->id,
+                trim($customer->firstname . ' ' . $customer->lastname) ?: null,
+                Country::getIsoById((int) $invoiceAddress->id_country) ?: null,
+                $invoiceAddress->city ?: null
+            );
         }
     }
 }

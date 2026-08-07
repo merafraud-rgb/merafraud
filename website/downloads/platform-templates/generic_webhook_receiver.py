@@ -94,8 +94,24 @@ def map_platform_fields(raw_order: dict) -> dict:
     log it first (see the /webhooks/generic/order-created route below) to
     see its real shape, then adjust the .get() paths accordingly.
     """
-    email = raw_order.get("customer", {}).get("email") or raw_order.get("email", "")
+    customer = raw_order.get("customer", {}) if isinstance(raw_order.get("customer"), dict) else {}
+    email = customer.get("email") or raw_order.get("email", "")
     email_domain = email.split("@")[-1].lower() if "@" in email else ""
+
+    # Best-effort — try a few common shapes; adjust once you've logged your
+    # platform's real payload (see the print() in the route below). Feeding
+    # these through lets MeraFraud's customer-lookup panel in Settings show
+    # WHO and roughly WHERE an order came from, not just an opaque ID.
+    billing = raw_order.get("billing_address", {}) if isinstance(raw_order.get("billing_address"), dict) else {}
+    customer_name = (
+        customer.get("name")
+        or billing.get("name")
+        or " ".join(filter(None, [customer.get("first_name") or billing.get("first_name"),
+                                   customer.get("last_name") or billing.get("last_name")])).strip()
+        or None
+    )
+    billing_country = billing.get("country") or billing.get("country_code") or raw_order.get("country") or None
+    billing_city = billing.get("city") or raw_order.get("city") or None
 
     order_dt = _guess_order_datetime(raw_order)
     hour_of_day = order_dt.hour if order_dt else datetime.now(timezone.utc).hour
@@ -124,8 +140,72 @@ def map_platform_fields(raw_order: dict) -> dict:
         "free_email_domain": int(email_domain in FREE_EMAIL_DOMAINS),
         "express_shipping": 0,
         "customer_id": email or str(raw_order.get("id", "unknown")),
+        "customer_name": customer_name,
         "customer_ip": raw_order.get("ip_address", ""),
+        "billing_country": billing_country,
+        "billing_city": billing_city,
     }
+
+
+def report_order_outcome(customer_id, outcome, order_id=None, customer_name=None, billing_country=None, billing_city=None):
+    """POSTs to /api/orders/outcome so MeraFraud's per-customer history
+    (customer_history.py's total/cancelled/fulfilled counts — what powers
+    the 'serial canceller' flag and the customer-lookup panel in Settings)
+    actually gets real data. Called with outcome='placed' below whenever an
+    order comes in; call it again with 'cancelled' or 'fulfilled' once you
+    wire up your platform's order-status-changed webhook (see
+    /webhooks/generic/order-status-changed below — customize
+    map_platform_outcome() the same way you customized map_platform_fields()).
+    Fails silently: fraud scoring already happened via /predict, so a
+    history-reporting hiccup shouldn't be treated as a request failure."""
+    try:
+        requests.post(
+            f"{MERAFRAUD_API_BASE}/orders/outcome",
+            headers={"X-API-Key": MERAFRAUD_API_KEY, "Content-Type": "application/json"},
+            json={k: v for k, v in {
+                "customer_id": customer_id, "outcome": outcome, "order_id": order_id,
+                "customer_name": customer_name, "billing_country": billing_country, "billing_city": billing_city,
+            }.items() if v is not None},
+            timeout=5,
+        )
+    except requests.RequestException as e:
+        print(f"MeraFraud order-outcome report failed: {e}")
+
+
+def map_platform_outcome(raw_event: dict):
+    """⚠️ CUSTOMIZE THIS FUNCTION once you know your platform's order-status-
+    change payload shape (log it first, same as map_platform_fields() above).
+    Return one of 'cancelled' / 'fulfilled', or None to ignore this event
+    (e.g. a status change that isn't a final cancellation or fulfillment)."""
+    status = str(raw_event.get("status") or raw_event.get("order_status") or "").lower()
+    if status in ("cancelled", "canceled", "refunded", "returned"):
+        return "cancelled"
+    if status in ("fulfilled", "completed", "shipped", "delivered"):
+        return "fulfilled"
+    return None
+
+
+@app.route("/webhooks/generic/order-status-changed", methods=["POST"])
+def generic_order_status_webhook():
+    """Point your platform's order-status-change webhook here (separate from
+    /webhooks/generic/order-created above, which only fires once at
+    creation). See map_platform_outcome() — customize it first using a
+    logged real payload, same workflow as map_platform_fields()."""
+    if not verify_webhook_request(request):
+        return jsonify({"error": "invalid webhook signature"}), 401
+
+    raw_event = request.get_json(force=True, silent=True) or {}
+    print("=== RAW STATUS-CHANGE PAYLOAD (use this to customize map_platform_outcome) ===")
+    print(raw_event)
+
+    outcome = map_platform_outcome(raw_event)
+    if not outcome:
+        return jsonify({"status": "ignored"}), 200
+
+    fields = map_platform_fields(raw_event)
+    report_order_outcome(fields.get("customer_id"), outcome, str(raw_event.get("id", "")) or None,
+                          fields.get("customer_name"), fields.get("billing_country"), fields.get("billing_city"))
+    return jsonify({"status": "ok", "outcome": outcome}), 200
 
 
 @app.route("/webhooks/generic/order-created", methods=["POST"])
@@ -152,6 +232,9 @@ def generic_order_webhook():
     except Exception as e:
         print(f"MeraFraud call failed: {e}")
         return jsonify({"status": "error_but_ok"}), 200  # fail open, don't break the platform's webhook retry logic
+
+    report_order_outcome(payload.get("customer_id"), "placed", str(raw_order.get("id", "")) or None,
+                          payload.get("customer_name"), payload.get("billing_country"), payload.get("billing_city"))
 
     level = result.get("risk_level")
     if level == "block":

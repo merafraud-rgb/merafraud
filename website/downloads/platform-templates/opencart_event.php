@@ -121,8 +121,10 @@ class ModelExtensionEventMerafraud extends Model
             ),
             'express_shipping' => 0,
             'customer_id' => $order['email'] ?? ('guest-' . $order_id),
+            'customer_name' => trim(($order['payment_firstname'] ?? '') . ' ' . ($order['payment_lastname'] ?? '')) ?: null,
             'customer_ip' => $order['ip'] ?? '',
             'billing_country' => $order['payment_iso_code_2'] ?? null,
+            'billing_city' => $order['payment_city'] ?? null,
         ];
         $payload = array_filter($payload, static function ($v) {
             return $v !== null;
@@ -152,5 +154,20 @@ class ModelExtensionEventMerafraud extends Model
         } elseif ($result['risk_level'] === 'review') {
             $this->model_checkout_order->addHistory($order_id, /* status_id */ 16, 'MeraFraud: flagged for review — ' . implode('; ', $result['reasons']));
         }
+
+        // OPTIONAL FOLLOW-UP: this method only scores the order at creation.
+        // To feed cancellations back into MeraFraud's per-customer history
+        // (so customer_history.py can flag serial cancellers), hook this
+        // same class's another method to OpenCart's order-status-change
+        // event (commonly `admin/model/checkout/order/addHistory/after` —
+        // confirm the exact name in System > Maintenance > Event on your
+        // version) and, when the new status_id matches YOUR store's
+        // "Cancelled"/"Refunded" status, POST to /api/orders/outcome with
+        // {"customer_id": ..., "outcome": "cancelled", "order_id": $order_id,
+        // "customer_name": ..., "billing_country": ..., "billing_city": ...}.
+        // Not wired up here because OpenCart's status IDs are store-specific
+        // (see the comment above `$result['risk_level']`) — see
+        // prestashop_module.php for a fully worked reference implementation
+        // of the same pattern using PrestaShop's stable status constants.
     }
 }

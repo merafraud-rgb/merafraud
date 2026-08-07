@@ -177,6 +177,7 @@ Body:
           <table class="field-table">
             <tr><th data-i18n="th_field">Field</th><th data-i18n="th_unlocks">What it unlocks</th></tr>
             <tr><td><code>customer_id</code></td><td data-i18n="opt_customer_id">Tracks repeat-cancellation behavior per customer over time</td></tr>
+            <tr><td><code>customer_name</code></td><td data-i18n="opt_customer_name">Shows a name (not just an ID) when you look up a customer's history in Settings</td></tr>
             <tr><td><code>customer_ip</code></td><td data-i18n="opt_customer_ip">Detects proxy/VPN/datacenter IPs and IP-vs-billing-country mismatches</td></tr>
             <tr><td><code>customer_phone</code></td><td data-i18n="opt_customer_phone">Flags malformed/fake-looking phone numbers</td></tr>
             <tr><td><code>card_bin</code></td><td data-i18n="opt_card_bin">First 6–8 digits of the card only (never the full number) — flags card-country vs. billing-country mismatches</td></tr>
@@ -196,7 +197,10 @@ Body:
 {
   "customer_id": "customer@example.com",
   "outcome": "fulfilled",
-  "order_id": "1234"
+  "order_id": "1234",
+  "customer_name": "Jane Doe",
+  "billing_country": "TR",
+  "billing_city": "Istanbul"
 }</pre>
           <p data-i18n="qs5_p2" style="margin-top:8px;"><code>outcome</code> is one of <code>placed</code>, <code>cancelled</code>, <code>fulfilled</code>.</p>
         </div>
@@ -286,6 +290,7 @@ Body:
       qs4_p:"None of these are required, but each one you add turns on an extra fraud-detection signal:",
       th_field:"Field", th_unlocks:"What it unlocks",
       opt_customer_id:"Tracks repeat-cancellation behavior per customer over time",
+      opt_customer_name:"Shows a name (not just an ID) when you look up a customer's history in Settings",
       opt_customer_ip:"Detects proxy/VPN/datacenter IPs and IP-vs-billing-country mismatches",
       opt_customer_phone:"Flags malformed/fake-looking phone numbers",
       opt_card_bin:"First 6–8 digits of the card only (never the full number) — flags card-country vs. billing-country mismatches",
@@ -323,6 +328,7 @@ Body:
       qs4_p:"Bunların hiçbiri zorunlu değil, ama eklediğiniz her biri ekstra bir dolandırıcılık tespit sinyali açar:",
       th_field:"Alan", th_unlocks:"Neyi açar",
       opt_customer_id:"Zaman içinde müşteri başına tekrarlayan iptal davranışını takip eder",
+      opt_customer_name:"Settings'te müşteri geçmişine baktığında sadece ID değil, bir isim de gösterir",
       opt_customer_ip:"Proxy/VPN/veri merkezi IP'lerini ve IP-fatura ülkesi uyuşmazlıklarını tespit eder",
       opt_customer_phone:"Hatalı biçimli/sahte görünen telefon numaralarını işaretler",
       opt_card_bin:"Kartın sadece ilk 6-8 hanesi (asla tam numara değil) — kart ülkesi ile fatura ülkesi uyuşmazlığını işaretler",
@@ -360,6 +366,7 @@ Body:
       qs4_p:"Keines davon ist erforderlich, aber jedes, das Sie hinzufügen, schaltet ein zusätzliches Betrugserkennungssignal frei:",
       th_field:"Feld", th_unlocks:"Was es freischaltet",
       opt_customer_id:"Verfolgt wiederholtes Stornierungsverhalten pro Kunde über die Zeit",
+      opt_customer_name:"Zeigt einen Namen (nicht nur eine ID) an, wenn Sie den Kundenverlauf in den Einstellungen nachschlagen",
       opt_customer_ip:"Erkennt Proxy-/VPN-/Rechenzentrums-IPs und IP-vs-Rechnungsland-Abweichungen",
       opt_customer_phone:"Kennzeichnet fehlerhaft formatierte/gefälscht wirkende Telefonnummern",
       opt_card_bin:"Nur die ersten 6–8 Ziffern der Karte (nie die vollständige Nummer) — kennzeichnet Karten-Land-vs-Rechnungsland-Abweichungen",
@@ -397,6 +404,7 @@ Body:
       qs4_p:"Aucun de ces champs n'est requis, mais chacun que vous ajoutez active un signal supplémentaire de détection de fraude :",
       th_field:"Champ", th_unlocks:"Ce qu'il débloque",
       opt_customer_id:"Suit le comportement d'annulations répétées par client au fil du temps",
+      opt_customer_name:"Affiche un nom (pas seulement un ID) lorsque vous consultez l'historique d'un client dans les Paramètres",
       opt_customer_ip:"Détecte les IP proxy/VPN/datacenter et les incohérences IP-pays de facturation",
       opt_customer_phone:"Signale les numéros de téléphone mal formés ou d'apparence fausse",
       opt_card_bin:"Seulement les 6 à 8 premiers chiffres de la carte (jamais le numéro complet) — signale les incohérences pays de la carte / pays de facturation",
@@ -434,6 +442,7 @@ Body:
       qs4_p:"Ninguno de estos es obligatorio, pero cada uno que añadas activa una señal extra de detección de fraude:",
       th_field:"Campo", th_unlocks:"Qué desbloquea",
       opt_customer_id:"Rastrea el comportamiento de cancelaciones repetidas por cliente a lo largo del tiempo",
+      opt_customer_name:"Muestra un nombre (no solo un ID) al consultar el historial de un cliente en Configuración",
       opt_customer_ip:"Detecta IPs de proxy/VPN/centro de datos y discrepancias IP-vs-país de facturación",
       opt_customer_phone:"Marca números de teléfono mal formados o de aspecto falso",
       opt_card_bin:"Solo los primeros 6–8 dígitos de la tarjeta (nunca el número completo) — marca discrepancias entre el país de la tarjeta y el de facturación",

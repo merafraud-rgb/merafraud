@@ -336,6 +336,7 @@ def predict():
     card_bin = payload.get("card_bin")
     postal_code = payload.get("postal_code")
     billing_city = payload.get("billing_city")
+    customer_name = payload.get("customer_name")  # optional — see customer_history.touch_customer_profile
 
     # 1) Customer order/cancellation history (existing)
     customer_risk = None
@@ -393,7 +394,12 @@ def predict():
     # fire real block alerts for fake data.
     if g.api_mode == "live":
         tenant_store.record_usage(g.tenant["id"], level)
-        transaction_log.log_transaction(g.tenant["id"], row, score, level, customer_id)
+        transaction_log.log_transaction(g.tenant["id"], row, score, level, customer_id,
+                                         customer_name=customer_name, billing_country=billing_country,
+                                         billing_city=billing_city)
+        if customer_id:
+            customer_history.touch_customer_profile(g.tenant["id"], str(customer_id),
+                                                      customer_name, billing_country, billing_city)
 
         if level == "block" and g.tenant.get("email"):
             email_service.send_fraud_alert_email(
@@ -865,13 +871,18 @@ def report_order_outcome():
     customer_id = payload.get("customer_id")
     outcome = payload.get("outcome")
     order_id = payload.get("order_id")
+    customer_name = payload.get("customer_name")
+    billing_country = payload.get("billing_country")
+    billing_city = payload.get("billing_city")
 
     if not customer_id or not outcome:
         return jsonify({"error": "'customer_id' and 'outcome' fields are required"}), 400
     if outcome not in ("placed", "cancelled", "fulfilled"):
         return jsonify({"error": "'outcome' must be one of: placed, cancelled, fulfilled"}), 400
 
-    updated = customer_history.record_order_outcome(g.tenant["id"], str(customer_id), outcome, order_id)
+    updated = customer_history.record_order_outcome(
+        g.tenant["id"], str(customer_id), outcome, order_id,
+        customer_name=customer_name, billing_country=billing_country, billing_city=billing_city)
     return jsonify(updated)
 
 
